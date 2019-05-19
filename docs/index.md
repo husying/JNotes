@@ -1,39 +1,89 @@
-## Welcome to GitHub Pages
+# Job-Notes
 
-[跳转](https://github.com/hsy-nfox/Job-Notes/blob/master/README.md)
+每一个Java程序员必须所掌握的基础知识  <https://hsy-nfox.github.io/Job-Notes/>
 
-You can use the [editor on GitHub](https://github.com/hsy-nfox/TTc/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+| Java                                        | 算法              | 数据库                  | Web                        | 分布式                       | 缓存                    | 队列                    | Linux                    | 常用技术                    | 常见项目                |
+| ------------------------------------------- | ----------------- | ----------------------- | -------------------------- | ---------------------------- | ----------------------- | ----------------------- | ------------------------ | --------------------------- | ----------------------- |
+| [:bullettrain_side:](#bullettrain_sideJava) | [:art:](#art算法) | [:books:](#books数据库) | [:airplane:](#airplaneWeb) | [:rainbow:](#rainbow分布式 ) | [:guitar:](#guitar缓存) | [:rocket:](#rocket队列) | [:anchor:](#anchorLinux) | [:pencil:](#pencil常用技术) | [:bird:](#bird常见项目) |
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+# :bullettrain_side:Java
 
-```markdown
-Syntax highlighted code block
+* [Java 基础](./interview/java/Java基础.md)
+* [Java 集合]()
+* [Java 并发]()
+* [Java JVM]()
+* [Java I/O]()
+* [Java JDBC]()
+* [Java 设计模式]()
+* [代码风格](https://github.com/alibaba/p3c/blob/master/阿里巴巴Java开发手册（详尽版）.pdf)
 
-# Header 1
-## Header 2
-### Header 3
+# :art:算法
 
-- Bulleted
-- List
+* [Java 数据结构]()
+* [排序算法]()
+* [查询算法]()
+* [加密算法]()
 
-1. Numbered
-2. List
+# :books:数据库
 
-**Bold** and _Italic_ and `Code` text
+* [MySQL]()
 
-[Link](url) and ![Image](src)
-```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
-### Jekyll Themes
+# :airplane:Web
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/hsy-nfox/TTc/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+* [Servlet]()
+* [Spring 系列]()
+* [Mybatis]()
+* [Shiro]()
+* [Tomcat]()
+* [Jetty]()
+* [Jenkins]()
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+
+# :rainbow:分布式微服务
+
+* [SpringCloud]()
+* [ZooKeeper]()
+* [Dubbo]()
+* [Nginx]()
+
+
+
+# :guitar:缓存
+
+* [Redis]()
+
+* [MongoDB]()
+
+  
+
+# :rocket:队列
+
+* [RabbitMQ]()
+* [Kafka]()
+
+# :anchor:Linux
+
+* [linux]()
+
+
+
+# :pencil:常用技术
+
+* [POI Excel]()
+* [分布式事务]()
+* [分布式唯一ID]()
+
+# :bird:常见项目
+
+* [秒杀系统]()
+* [支付系统]()
+* [分布式调度系统]()
+* [分布式日志系统]()
+
+
+
