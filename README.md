@@ -4,7 +4,7 @@
 
 | Java | 算法 | 数据库 | Web | 分布式 | 缓存 | 队列 | Linux | 常用技术 | 常见项目 |
 | ---- | ---- | ---- | ------- | ------ | ---- | ---- | -------- | -------- | -------- |
-| [:bullettrain_side:](#bullettrain_side-Java) | [:art:](#art-算法) | [:books:](#books-数据库) |[:airplane:](#airplane-Web) | [:rainbow:](#rainbow-分布式 ) | [:guitar:](#guitar-缓存) | [:rocket:](#rocket-队列) | [:anchor:](#Linux) | [:pencil:](#pencil-常用技术) | [:bird:](#bird-常见项目) |
+| [:bullettrain_side:](#bullettrain_side-Java) | [:art:](#art-算法) | [:books:](#books-数据库) |[:airplane:](#airplane-Web) | [:rainbow:](#rainbow-分布式 ) | [:guitar:](#guitar-缓存) | [:rocket:](#rocket-队列) | [:anchor:](#anchorLinux) | [:pencil:](#pencil-常用技术) | [:bird:](#bird-常见项目) |
 
 
 
