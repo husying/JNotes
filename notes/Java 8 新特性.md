@@ -1,116 +1,8 @@
 # Java 8 新特性
 
-## 1、函数式接口
+# Lambda表达式
 
-函数式接口就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口
-
-函数式接口可以被隐式转换为 lambda 表达式
-
-```java
-@FunctionalInterface
-interface IMath {
-	int operation(int a, int b);
-}
-
-class Add implements IMath {
-	@Override
-	public int operation(int a, int b) {
-		return a + b;
-	}
-}
-
-public class Test {
-	public static void main(String[] args) {
-		IMath m1 = new Add();
-		int sum = m1.operation(1, 2);
-		System.out.println(sum);
-
-		IMath m2 = (a, b) -> a + b;
-		m2.operation(1, 2);
-		System.out.println(sum);
-
-	}
-}
-```
-
-有上面代码可以看出，函数式接口就是一 Lambda  进行接口实现
-
-将 Add 类的`operation`实现，转化成了`(a, b) -> a + b`
-
-
-
-当在 IMath 接口中在定义一个 appden 的方法，如下：
-
-```java
-@FunctionalInterface
-interface IMath {
-	int operation(int a, int b);
-	String appden(String key);
-}
-```
-
-此时，无法用 `IMath m2 = (a, b) -> a + b;`来表示
-
-因此：函数式接口就是 **有且只有一个抽象方法**
-
-
-
-**常用函数式接口**
-
-```java
-Predicate<T>#test(T t)   //接受一个输入参数，返回true / false
-Supplier<T>#get()		 //返回一个结果
-Consumer<T>#accept(T t)  //接受一个输入参数并且无返回的操作   
-Function<T,R>#apply(T t) //将此函数应用于给定的参数 T 表示输入参数，R 表示返回参数
-
-```
-
-
-
-Consumer<T>#**andThen**(Consumer<? super T > after)
-
-```java
-public static void printInfo(String[] strArr, Consumer<String> con1, Consumer<String> con2){
-		 
-        for (int i = 0; i < strArr.length; i++) {
-            con1.accept(strArr[i]);
-            con2.accept(strArr[i]);
-            //上两行代码等同下一行， 这就是 andThen 方法的作用
-            con1.andThen(con2).accept(strArr[i]);
-        }
- 
-    }
- 
-    public static void main(String[] args) {
-        String[] strArr = {"迪丽热巴,女","郑爽,女","杨紫,女"};
-        printInfo(strArr,(message)->{
-            System.out.print("姓名:" + message.split(",")[0] + "。  ");
-        },(message)->{
-            System.out.println("性别:" + message.split(",")[1] + "。");
- 
-        });
-    }
-```
-
-
-
-**参考资料：**
-
-[Java 8 函数式接口 | 菜鸟教程](https://www.runoob.com/java/java8-functional-interfaces.html)
-
----
-
-
-
-## 2、方法引用
-
-方法引用使用一对冒号 **`::`**
-
-
-
-## 3、Lambda表达式
-
-### 语法
+语法
 
 ```java
 (parameters) -> expression
@@ -146,7 +38,7 @@ x -> 2 * x
 
 
 
-### 实战使用
+实战使用
 
 ```java
  List<String> lst = Arrays.asList("bb", "aa", "dd", "cc", "ee");
@@ -162,17 +54,25 @@ Collections.sort(lst,
 );
 ```
 
-参考资料：
-
-[Java 8 Lambda 表达式 | 菜鸟教程](https://www.runoob.com/java/java8-lambda-expressions.html)
 
 
 
-## 4、Optional 类
+
+# 方法引用
+
+方法引用使用一对冒号 **`::`**
+
+```java 
+.forEach(p -> System.out.println(p))  == .forEach(System.out::println)
+```
+
+
+
+# Optional
 
 Optional 类的引入很好的解决空指针异常。
 
-### 常用方法
+## 常用方法
 
 ```java
 //创建Optional对象，
@@ -189,9 +89,9 @@ Optional.empty() //创建空的 Optional 对象：
 boolean  isPresent() //判断值是否存在
 void ifPresent(Consumer consumer) //值存在，调用consumer对象，否则不调用
 T orElse(T other)  //值存在，返回值， 否则返回 other。
-T orElseGet(Supplier supplier)  //功能与orElse一样
+T orElseGet(Supplier supplier)  //值存在，返回值， 否则返回 other。并返回 other 调用的结果
 T orElseThrow()//值存在，返回值，则抛出异常， 
-filter(Predicate) //判断Optional对象中保存的值是否满足Predicate，并返回新的Optional
+filter(Predicate) //判断Optional对象中保存的值是否满足函数Predicate 运算 ，并返回新的Optional
 map(Function<? super T,? extends U> mapper)  //如果有值，进行函数运算，并返回新的Optional(可以是任何类型)
 flatMap(Function<? super T,Optional<U>> mapper)//功能与map()相似,如果值存在，返回基于Optional包含的映射方法的值，否则返回一个空的Optional
 ```
@@ -200,11 +100,9 @@ flatMap方法与map方法类似，区别：
 
 在于mapping函数的返回值不同：flatMap方法的mapping函数返回值必须是Optional， map 可以是任何类型T
 
-参考资料：https://blog.csdn.net/csdn9988680/article/details/80816457
 
 
-
-### 实战使用
+**实战使用**
 
 1、简单判断处理
 
@@ -311,3 +209,303 @@ public void userDoSomething(int userId) {
 }
 ```
 
+
+
+# Stream 
+
+* **作用**：提供一种对 Java 集合运算和表达的高阶抽象。
+
+* **数据源** 流的来源。 可以是集合，数组，I/O channel， 产生器generator 等。
+* **聚合操作** 类似SQL语句一样的操作， 比如filter, map, reduce, find, match, sorted等。
+
+特征：
+
+* **Pipelining**: 中间操作都会返回流对象本身
+* **内部迭代**：
+
+
+
+## 常用方法
+
+```java
+stream() //为集合创建  串行流。
+parallelStream() //为集合创建  并行流。
+forEach() //迭代
+map()  //获取每个元素到对应的结果
+filter() //用于过滤出元素
+limit  //imit 方法用于获取指定数量的流
+sorted() // 排序，自然序
+```
+
+ 
+
+### 1、parallelStream
+
+```java
+//100条数据 循环打印测试
+List<Integer> list = new ArrayList();
+for (int j = 0; j < 100; j++) {
+    list.add(j);
+}
+// 统计并行执行list的线程
+Set<Thread> threadSet = new HashSet<>();
+// 并行执行
+list.parallelStream().forEach(integer -> {
+    Thread thread = Thread.currentThread();
+    // 统计并行执行list的线程
+    threadSet.add(thread);
+});
+System.out.println("threadSet一共有" + threadSet.size() + "个线程");
+System.out.println(list.toString());
+```
+
+### 2、map 和 forEach
+
+```java
+<R> Stream<R> map(Function<? super T, ? extends R> mapper);
+void forEach(Consumer<? super T> action);
+```
+
+map 将 每个Entity 替换成了函数结果，成了一个新的 Stream 对象
+
+如下：
+
+```java
+List<Person> list = new ArrayList<>();
+list.add(new Person("AAA"));
+list.add(new Person("BBB"));
+
+list.stream().forEach(p -> System.out.println(p));
+list.stream().map(s -> s.getName()).forEach(p -> System.out.println(p));
+
+//输出
+com.hsy.demo.Person@87aac27
+com.hsy.demo.Person@3e3abc88
+AAA
+BBB
+```
+
+### 3、filter
+
+filter 方法用于通过设置的条件过滤出元素。
+
+```java
+Stream<T> filter(Predicate<? super T> predicate);
+```
+
+如下:
+
+```java
+List<String>strings = Arrays.asList("abc", "", "bc", "efg", "abcd","", "jkl");
+// 输出 字符 a 为前缀的 字符串
+strings.stream().filter(string -> string.startsWith("a"))
+	.forEach(System.out::println));
+
+//输出
+abc
+abcd
+```
+
+### 4、sort
+
+```java
+Stream<T> sorted();
+Stream<T> sorted(Comparator<? super T> comparator);
+```
+
+
+
+# 函数式接口
+
+函数式接口就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口
+
+函数式接口可以被隐式转换为 lambda 表达式
+
+```java
+@FunctionalInterface
+interface IMath {
+	int operation(int a, int b);
+}
+
+class Add implements IMath {
+	@Override
+	public int operation(int a, int b) {
+		return a + b;
+	}
+}
+
+public class Test {
+	public static void main(String[] args) {
+		IMath m1 = new Add();
+		int sum = m1.operation(1, 2);
+		System.out.println(sum);
+
+		IMath m2 = (a, b) -> a + b;
+		m2.operation(1, 2);
+		System.out.println(sum);
+
+	}
+}
+```
+
+有上面代码可以看出，函数式接口就是一 Lambda  进行接口实现
+
+将 Add 类的`operation`实现，转化成了`(a, b) -> a + b`
+
+
+
+当在 IMath 接口中在定义一个 appden 的方法，如下：
+
+```java
+@FunctionalInterface
+interface IMath {
+	int operation(int a, int b);
+	String appden(String key);
+}
+```
+
+此时，无法用 `IMath m2 = (a, b) -> a + b;`来表示
+
+因此：函数式接口就是 **有且只有一个抽象方法**
+
+
+
+## 常用接口
+
+```java
+Consumer< T >		接收T对象，不返回值
+Predicate< T >		接收T对象，返回boolean
+Function< T, R >	接收T对象，返回R对象
+Supplier< T >		提供T对象（例如工厂），不接收值name
+```
+常用：
+```java
+Predicate<T>#test(T t)   //接受一个输入参数，返回true / false
+Supplier<T>#get()		 //返回一个结果
+Consumer<T>#accept(T t)  //接受一个输入参数并且无返回的操作   
+Function<T,R>#apply(T t) //将此函数应用于给定的参数  T 表示输入参数，R 表示返回参数
+```
+
+
+
+
+### 1、Predicate
+
+感觉这函数不怎么常用啊，听说主要用于断言
+
+```java
+//返回一个组合的谓词，表示该谓词与另一个谓词的短路逻辑AND。
+default Predicate<T>	and(Predicate<? super T> other)
+//返回根据 Objects.equals(Object, Object)测试两个参数是否相等的 谓词 。
+static <T> Predicate<T>	isEqual(Object targetRef)
+//返回表示此谓词的逻辑否定的谓词。
+default Predicate<T>	negate()
+//返回一个组合的谓词，表示该谓词与另一个谓词的短路逻辑或。
+default Predicate<T>	or(Predicate<? super T> other)
+//在给定的参数上评估这个谓词。
+boolean	test(T t)
+```
+
+### 2、Supplier
+
+```java
+T  get() //获得结果。
+```
+
+这个接口，只是为我们提供了一个创建好的对象，这也符号接口的语义的定义
+
+```java
+Supplier<String> supplier = String::new;
+```
+
+
+
+### 3、Consumer
+
+```java
+void	accept(T t)	//对给定的参数执行此操作。
+default Consumer<T>	andThen(Consumer<? super T> after) //返回一个组合的 Consumer ，按顺序执行该操作，然后执行 after操作
+```
+
+实践如下：
+
+```java
+public static void printInfo(String[] strArr, Consumer<String> con1, Consumer<String> con2){
+    for (String str : strArr) {
+        con1.accept(str);
+        con2.accept(str);
+        //上两行代码等同下一行， 这就是 andThen 方法的作用
+        //con1.andThen(con2).accept(strArr[i]);
+    }
+}
+
+public static void main(String[] args) {
+    String[] strArr = {"热巴,女","郑爽,女","杨紫,女"};
+    printInfo(strArr
+        ,(message)->{System.out.print("姓名:" + message.split(",")[0] +",");}
+        ,(message)->{System.out.println("性别:" + message.split(",")[1]);}
+   );
+}
+```
+
+
+
+------
+
+### 4、Function
+
+Consumer 是对传入的参数做一个 void 操作，
+
+Function 则是对传入的参数做相应的处理，返回一个定义的类型。
+
+```java
+R apply(T t)	//将此函数应用于给定的参数。
+static <T> Function<T,T> identity() 	//返回一个总是返回其输入参数的函数。
+<V> Function<V,R> compose(Function<? super V,? extends T> before)
+//返回一个组合函数，先执行before操作，然后执行该操作。
+<V> Function<T,V> andThen(Function<? super R,? extends V> after)
+//返回一个组合函数，按顺序执行该操作，然后执行 after操作
+
+```
+
+**apply**
+
+Function 执行的入口是 apple 接口
+
+**compose 比较 andThen**
+
+```java
+public static void main(String[] args) {
+    System.out.println(Test.option1(5,i -> i * 2,i -> i * i));
+    System.out.println(Test.option2(5,i -> i * 2,i -> i * i));
+}
+
+public static int option1(int i, Function<Integer,Integer> before,Function<Integer,Integer> after){
+    return before.compose(after).apply(i);
+}
+
+public static int option2(int i, Function<Integer,Integer> before,Function<Integer,Integer> after){
+    return before.andThen(after).apply(i);
+}
+//输出
+50
+100
+```
+
+由上可以看出
+
+A.compose(B)   //  是先执行 B 再执行 A
+
+A.andThen(B)   //  是先执行 A 再执行 B
+
+
+
+
+
+
+
+---
+
+**资料参考：**
+
+[Java 8 新特性 | 菜鸟教程](https://www.runoob.com/java/java8-new-features.html)
