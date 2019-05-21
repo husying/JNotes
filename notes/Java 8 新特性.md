@@ -406,6 +406,27 @@ default Predicate<T>	or(Predicate<? super T> other)
 boolean	test(T t)
 ```
 
+**test**
+
+```java
+ 
+public static void eval(List<Integer> list, Predicate<Integer> predicate) {
+    for(Integer i: list) {
+        if(predicate.test(i)) {
+            System.out.println(i + " ");
+        }
+    }
+}
+public static void main(String args[]){
+    List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    System.out.println("输出大于 3 的所有数字:");
+    eval(list, n-> n > 3 );
+}
+
+```
+
+
+
 ### 2、Supplier
 
 ```java
