@@ -13,6 +13,19 @@
 
 **运行时多态有三个条件**：继承、覆盖（重写）、向上转型（父类引用指向子类对象）
 
+**多态性体现**：方法重载、方法重写、抽象类、接口
+
+
+
+**方法重载和重写区别**
+
+* 重写0veriding：**发生在继承类中，方法名和参数列表相同**
+  * **重写有以下三个限制：**
+  * 子类方法的访问权限必须大于等于父类方法；
+  * 子类方法的返回类型必须是父类方法返回类型或为其子类型。
+  * 子类方法抛出的异常类型必须是父类抛出异常类型或为其子类型。
+* 重载Overloading：**发生在同一个类中，方法名相同，参数列表不同（个数、类型、顺序），与权限修饰、返回值类型、抛出异常无关**
+
 ## 2、类图
 
 在UML类图中，常见的有以下几种关系: **泛化**（Generalization）, **实现**（Realization），**关联**（Association)**，聚合**（Aggregation），**组合**(Composition)，**依赖**(Dependency)
@@ -105,6 +118,110 @@ protected 用于修饰成员，表示在继承体系中成员对于子类可见�
 * 成员变量只能被对象调用。随着对象创建而存在，随对象销毁而销毁。存在于**堆栈内存中**
 * 局部变量在方法或语句块中申明的变量，生命周期只在定义的{}之中，不能跨方法或语句块使用。
 * 成员变量可以称为对象的特有数据，**静态变量称为对象的共享数据**
+
+---
+
+## 4、抽象和接口
+
+### 1> 抽象类
+
+* 使用 `abstract` 关键字修饰的类，不能被实例化，需要继承抽象类才能实例化其子类。
+
+* 含有抽象方法的类必须定义为抽象类，抽象类可以没有抽象方法
+* 类名可以声明为：`public/private/protected + abstract + class + 类名`
+* 抽象方法访问权限不能为 private
+* 抽象类可以由构造方法，非抽象的普通成员变量、普通方法、静态成员变量、静态方法
+
+```java
+public abstract  class  MyAbstract {
+	public String name="小米";
+	private static int price= 1800;
+	
+	MyAbstract(String name){
+		this.name = name;
+	}
+	
+	public void test() {
+		System.out.println(name);
+	}
+	public static void fun() {
+		System.out.println(price);
+	}
+	public abstract void print();//权限不能为 private
+}
+```
+
+### 2> 接口
+
+* 接口是抽象类的延伸，在 Java 8 之前，它可以看成是一个完全抽象的类
+* 接口的方法访问权限只能为 `public `，Java 8可以为`default`，但是必须有方法体
+* 接口的方法默认`public abstract` 也可以由 static 修饰
+* 接口的方法可以定义为 `public static` ，但是必须有方法体，且只能有接口类名调用
+* 成员变量默认`public staic final`
+
+
+
+Java 8 开始，接口也可以拥有`default`的方法实现，是因为不支持默认方法的接口的维护成本太高
+
+```java
+public interface  MyInterface {
+	int price= 1800;
+	
+    void outName();
+    default void print() {
+        System.out.println("default");
+    }
+    
+	public static void fun()  {
+		System.out.println(price);
+	}	
+}
+public class MyInterfaceImpl implements MyInterface {
+	@Override
+	public void outName() {
+		 System.out.println("I'm a MyInterfaceImpl");
+	}
+}
+public static void main(String[] args) {
+		MyInterface  my = new  MyInterfaceImpl();
+		my.outName();
+		my.print();
+		MyInterface.fun(); // my.fun() 提示错误
+    	//MyInterfaceImpl.fun();//  实现类类名调用 提示错误
+    }
+
+```
+
+
+
+---
+
+### 3> 抽象类和接口的区别
+
+* 抽象类和接口都不能直接实例化；抽象方法必须由子类来进行重写
+
+* 抽象类单继承，接口多实现
+
+* 抽象类可有构造方法，普通成员变量，非抽象的普通方法，静态方法
+
+* 抽象类的抽象方法访问权限可以为：public、protected 、default
+
+  
+
+* 接口中变量类型默认public staic final，
+
+* 接口中普通方法默认public abstract，没有具体实现
+
+* jdk1.8 中接口可有**静态方法和default（有方法体）方法**
+
+
+
+**应用场合**
+
+* 接口：需要将一组类视为单一的类，而调用者只通过接口来与这组类发生联系。
+* 抽象类：1、在既需要统一的接口，又需要实例变量或缺省的方法的情况下就可以使用它；2、定义了一组接口，但又不想强迫每个实现类都必须实现所有的接口
+
+
 
 ---
 
@@ -329,59 +446,7 @@ new String(str.getBytes("ISO-8859-1"), "GBK");
 
 ---
 
-# 四、抽象和接口
-
-**1. 抽象类**
-
-抽象类和抽象方法都使用 abstract 关键字进行声明。如果一个类中包含抽象方法，那么这个类必须声明为抽象类。
-
-抽象类和普通类最大的区别是，抽象类不能被实例化，需要继承抽象类才能实例化其子类。
-
-**2. 接口**
-
-接口是抽象类的延伸，在 Java 8 之前，它可以看成是一个完全抽象的类，也就是说它不能有任何的方法实现。
-
-从 Java 8 开始，接口也可以拥有默认的方法实现，这是因为不支持默认方法的接口的维护成本太高了。在 Java 8 之前，如果一个接口想要添加新的方法，那么要修改所有实现了该接口的类。
-
-接口的成员（字段 + 方法）默认都是 public 的，并且不允许定义为 private 或者 protected。
-
-接口的字段默认都是 static 和 final 的。
-
-
-
-## 1、抽象类和接口的区别
-
-* 抽象类和接口都不能直接实例化；抽象方法必须由子类来进行重写
-* 抽象类单继承，接口多实现
-* 抽象类可有构造方法，普通成员变量，非抽象的普通方法，静态方法
-* 抽象类的抽象方法访问权限可以为：public、protected 、default
-* 接口中变量类型默认public staic final，接口中普通方法默认public abstract，没有具体实现
-  jdk1.8 中接口可有静态方法和default（有方法体）方法
-
-
-
-**应用场合**
-
-* 接口：需要将一组类视为单一的类，而调用者只通过接口来与这组类发生联系。
-* 抽象类：1、在既需要统一的接口，又需要实例变量或缺省的方法的情况下就可以使用它；2、定义了一组接口，但又不想强迫每个实现类都必须实现所有的接口
-
-## 2、方法重载和重写
-
-**多态性体现**：方法重载、方法重写、抽象类、接口
-
-* 重写0veriding：**发生在继承类中，方法名和参数列表相同**
-
-  * **重写有以下三个限制：**
-
-  * 子类方法的访问权限必须大于等于父类方法；
-  * 子类方法的返回类型必须是父类方法返回类型或为其子类型。
-  * 子类方法抛出的异常类型必须是父类抛出异常类型或为其子类型。
-
-* 重载Overloading：**发生在同一个类中，方法名相同，参数列表不同（个数、类型、顺序），与权限修饰、返回值类型、抛出异常无关**
-
----
-
-# 五、Object 通用方法
+# 四、Object 通用方法
 
 ## 1、概览
 
@@ -471,7 +536,7 @@ public class Test implements Cloneable {
 
 ---
 
-# 六、类加载和初始化
+# 五、类加载和初始化
 
 ## 1、类加载
 
@@ -649,7 +714,7 @@ count2=0
 
 ---
 
-# 七、运算
+# 六、运算
 
 ## 1、参数传递
 
@@ -1090,7 +1155,7 @@ case 4: j=4
 
 ---
 
-# 八、反射
+# 七、反射
 
 ## 1、反射定义和优缺点
 
@@ -1137,7 +1202,7 @@ Class 和 java.lang.reflect 一起对反射提供了支持，java.lang.reflect �
 
 ---
 
-# 九、异常
+# 八、异常
 
 异常主要分两大类：**Exception** 和**Error** ，他们都是继承了**Throwable**类
 
@@ -1174,13 +1239,13 @@ Class 和 java.lang.reflect 一起对反射提供了支持，java.lang.reflect �
 
 ---
 
-# 十、泛型
+# 九、泛型
 
 未整理，待更新
 
  [10 道 Java 泛型面试题](https://cloud.tencent.com/developer/article/1033693)
 
-# 十一、JSON和XML
+# 十、JSON和XML
 
 两者的区别
 
@@ -1360,7 +1425,7 @@ String memberXmlText=memberElm.asXML();
 
 
 
-# 十二、JDK 版本特性
+# 十一、JDK 版本特性
 
 ## 1、JDK 7 新特性
 
@@ -1374,9 +1439,7 @@ String memberXmlText=memberElm.asXML();
 
 ## 2、JDK 8 新特性
 
-参考：https://www.runoob.com/java/java8-lambda-expressions.html
-
-jdk 8 有十大新特性：
+Java 8 有十大新特性：
 
 - **Lambda 表达式**：允许把函数作为一个方法的参数
 - **方法引用**：可以直接引用已有Java类或对象（实例）的方法或构造器。与lambda联合使用，方法引用可以使语言的构造更紧凑简洁，减少冗余代码。
@@ -1390,3 +1453,4 @@ jdk 8 有十大新特性：
  JDK 8 的应用，可以使用 Instant 代替 Date ， LocalDateTime 代替 Calendar ，
 DateTimeFormatter 代替 SimpleDateFormat
 
+**资料参考** ：[Java 8 新特性 | 菜鸟教程](https://www.runoob.com/java/java8-new-features.html)
