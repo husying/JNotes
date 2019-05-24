@@ -567,9 +567,11 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
 
 ## 1、存储机制
 
-HashMap 以键值对方式存储，内部包含了一个 Node 类型的数组 table。
+HashMap 以键值对方式存储，**内部包含了一个 Node 类型的数组 table。**
 
-数组中的每个位置被当成一个桶，一个桶存放一个链表。当发生hash碰撞的时候，以链表的形式进行存储
+每个 Node 节点有4个属性：**hash、key、value 、next**
+
+数组中的每个位置被当成一个桶，一个桶存放一个链表。当发生 hash 碰撞的时候，以链表的形式进行存储
 
 ```java
 transient Node<K,V>[] table;
@@ -578,29 +580,29 @@ static class Node<K,V> implements Map.Entry<K,V> {
     final int hash;
     final K key;
     V value;
-    Node<K,V> next;
+    Node<K,V> next; 
 }
 ```
 
-### 1> Key 为 NULL 的原理
+### 1> Key 为空值原来
 
 计算key的hash值时，会判断是否为 NULL
 
 ```java
  static final int hash(Object key) {
-        int h;
-        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
-    }    
+     int h;
+     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+ }    
 ```
 
-### 2> hashCode的作用
+### 2> hashCode 作用
 
-* hash算法可以直接根据元素的hashCode值计算出该元素的存储位置从而快速定位该元素
+* hash 算法可以直接根据元素的 hashCode 值计算出该元素的存储位置从而快速定位该元素
 * 如果两个对象相同，就是适用于equals(java.lang.Object) 方法，那么这两个对象的hashCode一定要相同
 * **为什么不直接使用数组，还需要使用HashSet呢？**
   * 因为数组元素的索引是连续的，而数组的长度是固定的，无法自由增加数组的长度。而HashSet就不一样了，HashSet采用每个元素的hashCode值来计算其存储位置，从而可以自由增加长度，并可以根据元素的hashCode值来访问元素。
 
-### 3> Hash 碰撞
+### 3> Hash 碰撞处理
 
 * JDK7 中，当发生hash碰撞的时候，以链表的形式进行存储。
 * JDK8中**增加了黑红树**的使用。当一个hash碰撞的次数超过指定次数(常量8次)的时候，将转换为红黑树结构
@@ -617,9 +619,9 @@ static final int hash(Object key) {
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i;
     if ((tab = table) == null || (n = tab.length) == 0)
-        n = (tab = resize()).length;  // resize() 扩容
-    if ((p = tab[i = (n - 1) & hash]) == null)  // 判读是否发生 hash 碰撞
-        tab[i] = newNode(hash, key, value, null);	// 位发生 hash 碰撞，以数组存储
+        n = (tab = resize()).length;  //  集合大小为 0 时会初次扩容resize()
+    if ((p = tab[i = (n - 1) & hash]) == null)  // 判读是否发生 hash 碰撞，数组索引为 (n - 1) & hash  
+        tab[i] = newNode(hash, key, value, null);	// 不发生 hash 碰撞，以数组存储
     else {
         Node<K,V> e; K k;
         if (p.hash == hash && ((k = p.key) == key || (key != null && key.equals(k))))
@@ -627,12 +629,13 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
         else if (p instanceof TreeNode)  // 判读是否是树节点
             e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value); 	// 红黑树存储
         else {
+            // 链表插入 ----start
             for (int binCount = 0; ; ++binCount) {
                 if ((e = p.next) == null) {
                     p.next = newNode(hash, key, value, null);	// 链表存储
                     //  static final int TREEIFY_THRESHOLD = 8; 链表长度
                     if (binCount >= TREEIFY_THRESHOLD - 1) // 判读链表长度是否大于 8 
-                        treeifyBin(tab, hash);	// 转换 Node 节点为 TreeNode 节点
+                        treeifyBin(tab, hash);	//  转换 Node 节点为 TreeNode 节点
                     break;
                 }
                 if (e.hash == hash &&
@@ -640,6 +643,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
                     break;
                 p = e;
             }
+            // 链表插入 ----end
         }
         if (e != null) { // existing mapping for key
             V oldValue = e.value;
@@ -650,7 +654,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
         }
     }
     ++modCount;
-    if (++size > threshold)
+    if (++size > threshold) // 是否扩容判断，阀值threshold = 初始容量 * 负载因子
         resize();
     afterNodeInsertion(evict);
     return null;
@@ -697,12 +701,29 @@ TreeNode<K,V> replacementTreeNode(Node<K,V> p, Node<K,V> next) {
 
 **HashMap 是以当前容量的 1.5 倍增加。**
 
-**JDK 8 源码分析：**
+**JDK 8 源码分析**：
 
-* 判断当前容量，是否`> 0` 
-  * 判断是否超过集合最大容量(`>= MAXIMUM_CAPACITY` **2^30^-8** ) ，超过则设置 threshold = `Integer.MAX_VALUE`( **2^31^-1**) ，返回数据大小值，
-  * 否则，判断当前容量一半 **newCap**  是否在 `16< newCap < MAXIMUM_CAPACITY`  范围内，是则增加当前一半容量（`<< 1` 相当于除以 2 ）
-* 判断阀值： **threshold  = 初始容量 / 负载因子 * 增长因子**，增长因子(`默认 0.75`)
+- **初始容量**：`默认 16`
+- **负载因子**：`默认 0.75`
+- **初始阀值**：`初始容量 * 负载因子`  (16 * 0.75 = 12)
+- **扩容倍数**：`2 倍`
+- **容量范围**：`16 < 容量 < MAXIMUM_CAPACITY`（2^30^），超出默认为 `Integer.MAX_VALUE` ( 2^31^-1)
+
+
+
+**扩容步骤：**
+
+**第一步：**
+
+1. 如果：原容量大于 0 的情况下，
+   * 比较原容量是否超出`最大容量`，是设置**阀值**为 `Integer.MAX_VALUE`，并返回当前 哈希表 table
+   * 否则，设置**新容量为原来 2 倍 **，再判断此时新容量是否在`容量范围`中，是，则**新阀值为原来 2 倍**
+2. 如果：原容量等于 0 ，但阀值大于 0  的情况下， 设置**容量等于阀值**。 这种情况是在 new HashMap(0) 时，经tableSizeFor()计算得阀值会为 1。
+3. 在 1,2 不满足的情况下，直接**设置默认初始容量和阀值**
+
+**第二步**：在判断阀值是否为 0，是 ，则当前容量设置阀值为 **容量 * 负载因子** ，或者为 `Integer.MAX_VALUE`
+
+**第三步**：new 一个新的哈希表，复制数据到新哈希表
 
 ```java
 static final int MAXIMUM_CAPACITY = 1 << 30;  // 集合最大容量 
@@ -711,15 +732,18 @@ static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // 初始容量 16
 // 扩容方法
 final Node<K,V>[] resize() {
     Node<K,V>[] oldTab = table;
+    // oldCap 数组长度  oldThr 阀值
     int oldCap = (oldTab == null) ? 0 : oldTab.length;
-    int oldThr = threshold;
+    int oldThr = threshold;  
     int newCap, newThr = 0;
+    // 计算容量和阀值得大小 --- star
     if (oldCap > 0) {
         if (oldCap >= MAXIMUM_CAPACITY) {
             threshold = Integer.MAX_VALUE;
             return oldTab;
         }
-        // 扩容大小为 << 1 
+        // 扩容条件，扩容后的容量在 16 到 最大容量之间时
+        // 扩容大小为 << 1 ，2 倍 相等乘 2 
         else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                  oldCap >= DEFAULT_INITIAL_CAPACITY)
             newThr = oldThr << 1; // double threshold
@@ -735,6 +759,9 @@ final Node<K,V>[] resize() {
         newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
                   (int)ft : Integer.MAX_VALUE);
     }
+    // 计算容量和阀值得大小 --- end
+    
+    // 扩容，复制新数组---start
     threshold = newThr;
     @SuppressWarnings({"rawtypes","unchecked"})
     Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
@@ -781,6 +808,7 @@ final Node<K,V>[] resize() {
             }
         }
     }
+    // 扩容，复制新数组---end
     return newTab;
 }
 ```
@@ -796,6 +824,35 @@ final Node<K,V>[] resize() {
 1. 100/0.75 = 133.33。为了防止rehash，向上取整，为134。
 2. hash表的长度设为2的N次方： 128（2的7次方）<  134 <  256
 3. 所以 结果是256
+
+
+
+## 3、并发问题原理
+
+**线程不安全原因：**
+
+- HashMap多线程，put 时已被覆盖
+  - 两个线程在单链上插入同一个位置时会被覆盖
+- HashMap扩容易丢失数据
+  - 多个线程同时扩容时，最终只有最后一个线程生成的新数组被赋给table变量，其他线程的均会丢失。
+
+
+
+**HashMap 死循环原理**：
+
+transfer方法，（引入重点）这就是HashMap并发时，会引起死循环的根本原因所在
+
+[死循环参考](https://blog.csdn.net/zhuqiuhui/article/details/51849692)
+
+
+
+**线程安全解决方案**
+
+- **使用Hashtable 或者 Collections.synchronizedMap（list、set 等都有）**
+- 使用并发包提供的线程安全容器类
+  - 各种并发容器：比如**ConcurrentHashMap**、CopyOnWriteArrayList。
+  - 各种线程安全队列（Queue/Deque)，如ArrayBlockingQueue、synchronousQueue。
+  - 各种有序容器的线程安全版本。
 
 ## 3、遍历方式
 
