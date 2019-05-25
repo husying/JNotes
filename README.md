@@ -12,12 +12,12 @@
 
 * [Java 基础](./interview/java/Java基础.md)
 * [Java 集合](./interview/java/Java集合.md)
-* [Java 并发]()
-* [Java JVM]()
-* [Java I/O]()
-* [Java JDBC]()
+* [Java 并发](./interview/java/Java并发.md)
+* [Java JVM](./interview/java/JVM.md)
+* [Java I/O](./interview/java/IO.md)
+* [Java JDBC](./interview/java/JDBC.md)
 * [Java 设计模式]()
-* [代码风格](./interview/java/阿里巴巴Java开发手册（详尽版）.pdf)
+* [代码风格](./interview/java/books/阿里巴巴Java开发手册（详尽版）.pdf)
 
 # :art:算法
 
