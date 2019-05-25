@@ -1,6 +1,6 @@
 # Job-Notes
 
-每一个Java程序员必须所掌握的基础知识
+主要记录一下 JAVA 学习的一个心得，大部分内容都是笔者自己归纳整理的 。且笔者认为也是一个Java 程序员必须掌握的基础知识，其中包含java基础、集合、并发、算法、设计模式等，对于需要找工作，准备面试的人来说，也许是一份很好的参考。
 
 | Java | 算法 | 数据库 | Web | 分布式 | 缓存 | 队列 | Linux | 常用技术 | 常见项目 |
 | ---- | ---- | ---- | ------- | ------ | ---- | ---- | -------- | -------- | -------- |
@@ -11,13 +11,13 @@
 # :bullettrain_side:Java
 
 * [Java 基础](./interview/java/Java基础.md)
-* [Java 集合]()
+* [Java 集合](./interview/java/Java集合.md)
 * [Java 并发]()
 * [Java JVM]()
 * [Java I/O]()
 * [Java JDBC]()
 * [Java 设计模式]()
-* [代码风格](https://github.com/alibaba/p3c/blob/master/阿里巴巴Java开发手册（详尽版）.pdf)
+* [代码风格](./interview/java/阿里巴巴Java开发手册（详尽版）.pdf)
 
 # :art:算法
 
