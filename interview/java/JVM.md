@@ -859,5 +859,5 @@ JVM的GC日志的主要参数包括如下几个：
 
 # 参考资料
 
-*   [深入理解Java虚拟机：JVM高级特性与最佳实(最新第二版).pdf](./books/深入理解Java虚拟机：JVM高级特性与最佳实践（最新第二版）.pdf)
+*   深入理解Java虚拟机：JVM高级特性与最佳实(最新第二版).pdf；[链接](https://pan.baidu.com/s/10LMKF09HEzcUUz9peZwePQ) 提取码: tefc 
 *   [纯洁的微笑–Java 系列文章](http://www.ityouknow.com/java.html)
