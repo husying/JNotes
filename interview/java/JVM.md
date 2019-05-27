@@ -504,7 +504,7 @@ Hotspot： 使用直接指针进行对象访问
 
 *   缺点：效率不高，**产生大量不连续的内存碎片**
 
-![2019-05-25_221513](images/2019-05-25_221513.png)
+![2019-05-25_221513](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/2019-05-25_221513.png)
 
 ### 2> 复制算法
 
@@ -514,14 +514,14 @@ Hotspot： 使用直接指针进行对象访问
     *   **需要分配担保**：survivor空间不足时，需要老年代进行分配担保，来保证所有对象有存活的情况
     *   **gc过程简单，运行高效** ,不需要考虑内存碎片等复杂情况
 
-![2019-05-25_221529](images/2019-05-25_221529.png)
+![2019-05-25_221529](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/2019-05-25_221529.png)
 
 ### 3> 标记-整理算法
 
 *   **先标记，然后让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存**
 *   不会产生内存碎片
 
-![2019-05-25_221541](images/2019-05-25_221541.png)
+![2019-05-25_221541](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/2019-05-25_221541.png)
 
 ### 4> 分代收集算法
 
