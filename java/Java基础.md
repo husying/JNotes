@@ -1,5 +1,9 @@
 # JAVA基础
 
+
+
+![Java基础](../../static-resources/learning-notes-images/Java基础/Java基础.png)
+
 # 一、面向对象
 
 ## 1、封装、继承、多态

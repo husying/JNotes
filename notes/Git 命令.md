@@ -63,11 +63,72 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 ```
 
-主要是`Your branch is up to date with 'origin/master'.` 
+主要是`Your branch is up to date with 'origin/master'.`  这根本原因是版本分支的问题
 
-解决方式：
+**解决方式**
+
+这时候我们就需要新建一个分支
+
+```
+$ git branch newbranch  
+```
+
+然后检查分支是否创建成功
+
+```
+$ git branch 
+```
+
+会有如下提示（前面的*代表的是当前你所在的工作分支）
 
 
+
+然后切换到你的新分支
+
+```
+$ git checkout newbranch
+```
+
+如果不放心，还可以 $ git branch确认下
+
+然后将你的改动提交到新分支上
+
+```
+$ git add . 
+$ git commit -m "18.03.01"
+```
+
+然后`git status`检查是否成功
+
+
+
+然后切换到主分支
+
+```
+$ git checkout master 
+```
+
+然后将新分支提交的改动合并到主分支上
+
+```
+$ git merge newbranch  
+```
+
+然后就可以push代码了
+
+```
+$ git push -u origin master
+```
+
+最后还可以删除这个分支
+
+```
+$ git branch -D newbranch
+```
+
+
+
+----
 
 ### 冲突解决
 
