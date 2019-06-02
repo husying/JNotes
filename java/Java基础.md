@@ -244,6 +244,10 @@ short：-32768 ~ 32767
 
 JVM 会在编译时期将 boolean 类型的数据转换为 int，使用 1 来表示 true，0 表示 false。JVM 支持 boolean 数组，但是是通过读写 byte 数组来实现的
 
+
+
+
+
 ## 2、引用类型
 
 基本类型都有对应的包装类型，基本类型与其对应的包装类型之间的赋值使用自动装箱与拆箱完成。
@@ -321,6 +325,27 @@ public final class String implements java.io.Serializable, Comparable<String>, C
 
 value 数组被声明为 final，这意味着 value 数组初始化之后就不能再引用其它数组。并且 String 内部没有改变 value 数组的方法，因此可以保证 String 不可变。
 
+
+
+**编码与解码**
+
+如果编码和解码过程使用不同的编码方式那么就出现了乱码。
+
+*   GBK 编码中，中文字符占 2 个字节，英文字符占 1 个字节；
+*   UTF-8 编码中，中文字符占 3 个字节，英文字符占 1 个字节；
+*   UTF-16be 编码中，中文字符和英文字符都占 2 个字节。
+
+
+
+```java
+String str1 = "中文";
+byte[] bytes = str1.getBytes("UTF-8");
+String str2 = new String(bytes, "UTF-8");
+System.out.println(str2);
+```
+
+
+
 **String 不可变的好处**
 
 * **可以缓存 hash 值**：因为 String 的 hash 值经常被使用，例如 String 用做 HashMap 的 key。不可变的特性可以使得 hash 值也不可变，因此只需要进行一次计算。
@@ -341,7 +366,36 @@ value 数组被声明为 final，这意味着 value 数组初始化之后就不�
 
 
 
+**StringBuffer 和 StringBuilder 能大量操作字符的原理**
 
+在append是后，采用了`Arrays.copyOf（）` 进行了数组复制
+
+```java
+@Override
+public synchronized StringBuffer append(Object obj) {
+    toStringCache = null;
+    super.append(String.valueOf(obj));
+    return this;
+}
+
+// AbstractStringBuilder 类
+public AbstractStringBuilder append(String str) {
+    if (str == null)
+        return appendNull();
+    int len = str.length();
+    ensureCapacityInternal(count + len); // 采用复制方式增加数组长度
+    str.getChars(0, len, value, count);
+    count += len;
+    return this;
+}
+private void ensureCapacityInternal(int minimumCapacity) {
+        if (minimumCapacity - value.length > 0) {
+            value = Arrays.copyOf(value,
+                    newCapacity(minimumCapacity));
+        }
+    }
+
+```
 
 
 
@@ -545,6 +599,25 @@ public class Test implements Cloneable {
    
 }
 ```
+
+
+
+开发中常用的对象拷贝工具：
+
+例如DozerMapper、Apache BeanUtils、Spring、Jodd BeanUtils、甚至是Cglib 都提供了这样的功能
+
+选择Cglib的 **BeanCopier** 进行Bean拷贝的理由是，其性能要比 **Spring的BeanUtils **，**Apache的BeanUtils **和 **PropertyUtils** 要好很多，尤其是数据量比较大的情况下
+
+
+
+Cglib 的beans 包 操作
+
+*   BeanCopier：用于两个bean之间，同名属性间的拷贝。
+*   BulkBean：用于两个bean之间，自定义get&set方法间的拷贝。
+*   BeanMap：针对POJO Bean与Map对象间的拷贝。
+*   BeanGenerator：根据Map<String,Class>properties的属性定义，动态生成POJO Bean类。
+
+
 
 
 

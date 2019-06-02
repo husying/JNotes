@@ -1,4 +1,4 @@
-# 集合
+# 默认集合
 
 # 一、集合框架
 
@@ -6,11 +6,7 @@
 
 Java集合类存放于 java.util 包中，是一个用来存放对象的容器。
 
-* Collection：
-  * List：ArrayList、LinkedList、Vector（Stack）
-  * Set：HashSet、TreeSet
-  * Queue：Deque
-* Map：HashMap、TreeMap、LinkedHashMap
+![Java集合](../../static-resources/learning-notes-images/images/Java集合-1559390873399.png)
 
 
 
@@ -164,14 +160,24 @@ default void forEachRemaining ( Consumer < ? super E > action ) ;
 由于集合大多数是线程不安全的，可采用如下方式处理
 
 * 使用加锁机制：synchronized、Lock
-
 * 使用volalite修饰
 * 使用ThreadLocal对象
-* 使用java.util.concurrent 提供的并发集合对象，其提供了映射 、 有序集和队列的高效实现  **ConcurrentHashMap** 、**CopyOnWriteArrayList**、CopyOnWriteArraySet、ConcurrentSkipListMap（SkipList：跳表）、 ConcurrentSkipListSet 和 ConcurrentLinkedQueue
+* 使用集合工具类Collections，通过如下方法操作，常用有：
+    * `synchronizedCollection(Collection<T> c)`
+    * `synchronizedList(List<T> list)`
+    * `synchronizedMap(Map<K,V> m)`
+    * `synchronizedSet(Set<T> s)`
+* 使用 `java.util.concurrent` 提供的并发集合对象，其提供了映射 、 有序集和队列的高效实现 ，常用有：
+    * **ConcurrentHashMap**
+    * **CopyOnWriteArrayList**
+    * **CopyOnWriteArraySet**
+    * ConcurrentSkipListMap（SkipList：跳表）、 
+    * ConcurrentSkipListSet 
+    * ConcurrentLinkedQueue
 
 
 
-注释 ： 有些应用使用庞大的并发散列映射 ， 这些映射太过庞大 ， 以至于无法用 size 方法得到它的大小，因为这个方法只能返回 int。 对于一个包含超过20 亿条目的映射该如何处理 ？ **JavaSE 8 引入了一个 mappingCount 方法可以把大小作为 long 返回。**
+注释 ： 有些应用使用庞大的并发散列映射 ， 这些映射太过庞大 ， 以至于无法用 size 方法得到它的大小，因为这个方法只能返回 int。 对于一个包含超过20 亿条目的映射该如何处理  **JavaSE 8 引入了一个 mappingCount 方法可以把大小作为 long 返回。**
 
 
 
@@ -181,11 +187,36 @@ default void forEachRemaining ( Consumer < ? super E > action ) ;
 
 ## 1、存储机制
 
+底层使用 **数组** 实现。**默认长度 10** 
+
+因为写入或读取都是通过数组索引直接操作，所以：**允许为 null 值， 可以重复**
+
+因为数组特性：**有索引，访问速度快**。
+
 ```java 
-public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable{
+    private static final int DEFAULT_CAPACITY = 10;  // 默认大小为 10
+    transient Object[] elementData;  //  数组存储
+    private int size;
+}
 ```
 
-**ArrayList 底层使用`数组`存储；数组的默认大小为 `10`。排列有序，可重复，允许多个NULL1、访问效率快**。Vector 同理
+读取方法：访问速度快
+
+```java
+public E get(int index) {
+    rangeCheck(index);
+    return elementData(index);
+}
+ private void rangeCheck(int index) {
+     if (index >= size)
+         throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+ }
+```
+
+
+
+新增方法：
 
 ```java
 public boolean add(E e) {
@@ -193,25 +224,39 @@ public boolean add(E e) {
     elementData[size++] = e;
     return true;
 }
+private void ensureCapacityInternal(int minCapacity) {
+    ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+}
+private static int calculateCapacity(Object[] elementData, int minCapacity) {
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        return Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+    return minCapacity;
+}
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++; // 迭代时，用来判断是否被其他线程修改
+    if (minCapacity - elementData.length > 0)
+        // 扩容
+        grow(minCapacity);
+}
 ```
 
+**增删速度慢**：增删操作会对数组复制操作，所以速度较慢；
 
-
-**读取速度快**：数组有索引的存在，读取速度快，（RandomAccess支持快速（通常为恒定时间）随机访问）
-
-**增删速度慢**：增删操作会对数组位移操作，即改变对象的索引，所以速度较慢；
+如下以，删除为例：
 
 ```java
 public E remove(int index) {
-        rangeCheck(index);
-        modCount++;
-        E oldValue = elementData(index);
-        int numMoved = size - index - 1;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index+1, elementData, index,  numMoved);   //  这行影响速率
-    	elementData[--size] = null; // clear to let GC do its work
-        return oldValue;
-    }
+    rangeCheck(index);
+    modCount++;
+    E oldValue = elementData(index);
+    int numMoved = size - index - 1;
+    if (numMoved > 0)
+        // 这行影响 速率
+        System.arraycopy(elementData, index+1, elementData, index,  numMoved);  
+    elementData[--size] = null; 
+    return oldValue;
+}
 ```
 
 **System.arraycopy的函数原型**
@@ -219,12 +264,12 @@ public E remove(int index) {
 调用 System.arraycopy() 将 index+1 后面的元素都复制到 index 位置上，该操作的时间复杂度为 O(N)，可以看出 ArrayList 删除元素的代价是非常高的。
 
 ```java
-public static void arraycopy(
+public static native void arraycopy(
     Object src, 	//  表示源数组
     int srcPos, 	//  表示源数组要复制的起始位置
     Object dest,	//	表示目标数组
     int destPos,	//  目标数组要复制的起始位置
-    int length)		//  表示要复制的长度
+    int length)	；	//  表示要复制的长度
 ```
 
 **添加或删除数据为什么LinkedList 比ArrayList 效率高**
@@ -233,46 +278,28 @@ public static void arraycopy(
 
 ---
 
-## 2、 扩容机制
 
-### **1> ArrayList**
 
-* **默认初始容量10**，容量扩大为原来的**1.5倍**，
-* 再判断，如果容量任然小于数组大小、**就直接为数组最小容量**，
-* 再判断此时minCapacity大于MAX_ARRAY_SIZE，则返回Integer的最大值。否则返回MAX_ARRAY_SIZE（MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8）
+## 2、扩容机制
+
+**ArrayList 扩容**
+
+* 1、默认**初始容量 10**，如果数据长度超过，则容量扩大为原来的 **1.5倍**，
+* 2、然后会再判断，扩容后的容量大小是否任然小于数据长度、是则，取为数据大小为最新容量大小
+* 3、再判断此时的最新容量大小是否超过最大容量值 `MAX_ARRAY_SIZE`，
+* 4、是则，判断数据大小是否超过最大容量值 ，
+    * 数据大小超过最大容量，则取 Integer 的最大值作为最新容量大小。
+    * 数据大小没有最大容量，则取最大容量作为最新容量大小。
 
 ```java
-private static final int DEFAULT_CAPACITY = 10;  // 默认初始容量10
-private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8; // 最大数组大小
-public boolean add(E e) {
-    ensureCapacityInternal(size + 1);  // Increments modCount!!
-    elementData[size++] = e;
-    return true;
-}
-private static int calculateCapacity(Object[] elementData, int minCapacity) {
-    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-        return Math.max(DEFAULT_CAPACITY, minCapacity);
-    }
-    return minCapacity;
-}
-private void ensureCapacityInternal(int minCapacity) {
-    ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
-}
-private void ensureExplicitCapacity(int minCapacity) {
-    modCount++;
-    // overflow-conscious code
-    if (minCapacity - elementData.length > 0)
-        grow(minCapacity);
-}
 private void grow(int minCapacity) {
-    // overflow-conscious code
     int oldCapacity = elementData.length;
-    int newCapacity = oldCapacity + (oldCapacity >> 1);		//  >>1  相当于除 2
+    // 默认扩容 1.5 倍 ；  >>1 相当于除 2
+    int newCapacity = oldCapacity + (oldCapacity >> 1);		
     if (newCapacity - minCapacity < 0)
         newCapacity = minCapacity;
     if (newCapacity - MAX_ARRAY_SIZE > 0)
         newCapacity = hugeCapacity(minCapacity);
-    // minCapacity is usually close to size, so this is a win:
     elementData = Arrays.copyOf(elementData, newCapacity);
 }
 private static int hugeCapacity(int minCapacity) {
@@ -286,11 +313,9 @@ private static int hugeCapacity(int minCapacity) {
 
 ------
 
-### **2> Vectot**
+## 3、Vectot
 
-Vector 基本与ArrayList类似，数组存储，排列有序，可重复，允许多个NULL1、访问效率比ArrayList稍慢，因为**`Vector是同步的，线程安全`**，它有对外方法都由 synchronized 修饰。
-
-Vectot的扩容：默认初始容量`10`，可以通过构造器指定的初始容量和容量增量，每次增加 **`2 倍`**
+Vectot的扩容：默认初始容量`10`，可以通过构造器 **指定** 的**初始容量**和**容量增量**，每次增加 **`2 倍`**
 
 ```java
 Vector(int initialCapacity)	//构造具有指定初始容量并且其容量增量等于零的空向量。
@@ -331,16 +356,25 @@ private void grow(int minCapacity) {
 }
 ```
 
----
 
-## 3、并发安全
 
-**线程不安全原因**：使用数组存储，当前多线程时，当对同一位置操作时，可能会被覆盖，或者读取到了未更新的数据等一系列问题。
+## 4、ArrayList 和 Vector 的区别
+
+*   Vector 基本与ArrayList类似，数组存储，排列有序，可重复，允许多个NULL1、
+*   访问效率比ArrayList稍慢，因为**`Vector是同步的，线程安全`**，它有对外方法都由 synchronized 修饰。
+
+
+
+
+
+## 5、并发安全
+
+**ArrayList 线程不安全原因**：使用数组存储，当前多线程时，当对同一位置操作时，可能会被覆盖，或者读取到了未更新的数据等一系列问题。
 
 **线程安全解决方案**
 
 * 使用 `Collections.synchronizedList();` 得到一个线程安全的 ArrayList。
-* 使用 `CopyOnWriteArrayList`代替：读写分离的安全型并发集合对象，写操作需要加锁，防止并发写入时导致写入数据丢失。写操作在一个复制的数组上进行，读操作还是在原始数组中进行，读写分离，互不影响。写操作结束之后需要把原始数组指向新的复制数组。
+* 使用 `CopyOnWriteArrayList`代替：**读写分离的安全型并发集合对象**，写操作需要加锁，防止并发写入时导致写入数据丢失。写操作在一个复制的数组上进行，写操作结束之后需要把原始数组指向新的复制数组。读操作还是在原始数组中进行，读写分离，互不影响。
   * 使用场景：适合读多写少的应用场景。
   * 缺点 1 ：内存占用：在写操作时需要复制一个新的数组，使得内存占用为原来的两倍左右；
   * 缺点 1 ：数据不一致：读操作不能读取实时性的数据，因为部分写操作的数据还未同步到读数组中。
@@ -354,12 +388,14 @@ private void grow(int minCapacity) {
 其他Set、Map 都是同理
 
 ```java
- public static <T> List<T> synchronizedList(List<T> list) {
-     return (list instanceof RandomAccess ?
-             new SynchronizedRandomAccessList<>(list) :
-             new SynchronizedList<>(list));
- }
- static class SynchronizedList<E>  extends SynchronizedCollection<E>  implements List<E> {
+// 创建一个线程安全对象
+public static <T> List<T> synchronizedList(List<T> list) {
+    return (list instanceof RandomAccess ?
+            new SynchronizedRandomAccessList<>(list) :
+            new SynchronizedList<>(list));
+}
+
+static class SynchronizedList<E>  extends SynchronizedCollection<E>  implements List<E> {
      final List<E> list;
      SynchronizedList(List<E> list) {
          super(list);
@@ -377,20 +413,37 @@ public void add(int index, E element) {
 }
 ```
 
-**2、使用读写锁**
+**2> CopyOnWriteArrayList**
+
+读写分离的安全型并发集合对象，
+
+写操作需要加锁，防止并发写入时导致写入数据丢失。写操作在一个复制的数组上进行，写操作结束之后需要把原始数组指向新的复制数组。
+
+读操作还是在原始数组中进行，读写分离，互不影响。
+
+```java
+public class CopyOnWriteArrayList<E>
+    implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
+    final transient ReentrantLock lock = new ReentrantLock(); 
+    private transient volatile Object[] array;
+}
+```
+
+读写操作：
 
 ```java
 // 读操作
 private E get(Object[] a, int index) {
     return (E) a[index];
 }
-// 写操作
+// 写操作 加锁
 public boolean add(E e) {
     final ReentrantLock lock = this.lock;
     lock.lock();
     try {
         Object[] elements = getArray();
         int len = elements.length;
+        // 内存占用：需要复制一个新的数组，使得内存占用为原来的两倍左右；
         Object[] newElements = Arrays.copyOf(elements, len + 1);
         newElements[len] = e;
         setArray(newElements);
@@ -405,7 +458,7 @@ final Object[] getArray() { return array; }
 
 
 
-## 4、集合排序
+## 6、排序
 
 集合排序的两种方式
 
@@ -433,7 +486,7 @@ Collections.sort(list, new Comparator<Student>() {
     }
 });
 //自定义排序2
-ArrayList#sort(new Comparator<Student>() {
+new ArrayList().sort(new Comparator<Student>() {
     @Override
      public int compare(Student s1, Student s2) {
         return s1.getAge() - s2.getAge();
@@ -445,7 +498,7 @@ ArrayList#sort(new Comparator<Student>() {
 
 ---
 
-## 5、List 和Array转换
+## 7、List 和Array转换
 
 **List 转Array**：使用 list.toArray() 
 
@@ -505,31 +558,16 @@ List :[a, 2, 3, 4, 5]
 
 ---
 
-## 6、ArrayList 去重
+## 8、ArrayList 去重
 
 - 双重for循环去重
-- set集合判断去重,不打乱顺序
-- 遍历后以contains判断赋给另一个list集合
+- 通过set集合判断去重,不打乱顺序
+- 遍历后以 contains() 判断赋给另一个list集合
 - set和list转换去重 
 
+
+
 ```java
-//set集合判断去重,不打乱顺序
-List<String> listNew=new ArrayList<>();
-Set set=new HashSet();
-for (String str:list) {
-    if(set.add(str)){
-        listNew.add(str);
-    }
-}
-//遍历后以contains判断赋给另一个list集合
-List<String> listNew=new ArrayList<>();
-for (String str:list) {
-    if(!listNew.contains(str)){
-        listNew.add(str);
-    }
-}
-//set和list转换去重 
-List<String> listNew=new ArrayList<>(new HashSet(list)); // TreeSet 也可以
 //双重for循环去重
 for (int i = 0; i < list.size() - 1; i++) {
     for (int j = list.size() - 1; j > i; j--) {
@@ -540,9 +578,45 @@ for (int i = 0; i < list.size() - 1; i++) {
 }
 ```
 
+
+
+```java
+//set集合判断去重,不打乱顺序
+List<String> listNew=new ArrayList<>();
+Set set=new HashSet();
+for (String str:list) {
+    if(set.add(str)){
+        listNew.add(str);
+    }
+}
+// HashSet 的add方法
+public boolean add(E e) {
+    return map.put(e, PRESENT)==null;
+}
+```
+
+
+
+```java
+//遍历后以contains判断赋给另一个list集合
+List<String> listNew=new ArrayList<>();
+for (String str:list) {
+    if(!listNew.contains(str)){
+        listNew.add(str);
+    }
+}
+```
+
+```java
+//set和list转换去重 
+List<String> listNew=new ArrayList<>(new HashSet(list)); // TreeSet 也可以
+```
+
+
+
 ---
 
-## 7、常用方法
+## 9、常用方法
 
 ```java
 public void add(int index, E element) //指定位置插入
@@ -563,9 +637,9 @@ ListIterator<E> listIterator(int index)//index指定位置开始迭代，可以�
 
 ## 1、存储原理
 
-* LinkedList 基于`双向链表`实现，继承于AbstractSequentialList ，**内部维持 2个 节点对象 first、last**
-* 每个 Node 节点有3个属性 **item、next、prev**，
-* LinkedList 实现 List、Deque 接口，因此它也可以被当作堆栈、队列或双端队列进行操作。
+* LinkedList 基于`双向链表`实现，继承于 AbstractSequentialList ，
+* **内部维持 2个 节点对象 first、last**；每个 Node 节点有3个属性 **item、next、prev**，
+* LinkedList 实现 **List、Deque 接口**，因此它也可以被当作堆栈、队列或双端队列进行操作。
 * 当您在列表中插入空值时，您将 item 为 null节点，但 next 和 prev 指针是非空的，因此：**`可以有个 null 值`**
 
 ```java
@@ -637,17 +711,16 @@ peek()	peekFirst()
 
 **线程不安全原因**：使用数组存储，当前多线程时，当对同一位置操作时，可能会被覆盖，或者读取到了未更新的数据等一系列问题。
 
-**线程安全解决方案**
+**线程安全解决方案**：使用 ConcurrentLinkedQueue
 
-* 使用 Collections.synchronizedList
-* 使用 ConcurrentLinkedQueue
 
-**1> ConcurrentLinkedQueue**
+
+**ConcurrentLinkedQueue**
 
 新增元素使用 `volatile + CAS`  来保证线程安全
 
 ```java
-private transient volatile Node<E> tail;   //  volatile ---> 保证线程安全
+private transient volatile Node<E> tail;   //  volatile ---> 保证变量可见性
 public boolean offer(E e) {
     checkNotNull(e);   // 判断节点是否为空
     final Node<E> newNode = new Node<E>(e);
@@ -668,8 +741,22 @@ public boolean offer(E e) {
     }
 }
 
+private static final sun.misc.Unsafe UNSAFE;
+boolean casNext(Node<E> cmp, Node<E> val) {
+    return UNSAFE.compareAndSwapObject(this, nextOffset, cmp, val);
+}
 
 ```
+
+**Unsafe** 
+
+*   Unsafe类是在`sun.misc` 包下，不属于Java标准。但是很多Java的基础类库，包括一些被广泛使用的高性能开发库都是基于Unsafe类开发的，比如Netty、Hadoop、Kafka等。Unsafe可认为是Java中留下的后门，提供了一些低层次操作，如直接内存访问、线程调度等。 官方并不建议使用Unsafe。
+
+*   通过这个类可以直接使用底层 native 方法来获取和操作底层的数据，例如获取一个字段在内存中的偏移量，利用偏移量直接获取或修改一个字段的数据等等
+
+*   不安全的操作。如何理解这个不安全呢？在java的世界里所有的变量都是通过把代码编译成class字节码加载到JVM虚拟机中，通过虚拟机来操作内存中字段的数据，在此过程中，JVM帮程序员做了很多事情，其中大部分是内存的管理。
+
+*   在JUC(java.util.concurrent)中使用了大量的Unsafe类（多线程、concurrentHashMap、AtomicInteger等等），他可以很方便的使用CAS来确保数据的可见性，同时比正常的Synchroized速度快很多。
 
 
 
@@ -677,34 +764,47 @@ public boolean offer(E e) {
 
 # 四、源码分析--HashMap
 
-基于`哈希表实现`。底层用`数组+单向链表`（1.8增加了`黑红树`）存储。`无序`，键名唯一，可为 NULL；键值可重复，可为 NULL
-
-```java
-public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable 
-```
-
 ## 1、存储机制
 
-HashMap 以键值对方式存储，**内部包含了一个 Node 类型的数组 table。**
+*   HashMap 基于**哈希表**实现。底层用  **数组+单向链表**（1.8增加了 **`黑红树`** ）存储。数组中的每个位置被当成一个桶，一个桶存放一个链表。当发生 hash 碰撞的时候，以链表的形式进行存储
 
-每个 Node 节点有4个属性：**hash、key、value 、next**
+*   HashMap 以**键值对方式存储**，内部包含了一个 Node 类型的数组 table。 每个 Node 节点有4个属性：`hash、key、value 、next`
+*   **排列无序，键名唯一，可为 null ；键值可重复，可为 null **
 
-数组中的每个位置被当成一个桶，一个桶存放一个链表。当发生 hash 碰撞的时候，以链表的形式进行存储
+
 
 ```java
-transient Node<K,V>[] table;
+public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable {
+	static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    
+    static class Node<K,V> implements Map.Entry<K,V> {
+        final int hash;
+        final K key;
+        V value;
+        Node<K,V> next;
 
-static class Node<K,V> implements Map.Entry<K,V> {
-    final int hash;
-    final K key;
-    V value;
-    Node<K,V> next; 
+        Node(int hash, K key, V value, Node<K,V> next) {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+            this.next = next;
+        }
+		// *****省略 *****
+    }
+    transient Node<K,V>[] table;  // 哈希表
+    transient Set<Map.Entry<K,V>> entrySet;
+    transient int size;
+    transient int modCount;
 }
 ```
 
+
+
 ### 1> 计算 hash 
 
-* **Key 不为 null**：计算key的hash值时，会判断是否为 NULL
+* **Key 不为 null**：计算key的hash值时，会判断是否为 null
 
 ```java
  static final int hash(Object key) {
@@ -738,48 +838,6 @@ p.next = newNode(hash, key, value, null);
 ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)
 ```
 
- **扩容时数据位置发生变化**
-1、没有用到链表时，桶下标为：`int i= hash & (newCap-1)` ， 取值时根据桶下标获取： `(n-1)&hash` 
-2、用到链表的桶下标对应：低位不变，高位（index+oldCap）
-
-```java
-// 高低位判断
-(e.hash & oldCap) == 0  
-
-// 没有用到链表
-e = oldTab[j]
-newTab[e.hash & (newCap - 1)] = e;  ----> 下标相等于高低位运算后的桶下标
-//位置不变    
-if (loTail != null) {
-    loTail.next = null;
-    newTab[j] = loHead;
-}
-//位置迁移(index+oldCap)
-if (hiTail != null) {
-    hiTail.next = null;
-    newTab[j + oldCap] = hiHead;
-}
-```
-
-**举例说明**
-
-```java
-默认 初始容量 16 ，key = “name” 为例
-// 经过计算
-hash ： 3373752     //   1100110111101010111000
-	 ： 16-1	       //                     1111
-桶下标： 8
--- 扩容-----
-1、如果 8 位置不是链表，则新桶下标：e.hash & (newCap - 1) =  24
-2、如果 8 位置是链表，高位计算判断 						
-//   hash: 1100110111101010111000
-// newCap: 0000000000000000010000
-----------------------------
-		   0000000000000000010000   ----> // 非0 ，属于高位
-扩容后桶下标：index+oldCap = 8 +16 = 24
-
-```
-
 
 
 ### 3> put 操作
@@ -790,24 +848,27 @@ public V put(K key, V value) {
 }
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i;
+     //  集合大小为 0 时会初次扩容resize()
     if ((tab = table) == null || (n = tab.length) == 0)
-        n = (tab = resize()).length;  //  集合大小为 0 时会初次扩容resize()
-    if ((p = tab[i = (n - 1) & hash]) == null)  // 判断是否发生 hash 碰撞，数组索引为 (n - 1) & hash 
+        n = (tab = resize()).length; 
+    // 判断是否发生 hash 碰撞，数组索引为 (n - 1) & hash 
+    if ((p = tab[i = (n - 1) & hash]) == null)  
         tab[i] = newNode(hash, key, value, null);	// 不发生 hash 碰撞，以数组存储
     else {
         Node<K,V> e; K k;
         if (p.hash == hash && ((k = p.key) == key || (key != null && key.equals(k))))
             e = p;
         else if (p instanceof TreeNode)  // 判断是否是树节点
-            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value); 	// 红黑树存储
+             // 红黑树存储
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value); 
         else {
-            // 链表插入 ----start
+            //   链表插入 ----start
             for (int binCount = 0; ; ++binCount) {
                 if ((e = p.next) == null) {
                     p.next = newNode(hash, key, value, null);	// 链表存储
-                    //  static final int TREEIFY_THRESHOLD = 8; 链表长度
-                    if (binCount >= TREEIFY_THRESHOLD - 1) // 判断链表长度是否大于 8 
-                        treeifyBin(tab, hash);	//  转换 Node 节点为 TreeNode 节点
+                    //  TREEIFY_THRESHOLD = 8; 链表长度
+                    if (binCount >= TREEIFY_THRESHOLD - 1) //  判断链表长度是否大于 8 
+                        treeifyBin(tab, hash);	//   转换 Node 节点为 TreeNode 节点
                     break;
                 }
                 if (e.hash == hash &&
@@ -815,7 +876,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
                     break;
                 p = e;
             }
-            // 链表插入 ----end
+            //  链表插入 ----end
         }
         if (e != null) { // existing mapping for key
             V oldValue = e.value;
@@ -826,7 +887,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
         }
     }
     ++modCount;
-    if (++size > threshold) // 是否扩容判断，阀值threshold = 初始容量 * 负载因子
+    if (++size > threshold)  // 是否扩容判断，阀值threshold = 初始容量 * 负载因子
         resize();
     afterNodeInsertion(evict);
     return null;
@@ -872,7 +933,7 @@ final Node<K,V> getNode(int hash, Object key) {
     Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
     if ((tab = table) != null && (n = tab.length) > 0 &&
         (first = tab[(n - 1) & hash]) != null) {
-        if (first.hash == hash && // always check first node
+        if (first.hash == hash && 
             ((k = first.key) == key || (key != null && key.equals(k))))
             return first;
         if ((e = first.next) != null) {
@@ -1016,6 +1077,51 @@ final Node<K,V>[] resize() {
 1. 100/0.75 = 133.33。为了防止rehash，向上取整，为134。
 2. hash表的长度设为2的N次方： 128（2的7次方）<  134 <  256
 3. 所以 结果是256
+
+
+
+**扩容时数据位置发生变化**
+1、没有用到链表时，桶下标为：`int i= hash & (newCap-1)` ， 取值时根据桶下标获取： `(n-1)&hash` 
+2、用到链表的桶下标对应：低位不变，高位（index+oldCap）
+
+```java
+// 高低位判断
+(e.hash & oldCap) == 0  // ---> oldCap 扩容器容量大小
+
+// 没有用到链表
+e = oldTab[j]
+newTab[e.hash & (newCap - 1)] = e;  // ----> 下标相等于高低位运算后的桶下标
+
+// 用到链表
+// 位置不变    
+if (loTail != null) {
+    loTail.next = null;
+    newTab[j] = loHead;
+}
+// 位置迁移(index+oldCap)
+if (hiTail != null) {
+    hiTail.next = null;
+    newTab[j + oldCap] = hiHead;
+}
+```
+
+**举例说明**
+
+```java
+默认 初始容量 16 ，key = “name” 为例
+// 经过计算
+hash ： 3373752     //   1100110111101010111000
+	 ： 16-1	       //                     1111
+桶下标： 8
+-- 扩容-----
+1、如果 8 位置不是链表，则新桶下标：e.hash & (newCap - 1) =  24
+2、如果 8 位置是链表，高位计算判断 						
+//   hash: 1100110111101010111000
+// newCap: 0000000000000000010000
+----------------------------
+		   0000000000000000010000   ----> // 非0 ，属于高位
+扩容后桶下标：index+oldCap = 8 +16 = 24
+```
 
 
 
@@ -1221,8 +1327,11 @@ public V put(K key, V value) {
     return putVal(key, value, false);
 }
 final V putVal(K key, V value, boolean onlyIfAbsent) {
-    if (key == null || value == null) throw new NullPointerException();  // 所以键值对都不能为空
+    // 所以键值对都不能为空
+    if (key == null || value == null) throw new NullPointerException();  
+    
     int hash = spread(key.hashCode());  // (h ^ (h >>> 16)) & HASH_BITS
+    
     int binCount = 0;
     for (Node<K,V>[] tab = table;;) {
         Node<K,V> f; int n, i, fh;
@@ -1230,12 +1339,13 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
             tab = initTable();		// 懒加载 初始化
         else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
             if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
-                break;                   // no lock when adding to empty bin
+                break;                  
         }
         else if ((fh = f.hash) == MOVED)   // 集合对象正在扩容时，先协助扩容，再更新值
             tab = helpTransfer(tab, f);
         else { 	// hash 碰撞
             V oldVal = null;
+            // - --------- 重点---------------
             synchronized (f) {   //  分段锁，对哈希表中的Node节点加锁
                 if (tabAt(tab, i) == f) {
                     if (fh >= 0) {
@@ -1285,8 +1395,13 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 
 ## 4、遍历方式
 
+*   通过Map#keySet() 获取键值Set集合，遍历 key 获取 value 
+*   通过Map#entrySet().iterator() 获取迭代器对象iterator ，通过迭代器获取 Entry对象。然后获取key和value
+*   通过Map#entrySet() 获取Entry对象集合，遍历Entry对象集合，通过Entry 获取key和value
+*   通过Map#values() 获取所有的 value 集合，但不能遍历key
+
 ```java
- // 1. 通过Map.keySet遍历key和value：
+ // 1. 通过Map.keySet遍历key和value
 for (String key : hashmap.keySet()){
     System.out.println("key: "+ key + "; value: " + hashmap.get(key));
 }
@@ -1309,11 +1424,11 @@ for (String value : hashmap.values()) {
 }
 ```
 
-## 5、HashSet
+# 五、源码分析--HashSet
 
 HashSet 内部维持了一个HashMap 对象，新增元素通过HashMap对象的 put(K key, V value) 方法，存放一个Object对象，因此 HashSet 的原始是否为 NULL 和扩容机制都取决于 HashMap 特性。
 
-**HashSet 的初始容量 16，默认增长因子 0.75，元素允许一个 NULL**
+**因此，HashSet 的初始容量 16，默认增长因子 0.75，元素允许一个 NULL**
 
 ```java 
 public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, java.io.Serializable
