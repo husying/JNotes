@@ -488,7 +488,7 @@ System.out.println(optional2.map(a-> Optional.of(a+"1")));  // 输出: Optional.
 
 ```java
 Optional<String> opt1 = Optional.ofNullable(null);
-System.out.println(opt1.flatMap(a-> Optional.ofNullable(a)));// 输出:ptional.empty
+System.out.println(opt1.map(a-> Optional.ofNullable(a)));// 输出:ptional.empty
 
 Optional<String> opt2 = Optional.ofNullable("a");
 System.out.println(opt2.flatMap(a-> Optional.ofNullable(a+"1")));//输出:Optional[a1]

@@ -38,7 +38,7 @@ DELETE：删除（Delete）
 
 定义：**是指无论调用这个url多少次，都不会有不同的结果的HTTP方法**
 
-* 幂等性：GET、PUT、DELETE
+* 幂等性：GET、PUT、DELETE、HEAD
 * 非幂等性：POST、PATCH
 
 
