@@ -20,17 +20,18 @@ Java集合类存放于 java.util 包中，是一个用来存放对象的容器�
 
 * Vector：和 ArrayList 类似，但它是`线程安全`的
 
-* LinkedList：基于`双向链表`实现，只能顺序访问，所以`查询速度慢`，但`插入和删除元素快`。不仅如此，LinkedList 还可以用作栈、队列和双向队列。
+* LinkedList：基于`双向链表`实现，只能顺序访问，所以`查询速度慢`，但`插入和删除元素快`。不仅如此，LinkedList 还可以用作栈、队列和双向队列。（JDK1.6之前为循环链表，JDK1.7取消了循环）
 
-  
+
+
 
 **Set**
 
 特点：唯一，不重复
 
-* **HashSet**：基于`哈希表`实现、`无序`，值允许为 null ，查找的时间复杂度为 O(logN)
+* **HashSet**：**（无序，唯一）**基于`哈希表`实现、`无序`，值允许为 null ，查找的时间复杂度为 O(logN)
 
-* **TreeSet**：基于`红黑树`实现、`自然序`，值不为 null 值，查找的时间复杂度为 O(1)
+* **TreeSet**：**（有序，唯一）**基于`红黑树`实现、`自然序`，值不为 null 值，查找的时间复杂度为 O(1)
 
 * **LinkedHashSet**：具有 HashSet特性，增加`双向链表`维持元素的顺序，有序(`插入顺序`)
 
@@ -72,6 +73,12 @@ Object[] toArray()
 * **HashMap**：基于`哈希表实现`。底层用`数组+单向链表`（1.8增加了`黑红树`）存储。`无序`，键名唯一，可为空；键值可重复，可为 null
 * **TreeMap**：基于`红黑树`实现。`自然序`，键值键名都不能为 NULL。
 * **LinkedHashMap**：拥有 HashMap 的所有特性，增加了`双向链表`维持元素的顺序，有序(`插入顺序`)
+
+
+
+**Hashtable：** 数组+链表组成的，数组是 HashMap 的主体，链表则是主要为了解决哈希冲突而存在的
+
+
 
 TreeMap 不能为空，键名为 NULL 会抛异常
 
@@ -200,6 +207,12 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAcce
     private int size;
 }
 ```
+
+ArrayList 实现了**RandomAccess 接口**， RandomAccess 是一个标志接口，表明实现这个这个接口的 List 集合是支持**快速随机访问**的。在 ArrayList 中，我们即可以通过元素的序号快速获取元素对象，这就是快速随机访问。
+
+ArrayList 实现了**Cloneable 接口**，即覆盖了函数 clone()，**能被克隆**。
+
+ArrayList 实现**java.io.Serializable 接口**，这意味着ArrayList**支持序列化**，**能通过序列化去传输**。
 
 读取方法：访问速度快
 
@@ -363,9 +376,21 @@ private void grow(int minCapacity) {
 *   Vector 基本与ArrayList类似，数组存储，排列有序，可重复，允许多个NULL1、
 *   访问效率比ArrayList稍慢，因为**`Vector是同步的，线程安全`**，它有对外方法都由 synchronized 修饰。
 
+**为什么要用Arraylist取代Vector呢**
 
+*   Vector类的所有方法都是同步的。可以由两个线程安全地访问一个Vector对象、但是一个线程访问Vector的话代码要在同步操作上耗费大量的时间。
+*   Arraylist不是同步的，所以在不需要保证线程安全时时建议使用Arraylist。
 
+## 5、Arraylist 与 LinkedList 区别
 
+*   **线程安全：** ArrayList 和 LinkedList 都是不同步的，也就是不保证线程安全；
+
+*    **底层数据结构**：Arraylist 底层使用的是Object数组；LinkedList 底层使用的是双向链表数据结构
+*   **插入和删除是否受元素位置的影响**
+    *   ① **ArrayList 采用数组存储，所以插入和删除元素的时间复杂度受元素位置的影响，时间复杂度就为 O(n-i)**
+    *   ② **LinkedList 采用链表存储，所以插入，删除元素时间复杂度不受元素位置的影响，都是近似 O（1）而数组为近似 O（n）**
+
+*   **是否支持快速随机访问：** LinkedList 不支持高效的随机元素访问，而 ArrayList 支持。快速随机访问就是通过元素的序号快速获取元素对象(对应于`get(int index) `方法)。
 
 ## 5、并发安全
 
@@ -838,6 +863,14 @@ p.next = newNode(hash, key, value, null);
 ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)
 ```
 
+所谓 **“拉链法”** 就是：将链表和数组相结合。也就是说创建一个链表数组，数组中每一格就是一个链表。若遇到哈希冲突，则将冲突的值加到链表中即可。
+
+
+
+![JDK1.8之后的HashMap底层数据结构](assets/687474703a2f.jpg)
+
+>   TreeMap、TreeSet以及JDK1.8之后的HashMap底层都用到了红黑树。红黑树就是为了解决二叉查找树的缺陷，因为二叉查找树在某些情况下会退化成一个线性结构。
+
 
 
 ### 3> put 操作
@@ -961,6 +994,13 @@ final Node<K,V> getNode(int hash, Object key) {
 - **初始阀值**：`初始容量 * 负载因子`  (16 * 0.75 = 12)
 - **扩容倍数**：`2 倍`
 - **容量范围**：`16 < 容量 < MAXIMUM_CAPACITY`（2^30^），超出默认为 `Integer.MAX_VALUE` ( 2^31^-1)
+
+
+
+**HashMap 的长度为什么是2的幂次方**
+
+*   **“取余(%)操作中如果除数是2的幂次则等价于与其除数减一的与(&)操作（也就是说 hash%length==hash&(length-1)的前提是 length 是2的 n 次方；）。”** 
+*   并且 **采用二进制位操作 &，相对于%能够提高运算效率，这就解释了 HashMap 的长度为什么是2的幂次方。**
 
 
 
@@ -1177,13 +1217,15 @@ private static class SynchronizedMap<K,V>  implements Map<K,V>, Serializable {
 
 
 
-### 2> Hashtable
+### 2> Hashtable与 HashMap区别
+
+**Hashtable**
 
 1. Hashtable **继承 Dictionary 类**，数据结构与 HashMap 类似，不过 Hashtable 内部维持 Entry 对象，而 在 jdk 1.8 中  HashMap是 Node 对象，不过他们都实现了 Map.Entry
-2. 初始容量为 `11`，增长因子为`0.75`，每次扩容为原来的 `2n + 1`
-3. hashCode直接取的键名的哈希值，以 (hash & 0x7FFFFFFF) % tab.length 取余作元素对应哈希表索引，将值存储该索引下（Integer.MAX_VALUE = 0x7FFFFFFF ）
-4. key和value都不允许为 NULL ，
-5. 支持多线并发，synchronized 修饰 put 方法，同一时间只允许一个写线程操作该对象，效率没有ConcurrentHashMap高
+2. **初始容量为 `11`，增长因子为`0.75`，每次扩容为原来的 `2n + 1**`
+3. **hashCode直接取的键名的哈希值**，以 (hash & 0x7FFFFFFF) % tab.length 取余作元素对应哈希表索引，将值存储该索引下（Integer.MAX_VALUE = 0x7FFFFFFF ）
+4. **key和value都不允许为 NULL ，**
+5. **底层数据结构**，synchronized 修饰 put 方法，同一时间只允许一个写线程操作该对象，效率没有ConcurrentHashMap高
 
 ```java
 public class Hashtable<K,V> extends Dictionary<K,V>
@@ -1198,8 +1240,9 @@ public class Hashtable<K,V> extends Dictionary<K,V>
 **Hashtable与 HashMap区别**
 
 * **父类：**Hashtable 继承自`Dictionary`类，而HashMap继承自`AbstractMap`类。但二者都实现了Map接口。
-* **同步方式：**Hashtable 支持线程同步，所有对外方法由synchronized修饰；HashMap可以通过Collections.synchronizedMap(hashMap)来进行处理
+* **线程是否安全**：**Hashtable 支持线程同步**，所有对外方法由synchronized修饰；HashMap可以通过Collections.synchronizedMap(hashMap)来进行处理，或者使用ConcurrentHashMap 
 * **Key的空值：**Hashtable 中，key和value都不允许出现null值，HashMap可以由一个null的key，多个null的Value
+* **效率**：因为线程安全的问题，HashMap 要比 HashTable 效率高一点。另外，HashTable 基本被淘汰，不要在代码中使用它；
 * **哈希值：**HashTable直接使用对象的hashCode。而HashMap重新计算hash值。
 * **迭代器：**HashMap的迭代器(**Iterator**)是fail-fast迭代器，而Hashtable的**enumerator**迭代器不是fail-fast的
 * **扩容：**Hashtable默认的初始容量为`11`，每次扩充为原来的 `2n + 1`。HashMap默认的初始容量`16`。每次扩充为原来的 `2倍`。
@@ -1316,9 +1359,13 @@ implements ConcurrentMap<K,V>, Serializable {
 **区别**： 两者主要是性能上的差异，
 
 * Hashtable中采用的锁机制是一次**锁住整个hash表**，从而在同一时刻**只能由一个线程对其进行操作**；
-* ConcurrentHashMap使用**锁分段技术**来保证线程安全的。在调用如 get、put、remove等常用操作只锁住当前需要用到的桶。从原来只能写线线程执行，变成能同时有多个写线程执行，并发性能的提升是显而易见的。
+* ConcurrentHashMap：
+    * **在JDK1.7的时候，ConcurrentHashMap（分段锁）** 对整个桶数组进行了分割分段(Segment)，每一把锁只锁容器其中一部分数据，多线程访问容器里不同数据段的数据，就不会存在锁竞争，提高并发访问率。
+    * **到了 JDK1.8 的时候已经摒弃了Segment的概念，而是直接用 Node 数组+链表+红黑树的数据结构来实现，并发控制使用 synchronized 和 CAS 来操作。**
 
+![687474707337](assets/687474707337.jpg)
 
+![1554616165](assets/1554616165.png)
 
 **添加元素源码如下：**
 
@@ -1426,7 +1473,7 @@ for (String value : hashmap.values()) {
 
 # 五、源码分析--HashSet
 
-HashSet 内部维持了一个HashMap 对象，新增元素通过HashMap对象的 put(K key, V value) 方法，存放一个Object对象，因此 HashSet 的原始是否为 NULL 和扩容机制都取决于 HashMap 特性。
+HashSet 底层就是基于 HashMap 实现的，内部维持了一个HashMap 对象，新增元素通过HashMap对象的 put(K key, V value) 方法，存放一个Object对象，因此 HashSet 的原始是否为 NULL 和扩容机制都取决于 HashMap 特性。
 
 **因此，HashSet 的初始容量 16，默认增长因子 0.75，元素允许一个 NULL**
 
@@ -1442,3 +1489,7 @@ public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, jav
 
 
 
+HashSet如何检查重复：
+
+*   计算对象的hashcode值来判断对象加入的位置
+*   如果发现有相同hashcode值的对象，这时会调用equals（）方法来检查hashcode相等的对象是否真的相同。如果两者相同，HashSet就不会让加入操作成功

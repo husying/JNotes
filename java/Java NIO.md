@@ -1,9 +1,9 @@
 # Java NIO
 
 *   Java NIO(New IO)是一个可以替代标准Java IO API的IO API（从Java 1.4开始)，Java NIO提供了与标准IO不同的IO工作方式。
-*   标准的IO基于字节流和字符流进行操作的，而NIO是基于通道（Channel）和缓冲区（Buffer）进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。
+*   标准的IO基于字节流和字符流进行操作的，而NIO是**基于通道（Channel）和缓冲区（Buffer）进行操作**，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。
 
-*   **Non-blocking IO（非阻塞IO）**
+*   **Non-blocking IO，是一种同步非阻塞的I/O模型**
 *   3 大核心模块：**Channel、Buffers、Selectors**
 
 
@@ -13,6 +13,13 @@ NIO 与普通 I/O 的区别主要有以下两点：
 *   NIO 是非阻塞的；IO 是阻塞的
 *   **NIO 面向缓冲，I/O 面向流。**
 *   NIO 有选择器
+
+
+
+**AIO (Asynchronous I/O):** 
+
+*   AIO 也就是 NIO 2。在 Java 7 中引入了 NIO 的改进版 NIO 2
+*   它是**异步非阻塞的IO模型**
 
 
 
@@ -475,3 +482,4 @@ public class NIOServer {
 
 *   [Java IO教程 | 并发编程网](http://ifeve.com/java-io/)
 *   [CyC2018 | CS-Notes](https://github.com/CyC2018)
+

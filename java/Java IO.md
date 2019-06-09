@@ -511,6 +511,14 @@ System.out.println("Person对象反序列化成功！");
 2.  添加writeObject和readObject方法
 3.  使用Externalizable实现
 
+**transient**关键字的作用是：
+
+*   阻止实例中那些用此关键字修饰的的变量序列化；
+
+*   当对象被反序列化时，被transient修饰的变量值不会被持久化和恢复。
+
+*   transient只能修饰变量，不能修饰类和方法。
+
 
 
 **Externalizable和Serializable 区别：**

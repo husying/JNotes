@@ -7,7 +7,7 @@
 **进程**：资源分配和调度单位
 
 *   操作系统进行资源分配的最小单位，资源包括：CPU、内存空间、磁盘等
-*   同一个进程中的多个线程共享该进程中的全部资源
+*   同一个进程中的多个线程共享该进程中的全部资源(**堆**和**方法区**资源)
 *   进程之间是相互独立的
 
 **线程**：线程是CPU调度的最小单位，必须依赖进程而存在
@@ -176,8 +176,10 @@ new Thread(ThreadGroup group,String name)
 **sleep 方法和wait 方法区别 **
 
 *   sleep：放弃CPU一定的时间， **不会释放对象锁 **；wait：放弃CPU一定的时间， **会释放对象锁 **
+*   Wait 通常被用于线程间交互/通信，sleep 通常被用于暂停执行。
 *   sleep：可以在任何地方使用，而wait只能在同步方法或者同步块中使用
 *   sleep： **必须抛出或捕获异常，而wait/notify/notifyAll不需要。 **
+*   wait() 方法被调用后，线程不会自动苏醒，需要别的线程调用同一个对象上的 notify() 或者 notifyAll() 方法。sleep() 方法执行完成后，线程会自动苏醒。
 
 **sleep和yield的区别 **
 
@@ -198,6 +200,10 @@ new Thread(ThreadGroup group,String name)
 
 *   wait()方法立即释放对象监视器；	
 *   notify()/notifyAll()方法则会等待线程剩余代码执行完毕才会放弃对象监视器
+
+**为什么我们调用 start() 方法时会执行 run() 方法，为什么我们不能直接调用 run() 方法？**
+
+*    调用 start 方法方可启动线程并使线程进入就绪状态，而 run 方法只是 thread 的一个普通方法调用，还是在主线程里执行。
 
 
 
@@ -276,7 +282,7 @@ future.cancel(true);
 *   `TIMED_WAITING`：无需等待其它线程显式地唤醒，在一定时间之后会被系统自动唤醒的线程处于此状态。
 *   `TERMINATED`：已退出的线程处于此状态。
 
-
+![Java线程状态变迁](assets/1684165153165.png)
 
 线程生命周期：new、runnable、running、blocked、dead
 
@@ -288,6 +294,8 @@ future.cancel(true);
     *   正在等待：使用wait()，可调用notify()/notifyAll()，恢复到就绪状态
     *   被另一个线程阻塞：调用suspend()，可调用resume()方法恢复
 *   `dead`：死亡状态，分正常死亡或异常终止
+
+
 
 ------
 
@@ -802,29 +810,35 @@ public class Test {
 Lock 是一个接口提供了无条件、可轮询、定时、可中断的锁获取操作，加锁和解锁都是显式的
 
 *   包路径是：java.util.concurrent.locks.Lock
-*   主要核心方法：lock()、tryLock()、unlock()
+*   主要核心方法：lock()、tryLock()、unlock() 、lockInterruptibly ()
 *   其实现类有：ReenTrantLock 、ReentrantReadWriteLock.ReadLock、ReentrantReadWriteLock.WritedLock
 
-**lock()、tryLock()**
+**lock()、tryLock()、lockInterruptibly** **
 
-*   lock.lock()是一个阻塞方法
-*   lock.tryLock()是一个有返回值的方法，即试图获取锁，没有获取到就返回false，获取到就返回true
+*   lock.lock()  是一个阻塞方法，调用后一直阻塞直到获得锁。阻塞过程中不会接受中断信号，忽视interrupt(), 拿不到锁就 一直阻塞。即：**拿不到lock就不罢休，不然线程就一直block**。 比较无赖的做法。
+*   lock.tryLock：马上返回，**拿到lock就返回true，不然返回false**。 比较潇洒的做法。带时间限制的tryLock()，拿不到lock，就等一段时间，超时返回false。比较聪明的做法。
 
-
-
-**ReentrantLock**
-
-*   ReentrantLock是Lock 的实现类，是互斥锁
-*   缺点：必须要手动释放锁
+*   **lockInterruptibly** ：调用后如果没有获取到锁会一直阻塞，阻塞过程中会接受中断信号，即 **线程在请求lock并被阻塞时，如果被interrupt，则“此线程会被唤醒并被要求处理InterruptedException”。**
 
 
 
-**Lock 代码实现**
+
+
+**ReentrantLock代码实现**
+
+```java
+// 非公平锁（默认）
+final ReentrantLock lock = new ReentrantLock();
+final ReentrantLock lock = new ReentrantLock(false);
+
+// 公平锁
+ReentrantLock lock = new ReentrantLock(true);
+```
 
 ```java
 Lock lock = new ReentrantLock();
 if(lock.tryLock()) {
-     try{
+     try{				// ----------->>>>注意： lock()、tryLock() 不需要放在try 中
          // 处理任务
      }catch(Exception ex){
          
@@ -839,10 +853,29 @@ if(lock.tryLock()) {
 **ReenTrantLock 与 synchronized 区别： **
 
 *   synchronized 是 JVM 实现的，而 ReentrantLock 是 JDK 实现的。
-
-*   ReenTrantLock：可以指定是公平锁还是非公平锁。而synchronized只能是非公平锁。
+*   ReenTrantLock：可以指定是公平锁还是非公平锁，默认情况是非公平的。而synchronized只能是非公平锁。
 *   ReenTrantLock： **在lock()完了，一定要手动unlock() **
 *   ReenTrantLock：以决定多长时间内尝试获取锁，如果获取不到就抛异常；synchronized一直等待，死锁
+*   ReentrantLock增加了一些高级功能。主要来说主要有三点：**①等待可中断；②可实现公平锁；③可实现选择性通知（锁可以绑定多个条件）**
+    *   **ReentrantLock提供了一种能够中断等待锁的线程的机制**，通过lock.lockInterruptibly()来实现这个机制。也就是说正在等待的线程可以选择放弃等待，改为处理其他事情。
+    *   可实现公平锁，通过构造方法
+    *   可实现选择性通知，通过借助 Condition
+
+**Condition**
+
+*   Condition是在java 1.5中才出现的，它用来替代传统的Object的wait()、notify()使用**Condition的await()、signal()**这种方式实现线程间协作更加安全和高效。因此通常来说比较推荐使用Condition。
+*   Condition可以实现多路通知功能，也就是在一个Lock对象里可以创建多个Condition（即对象监视器）实例，线程对象可以注册在指定的Condition中，从而**可以有选择的进行线程通知，在调度线程上更加灵活**。
+
+```java
+// 实例化一个ReentrantLock对象
+private ReentrantLock lock = new ReentrantLock();
+// 为线程A注册一个Condition
+public Condition conditionA = lock.newCondition();
+// 为线程B注册一个Condition
+public Condition conditionB = lock.newCondition();
+```
+
+详情参考：[Java多线程之ReentrantLock与Condition](https://www.cnblogs.com/xiaoxi/p/7651360.html)
 
 
 
@@ -1047,17 +1080,51 @@ public class Lock{
 *   不剥夺条件：指进程已获得的资源，在未使用完之前，不能被剥夺，只能在使用完时由自己释放。
 *   循环等待条件：若干进程之间形成一种头尾相接的循环等待资源关系。
 
+**如何避免线程死锁**：们只要破坏产生死锁的四个条件中的其中一个就可以了。
 
 
-### 3> 死锁预防
+
+### 3> 死锁代码实现
+
+```java
+private static String A = "A";
+private static String B = "B";
+
+public static void main(String[] argc) {
+    new Thread(()-> {
+        synchronized (A) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (B) {
+            }
+        }
+    }).start();
+
+    new Thread(()->{
+        synchronized (B) {
+            synchronized (A) {
+            }
+        }
+    }).start();;
+}
+```
+
+---
+
+扩展：
+
+ **死锁预防**
 
 *   **有序资源分配法**：改变资源的分配顺序。
     *   如：进程PA，使用资源的顺序是R1，R2； 进程PB，使用资源的顺序是R2，R1； 改变之后变成；PA：申请次序应是：R1，R2，PB：申请次序应是：R1，R2。 以此来破坏环路条件，避免死锁发生
 *   **银行家算法**：避免死锁算法中最有代表性的算法；以银行借贷系统的分配策略为基础，判断并保证系统的安全运行
 
----
 
-扩展：**银行家算法**
+
+**银行家算法**
 
 **使用场景介绍**：
 
@@ -1082,7 +1149,7 @@ public class Lock{
 
 
 
-### 4> 死锁的解决办法
+**死锁的解决办法**
 
 *   预防死锁：通过破坏死锁的必要条件来预防；缺点：由于增加了限制条件，可能会导致系统资源利用率和系统吞吐量降低。
 *   避免死锁：采用资源的动态分配，通过某种方法去检查系统在分配后是否会发生死锁，如果会，则不进行分配，以此来避免发生死锁
@@ -1091,42 +1158,6 @@ public class Lock{
     *   然后解除死锁：采取适当措施，从系统中将已发生的死锁清除掉。常用撤销或挂起的方式回收资源，再将资源分配给阻塞状态的进程，使之转为就绪状态。优点：可能提高系统资源利用率和吞吐量，但实现难度大
 
 
-
-### 5> 死锁代码实现
-
-```java
-// 实现死锁
-public class Test {
-	private static String A = "A";
-	private static String B = "B";
-    
-	public static void main(String[] args) throws InterruptedException {
-		Thread t1 = new Thread(new Runnable() {
-			public void run() {
-				synchronized (A) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					synchronized (B) {
-					}
-				}
-			}
-		});
-		Thread t2 = new Thread(new Runnable() {
-			public void run() {
-				synchronized (B) {
-					synchronized (A) {
-					}
-				}
-			}
-		});
-		t1.start();
-		t2.start();
-	}
-}
-```
 
 
 

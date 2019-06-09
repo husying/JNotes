@@ -8,7 +8,7 @@
 
 ## 1、封装、继承、多态
 
-* 封装：利用抽象数据类型将数据和基于数据的操作封装在一起，使其构成一个不可分割的独立实体，隐藏内部的细节，只保留一些对外接口使之与外部发生联系。优点：减少耦合，代码重用，减轻维护
+* 封装：封装把一个对象的属性私有化，同时提供一些可以被外界访问的属性的方法，如果属性不想被外界访问，我们大可不必提供方法给外界访问优点：减少耦合，代码重用，减轻维护
 * 继承：它可以使用现有类的所有功能，并在无需重新编写原来的类的情况下对这些功能进行扩展。
 * 多态：指允许不同类的对象对同一消息做出响应。
 
@@ -29,6 +29,18 @@
   * 子类方法的返回类型必须是父类方法返回类型或为其子类型。
   * 子类方法抛出的异常类型必须是父类抛出异常类型或为其子类型。
 * **`重载Overloading`**：**发生在同一个类中，方法名相同，参数列表不同（个数、类型、顺序），与权限修饰、返回值类型、抛出异常无关**
+
+
+
+构造器是不可以被重写的，但是能重载。
+
+构造方法有哪些特性？
+
+1.  名字与类名相同。
+2.  没有返回值，但不能用void声明构造函数。
+3.  生成类的对象时自动执行，无需调用。
+
+
 
 ## 2、类图
 
@@ -122,6 +134,15 @@ protected 用于修饰成员，表示在继承体系中成员对于子类可见�
 * 成员变量只能被对象调用。随着对象创建而存在，随对象销毁而销毁。存在于**堆栈内存中**
 * 局部变量在方法或语句块中申明的变量，生命周期只在定义的{}之中，不能跨方法或语句块使用。
 * 成员变量可以称为对象的特有数据，**静态变量称为对象的共享数据**
+* 成员变量可以被 public,private,static 等修饰符所修饰，而局部变量不能被访问控制修饰符及 static 所修饰；但是，成员变量和局部变量都能被 final 所修饰。
+
+
+
+**在一个静态方法内调用一个非静态成员为什么是非法的?**
+
+由于静态方法可以不通过对象进行调用，因此在静态方法里，不能调用其他非静态变量，也不可以访问非静态变量成员。
+
+
 
 ---
 
@@ -572,6 +593,22 @@ hashCode() 返回散列值，而 equals() 是用来判断两个对象是否等�
 
 
 
+**为什么要有 hashCode**
+
+`hashCode()` 的作用就是**获取哈希码**，确定该对象在哈希表中的索引位置
+
+
+
+**hashCode（）与equals（）**
+
+1.  如果两个对象相等，则hashcode一定也是相同的
+2.  两个对象相等,对两个对象分别调用equals方法都返回true
+3.  两个对象有相同的hashcode值，它们也不一定是相等的
+4.  **因此，equals 方法被覆盖过，则 hashCode 方法也必须被覆盖**
+5.  hashCode() 的默认行为是对堆上的对象产生独特值。如果没有重写 hashCode()，则该 class 的两个对象无论如何都不会相等（即使这两个对象指向相同的数据）
+
+
+
 ## 4、clone()
 
 clone() 是 Object 的 protected 方法，它不是 public，一个类不显式去重写 clone()，其它类就不能直接去调用该类实例的 clone() 方法。
@@ -970,17 +1007,14 @@ public class Test {
 	public static int fun(int i) {
 		try {
 			System.out.println(i);
-			i=i/0; 
 			return i; 
 		}catch (Exception e) {
-			i=20;
-			System.out.println(i);
+			System.out.println(i=20);
 			return i; 
 		}finally {
-			i=30;
 			System.out.println(i=300);
+			return i;
 		}
-        //return i;
 	}
     public static void main(String[] argc) {
     	System.out.println(fun(0));
@@ -988,19 +1022,18 @@ public class Test {
 }
 //输出
 0
-20
 300
-20
-
+300
 ```
 
-分析：最后一行的结果不是30和300， 这说明**finally的赋值不会对基本数据类型的返回值作出修改**
-// 第3 个数返回300， 说明finally是一定会执行的，只是操作对返回结果无影响
+**关于返回值：**
 
-**如果将return 放在fun() 的最后执行，如：注释位置。此时会怎么样？**
+如果try语句里有return，返回的是try语句块中变量值。 详细执行过程如下：
 
-* 通过代码实现，输出：0、20、300、300
-* 这说明什么？ **说明finally 操作只对提前return 不会产生影响，如果return在finally后执行，那么finally中的操作结果是有效的**
+1.  如果有返回值，就把返回值保存到局部变量中；
+2.  执行jsr指令跳到finally语句里执行；
+3.  执行完finally语句后，返回之前保存在局部变量表里的值。
+4.  **如果try，finally语句里均有return，忽略try的return，而使用finally的return.**
 
 ---
 
@@ -1257,7 +1290,7 @@ Class 和 java.lang.reflect 一起对反射提供了支持，java.lang.reflect �
 
 **反射的优点：**
 
-* 能够运行时动态获取类的实例，大大提高系统的灵活性和扩展性。 
+* **能够运行时动态获取类的实例，大大提高系统的灵活性和扩展性。** 
 * 与Java动态编译相结合，可以实现无比强大的功能 
 
 **反射的缺点：**
@@ -1297,7 +1330,7 @@ Class 和 java.lang.reflect 一起对反射提供了支持，java.lang.reflect �
 * **不可检查时异常：** Java编译器不要求一定捕获或抛出，`可以不做处理`。包括RuntimeException及其子类和Error
 * **可检查异常：** Java编译器要求`必须捕获或抛出`，如：Thread.sleep()、IOException、SQLException等以及用户自定义的Exception异常
 
-
+![](assets/dfh484174.png)
 
 **Error**：
 
@@ -1322,6 +1355,17 @@ Class 和 java.lang.reflect 一起对反射提供了支持，java.lang.reflect �
 
 * 捕获`try{}catch{}finally`、
 * 抛出`throw`、`throws`
+
+
+
+**Throwable类常用方法**
+
+*   **public string getMessage()**:返回异常发生时的详细信息
+*   **public string toString()**:返回异常发生时的简要描述
+*   **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用Throwable的子类覆盖这个方法，可以声称本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与getMessage（）返回的结果相同
+*   **public void printStackTrace()**:在控制台上打印Throwable对象封装的异常信息
+
+
 
 ---
 
