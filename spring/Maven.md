@@ -34,21 +34,16 @@
 
 常用依赖如下
 
-| 名称                                      | 描述                                                         |
-| ----------------------------------------- | ------------------------------------------------------------ |
-| spring-boot-starter-activemq              | 使用Apache ActiveMQ进行JMS消息传递                           |
-| spring-boot-starter-amqp                  | 使用Spring AMQP和Rabbit MQ的入门者                           |
-| spring-boot-starter-aop                   | 使用Spring AOP和AspectJ进行面向方面编程的入门者              |
-| spring-boot-starter-cache                 | 使用Spring Framework的缓存支持的初学者                       |
-| spring-boot-starter-data-jdbc             | 使用Spring Data JDBC的入门者                                 |
-| spring-boot-starter-data-mongodb          | 使用MongoDB面向文档的数据库和Spring Data MongoDB的初学者     |
-| spring-boot-starter-data-mongodb-reactive | 使用MongoDB面向文档的数据库和Spring Data MongoDB Reactive的入门者 |
-| spring-boot-starter-data-redis            | 在Spring Data Redis和Lettuce客户端上使用Redis键值数据存储的初学者 |
-| spring-boot-starter-data-redis-reactive   | 使用带有Spring Data Redis被动的Redis键值数据存储和Lettuce客户端的入门者 |
-| spring-boot-starter-quartz                | 使用Quartz调度程序的入门者                                   |
-| spring-boot-starter-thymeleaf             | 使用Spring MVC构建Web（包括RESTful）应用程序的入门者。使用Tomcat作为默认嵌入式容器 |
-| spring-boot-starter-jetty                 | 使用Jetty作为嵌入式servlet容器的入门。替代 spring-boot-starter-tomcat |
-| spring-boot-starter-logging               | 使用Logback进行日志记录的入门。默认日志启动器                |
-| spring-boot-starter-log4j2                | 使用Log4j2进行日志记录的入门，替代spring-boot-starter-logging |
-| spring-boot-starter-tomcat                | 使用Tomcat作为嵌入式servlet容器的入门者                      |
 
+
+
+
+<scope>
+
+在POM 4中，<dependency>中还引入了<scope>，它主要管理依赖的部署。目前<scope>可以使用5个值： 
+
+* compile，缺省值，适用于所有阶段，会随着项目一起发布。 
+* provided，类似compile，期望JDK、容器或使用者会提供这个依赖。如servlet.jar。 
+* runtime，只在运行时使用，如JDBC驱动，适用运行和测试阶段。 
+* test，只在测试时使用，用于编译和运行测试代码。不会随项目发布。 
+* system，类似provided，需要显式提供包含依赖的jar，Maven不会在Repository中查找它。

@@ -1179,58 +1179,6 @@ Spring Boot遵循不同的初始化顺序。Spring Boot使用Spring配置来引�
 *   性能方面：Struts2 每次请求都会实例化一个Action；SpringMVC的Controller Bean默认**单例模式**
 *   配置方面：spring MVC和Spring是无缝的。从这个项目的管理和安全上也比Struts2高。
 
-## 拦截器
-
-所有`HandlerMapping`实现都支持处理程序拦截器，拦截器必须`HandlerInterceptor`从 `org.springframework.web.servlet`包中实现三种方法
-
-*   `preHandle(..)`：在执行实际处理程序之前
-*   `postHandle(..)`：处理程序执行后
-*   `afterCompletion(..)`：完成请求完成后
-
-
-
-`HandlerExceptionResolver`实现：
-
-*   SimpleMappingExceptionResolver：异常类名称和错误视图名称之间的映射。用于在浏览器应用程序中呈现错误页面。
-*   DefaultHandlerExceptionResolver：解决Spring MVC引发的异常并将它们映射到HTTP状态代码。
-*   ResponseStatusExceptionResolver：使用`@ResponseStatus`注释解析异常，并根据注释中的值将它们映射到HTTP状态代码。
-*   ExceptionHandlerExceptionResolver：通过调用或 类中的`@ExceptionHandler`方法来解决异常。
-
-
-
-在Java配置中，您可以注册拦截器以应用传入请求，如以下示例所示：
-
-```java
-@Configuration
-@EnableWebMvc
-public class WebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LocaleChangeInterceptor());
-        registry.addInterceptor(new ThemeChangeInterceptor()).addPathPatterns("/**").excludePathPatterns("/admin/**");
-        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/secure/*");
-    }
-}
-```
-
-以下示例显示如何在XML中实现相同的配置：
-
-```xml
-<mvc:interceptors>
-    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
-    <mvc:interceptor>
-        <mvc:mapping path="/**"/>
-        <mvc:exclude-mapping path="/admin/**"/>
-        <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"/>
-    </mvc:interceptor>
-    <mvc:interceptor>
-        <mvc:mapping path="/secure/*"/>
-        <bean class="org.example.SecurityInterceptor"/>
-    </mvc:interceptor>
-</mvc:interceptors>
-```
-
 
 
 ## 请求映射
@@ -1359,482 +1307,278 @@ public class WebConfig {
 ```
 
 
-  
 
 ## 过滤器
+
+如果是springboot项目，在pom.xml 中配置`spring-boot-starter-web` 依赖即可
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+实现 Filter 接口。
+
+```java
+@WebFilter(filterName="myFilter",urlPatterns="/*")
+public class MyFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        System.out.println("开始进行过滤处理");
+        //调用该方法后，表示过滤器经过原来的url请求处理方法
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
+
+```
+
+**内置容器**
+
+如果使用的容器时Springboot 的内置容器，则需要通过使用一个`@Configuration`类注释`@ServletComponentScan`并指定包含要注册的组件的包来自动注册嵌入式servlet容器。
+
+默认情况下，`@ServletComponentScan`从带注释的类的包中进行扫描。
+
+```java
+@SpringBootApplication
+@ServletComponentScan
+public class DemoApplication extends SpringBootServletInitializer {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+
+
+**外部容器**
+
+当使用外部容器部署 war 文件时，提供 `SpringBootServletInitializer`子类并覆盖其`configure`方法。这样做可以利用Spring Framework的Servlet 3.0支持，并允许您在servlet容器启动时配置应用程序。
+
+通常，您应该更新应用程序的主类以进行扩展`SpringBootServletInitializer`，无需`@ServletComponentScan` 注释。
+
+如以下示例所示：
+
+```java
+@SpringBootApplication
+public class DemoApplication extends SpringBootServletInitializer {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+    /**
+     * 实现SpringBootServletInitializer可以让spring-boot项目在web容器中运行
+     */
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(DemoApplication.class);
+    }
+}
+```
+
+最后为了确保嵌入式servlet容器不会干扰部署war文件的servlet容器。为此，您需要将嵌入式servlet容器依赖项标记为
+
+<scope>provided</scope>
+
+并且pom.xml 中需要修改为
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+</dependency>
+```
+
+注：<scope>provided</scope>表示在编译和测试时使用（不加它，打的包中会指定tomcat，用tomcat部署时会因tomcat版本报错；而加上它，打包时不会把内置的tomcat打进去）
+
+
+
+## 拦截器
+
+**应用场景**
+1、日志记录，可以记录请求信息的日志，以便进行信息监控、信息统计等。
+
+2、权限检查：如登陆检测，进入处理器检测是否登陆，如果没有直接返回到登陆页面。
+
+3、性能监控：典型的是慢日志。
+
+
+
+所有`HandlerMapping`实现都支持处理程序拦截器，拦截器必须`HandlerInterceptor`从 `org.springframework.web.servlet`包中实现三种方法
+
+- `preHandle(..)`：在执行实际处理程序之前
+- `postHandle(..)`：处理程序执行后
+- `afterCompletion(..)`：完成请求完成后
+
+
+
+一般使用继承`HandlerInterceptorAdapter`的方式，
+
+代码如下：
+
+```java
+@Component
+public class IndexInterceptor extends HandlerInterceptorAdapter {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("------------------成功潜入拦截器中---------------");
+        return super.preHandle(request, response, handler);
+    }
+}
+```
+
+
+
+
+
+在Java配置中，您可以注册拦截器以应用传入请求，如以下示例所示：
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    private  IndexInterceptor indexInterceptor;
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        System.out.println("------------------准备注册拦截器---------------");
+        
+        // addPathPatterns("/**") 表示拦截所有的请求，
+        // excludePathPatterns("/login", "/register") 表示除了登陆与注册之外，因为登陆注册不需要登陆也可以访问
+        registry.addInterceptor(indexInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/login", "/register");
+    }
+}
+```
+
+以下示例显示如何在XML中实现相同的配置：
+
+```xml
+<mvc:interceptors>
+    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+    <mvc:interceptor>
+        <mvc:mapping path="/**"/>
+        <mvc:exclude-mapping path="/admin/**"/>
+        <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor"/>
+    </mvc:interceptor>
+    <mvc:interceptor>
+        <mvc:mapping path="/secure/*"/>
+        <bean class="org.example.SecurityInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
 
 
 
 ## 监听器
 
-## 对象模型
-
-在对象模型中的实体类可细分为4种类型，VO、DTO、DO、PO
-
-*   VO：视图层对象，用于展示层视图状态对应的对象
-*   DTO：数据传输对象，一般用于展示层与服务层之间的数据传输对象，可以看做一个组合版的DO
-*   DO：业务实体对象
-*   PO：持久层对象，表示持久层的数据结构如，数据库表
-
-
-
-  
-
-# 五、DAO支持
-
-Spring中的数据访问对象（DAO）支持旨在以一致的方式轻松使用数据访问技术（如JDBC，Hibernate或JPA）
-
-一般可以使用`@Repository`注解
+1、使用servlet 3.0 注解 @WebListener
 
 ```java
-@Repository
-public class JdbcMovieFinder implements MovieFinder {
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    public void init(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+@WebListener
+public class RequestListenter implements ServletRequestListener {
+    @Override
+    public void requestDestroyed(ServletRequestEvent servletRequestEvent) {
+        System.out.println("---------------------------->请求销毁监听器");
     }
-
-    // ...
-
-}
-```
-
-Spring Framework的JDBC抽象框架由四个不同的包组成：
-
-*   `core`：`org.springframework.jdbc.core`包中包含`JdbcTemplate`类及其各种回调接口，以及各种相关类
-*   `datasource`：该`org.springframework.jdbc.datasource`软件包包含一个用于轻松`DataSource`访问的实用程序类 和各种简单`DataSource`实现，可用于在Java EE容器外测试和运行未修改的JDBC代码
-*   `object`：该`org.springframework.jdbc.object`包包含将RDBMS查询，更新和存储过程表示为线程安全，可重用对象的类。
-*   `support`：该`org.springframework.jdbc.support`包提供`SQLException`翻译功能和一些实用程序类。
-
-
-
-## 1、`JdbcTemplate`
-
-`JdbcTemplate`是JDBC核心包中的中心类。它处理资源的创建和释放，帮助您避免常见错误，例如忘记关闭连接。它执行核心JDBC工作流的基本任务（例如语句创建和执行），留下应用程序代码以提供SQL并提取结果。本`JdbcTemplate`类：
-
-*   运行SQL查询
-*   更新语句和存储过程调用
-*   对`ResultSet`实例执行迭代并提取返回的参数值。
-*   捕获JDBC异常并将它们转换为`org.springframework.dao`包中定义的通用的，信息更丰富的异常层次结构
-
-
-
-`JdbcTemplate`一旦配置，该类的实例是**线程安全的**。这很重要，因为这意味着您可以配置a的单个实例，`JdbcTemplate` 然后将此共享引用安全地注入多个DAO（或存储库）。
-
-
-
-
-
-**查询（`SELECT`）**
-
-以下查询获取关系中的行数：
-
-```java
-int rowCount = this.jdbcTemplate.queryForObject("select count(*) from t_actor", Integer.class);
-```
-
-以下查询使用绑定变量：
-
-```java
-int countOfActorsNamedJoe = this.jdbcTemplate.queryForObject(
-        "select count(*) from t_actor where first_name = ?", Integer.class, "Joe");
-```
-
-以下查询查找`String`：
-
-```java
-String lastName = this.jdbcTemplate.queryForObject(
-        "select last_name from t_actor where id = ?",
-        new Object[]{1212L}, String.class);
-```
-
-以下查询查找并填充单个域对象：
-
-```java
-Actor actor = this.jdbcTemplate.queryForObject(
-        "select first_name, last_name from t_actor where id = ?",
-        new Object[]{1212L},
-        new RowMapper<Actor>() {
-            public Actor mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Actor actor = new Actor();
-                actor.setFirstName(rs.getString("first_name"));
-                actor.setLastName(rs.getString("last_name"));
-                return actor;
-            }
-        });
-```
-
-以下查询查找并填充许多域对象：
-
-```java
-List<Actor> actors = this.jdbcTemplate.query(
-        "select first_name, last_name from t_actor",
-        new RowMapper<Actor>() {
-            public Actor mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Actor actor = new Actor();
-                actor.setFirstName(rs.getString("first_name"));
-                actor.setLastName(rs.getString("last_name"));
-                return actor;
-            }
-        });
-```
-
-如果最后两个代码片段实际存在于同一个应用程序中，那么删除两个`RowMapper`匿名内部类中存在的重复并将它们提取到一个`static`可以由DAO引用的单个类（通常是嵌套类）中是有意义的。根据需要的方法。例如，最好编写前面的代码片段，如下所示：
-
-```java
-public List<Actor> findAllActors() {
-    return this.jdbcTemplate.query( "select first_name, last_name from t_actor", new ActorMapper());
-}
-
-private static final class ActorMapper implements RowMapper<Actor> {
-
-    public Actor mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Actor actor = new Actor();
-        actor.setFirstName(rs.getString("first_name"));
-        actor.setLastName(rs.getString("last_name"));
-        return actor;
-    }
-}
-```
-
-**更新（`INSERT`，`UPDATE`，和`DELETE`）与`JdbcTemplate**`
-
-您可以使用该`update(..)`方法执行插入，更新和删除操作。参数值通常作为变量参数提供，或者作为对象数组提供。
-
-以下示例插入一个新条目：
-
-```java
-this.jdbcTemplate.update(
-        "insert into t_actor (first_name, last_name) values (?, ?)",
-        "Leonor", "Watling");
-```
-
-以下示例更新现有条目：
-
-```java
-this.jdbcTemplate.update(
-        "update t_actor set last_name = ? where id = ?",
-        "Banjo", 5276L);
-```
-
-以下示例删除条目：
-
-```java
-this.jdbcTemplate.update(
-        "delete from actor where id = ?",
-        Long.valueOf(actorId));
-```
-
-**其他`JdbcTemplate`行动**
-
-您可以使用该`execute(..)`方法运行任意SQL。因此，该方法通常用于DDL语句。它重载了带有回调接口，绑定变量数组等的变体。以下示例创建一个表：
-
-```java
-this.jdbcTemplate.execute("create table mytable (id integer, name varchar(100))");
-```
-
-以下示例调用存储过程：
-
-```java
-this.jdbcTemplate.update(
-        "call SUPPORT.REFRESH_ACTORS_SUMMARY(?)",
-        Long.valueOf(unionId));
-```
-
-**批处理**
-
-```java
-public class JdbcActorDao implements ActorDao {
-    private JdbcTemplate jdbcTemplate;
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-    // 方式一
-    public int[] batchUpdate(final List<Actor> actors) {
-        return this.jdbcTemplate.batchUpdate(
-            "update t_actor set first_name = ?, last_name = ? where id = ?",
-            new BatchPreparedStatementSetter() {
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setString(1, actors.get(i).getFirstName());
-                    ps.setString(2, actors.get(i).getLastName());
-                    ps.setLong(3, actors.get(i).getId().longValue());
-                }
-                public int getBatchSize() {
-                    return actors.size();
-                }
-            });
-    }
-    // 方式二
-    public int[] batchUpdate(List<Actor> actors) {
-        return this.namedParameterJdbcTemplate.batchUpdate(
-            "update t_actor set first_name = :firstName, last_name = :lastName where id = :id",
-            SqlParameterSourceUtils.createBatch(actors));
-    }
-    // 方式三
-    public int[] batchUpdate(final List<Actor> actors) {
-        List<Object[]> batch = new ArrayList<Object[]>();
-        for (Actor actor : actors) {
-            Object[] values = new Object[] {
-                    actor.getFirstName(), actor.getLastName(), actor.getId()};
-            batch.add(values);
-        }
-        return this.jdbcTemplate.batchUpdate(
-                "update t_actor set first_name = ?, last_name = ? where id = ?",
-                batch);
-    }
-}
-```
-
-  
-
-## 2、`NamedParameterJdbcTemplate`
-
-该`NamedParameterJdbcTemplate`班通过使用命名参数还增加了对如何在SQL语句，如只使用常规的占位符（而不是如何在SQL语句`'?'`）的参数
-
-1、使用命名参数表示法以及插入`namedParameters` 变量（类型`MapSqlParameterSource`）的相应值
-
-```java
-// some JDBC-backed DAO class...
-private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-public void setDataSource(DataSource dataSource) {
-    this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-}
-
-public int countOfActorsByFirstName(String firstName) {
-    String sql = "select count(*) from T_ACTOR where first_name = :first_name";
-    SqlParameterSource namedParameters = new MapSqlParameterSource("first_name", firstName);
-    return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class);
-}
-```
-
-
-
-2、使用`Map`基于-Based的样式将命名参数及其相应的值传递给 实例
-
-```java
-public int countOfActorsByFirstName(String firstName) {
-    String sql = "select count(*) from T_ACTOR where first_name = :first_name";
-    Map<String, String> namedParameters = Collections.singletonMap("first_name", firstName);
-    return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters,  Integer.class);
-}
-```
-
-3、`BeanPropertySqlParameterSource` 类。此类包装任意JavaBean
-
-```java
-public int countOfActors(Actor exampleActor) {
-	String sql = "select count(*) from T_ACTOR where first_name = :firstName";
-    SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(exampleActor);
-    return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class);
-}
-```
-
-
-
-## 3、`SimpleJdbc`类
-
-使用插入数据`SimpleJdbcInsert`
-
-```java
-public class JdbcActorDao implements ActorDao {
-    private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcInsert insertActor;
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.insertActor = new SimpleJdbcInsert(dataSource).withTableName("t_actor");
-    }
-
-    public void add(Actor actor) {
-        Map<String, Object> parameters = new HashMap<String, Object>(3);
-        parameters.put("id", actor.getId());
-        parameters.put("first_name", actor.getFirstName());
-        parameters.put("last_name", actor.getLastName());
-        insertActor.execute(parameters);
-    }
-}
-```
-
-自动生成主键`usingGeneratedKeyColumns`
-
-```java
-public void add(Actor actor) {
-    Map<String, Object> parameters = new HashMap<String, Object>(2);
-    parameters.put("first_name", actor.getFirstName());
-    parameters.put("last_name", actor.getLastName());
-    Number newId = insertActor.executeAndReturnKey(parameters);
-    actor.setId(newId.longValue());
-}
-```
-
-## 4、`SimpleJdbcCall`类
-
-该`SimpleJdbcCall` 可以执行存储过程
-
-```java
-public class JdbcActorDao implements ActorDao {
-    private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcCall procReadActor;
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.procReadActor = new SimpleJdbcCall(dataSource)
-                .withProcedureName("read_actor");
-    }
-
-    public Actor readActor(Long id) {
-        SqlParameterSource in = new MapSqlParameterSource()
-                .addValue("in_id", id);
-        Map out = procReadActor.execute(in);
-        Actor actor = new Actor();
-        actor.setId(id);
-        actor.setFirstName((String) out.get("out_first_name"));
-        actor.setLastName((String) out.get("out_last_name"));
-        actor.setBirthDate((Date) out.get("out_birth_date"));
-        return actor;
+    @Override
+    public void requestInitialized(ServletRequestEvent servletRequestEvent) {
+        System.out.println("---------------------------->请求创建监听器");
     }
 }
 ```
 
 
 
-## 5、ORM DAO
+## 全局异常处理
+
+### 使用`@ControllerAdvice`
+
+通过`@ControllerAdvice`以自定义要为特定控制器和/或异常类型返回的JSON文档
+
+```java
+@ControllerAdvice
+public class WebExceptionHandler {
+    /**
+     * 全局异常捕捉处理
+     * @param ex
+     * @return
+     */
+    @ResponseBody
+    @ExceptionHandler(value = Exception.class)
+    public Map errorHandler(Exception ex) {
+        System.out.println("--------全局异常捕捉处理---------");
+        Map map = new HashMap();
+        map.put("code", 100);
+        map.put("msg", ex.getMessage());
+        //当然也可以直接返回ModelAndView等类型，然后跳转相应的错误页面，这都根据实际的需要进行使用
+        return map;
+    }
+}
+```
 
 
 
+### 实现HandlerExceptionResolver
 
+通过`HandlerExceptionResolver`实现
 
-# 任务调度
+```java
+public interface HandlerExceptionResolver {
+    @Nullable
+    ModelAndView resolveException(HttpServletRequest request, 
+                                  HttpServletResponse response, 
+                                  @Nullable Object handler, 
+                                  Exception ex);
 
-支持`@Scheduled`和`@Async`注释，您可以添加`@EnableScheduling`和 添加`@EnableAsync`到其中一个`@Configuration`类，如以下示例所示：
+}
+```
+
+代码实现如下：
 
 ```java
 @Configuration
-@EnableAsync
-@EnableScheduling
-public class AppConfig {
-}
-```
-
-
-  
-
-# 缓存
-
-# 单元测试	
-
-# 注解总结
-
-
-
-# 事件
-
-`ApplicationContext`通过`ApplicationEvent` 类和`ApplicationListener`接口提供事件处理。如果将实现`ApplicationListener`接口的bean部署到上下文中，则每次 `ApplicationEvent`将其发布到该`ApplicationContext`bean时，都会通知该bean。从本质上讲，这是**标准的Observer设计模式**。
-
-
-
-Spring提供的事件类型
-
-*   ContextRefreshedEvent
-*   ContextStartedEvent：ApplicationContext启动事件
-*   ContextStoppedEventt：ApplicationContext暂停事件
-*   ContextClosedEvent：ApplicationContext关闭事件
-*   RequestHandledEvent：HTTP请求拦截事件
-*   ServletRequestHandledEvent：Servlet请求拦截事件
-
-
-
-自定义事件实现如下：
-
-```java
-public class BlackListEvent extends ApplicationEvent {
-    private final String address;
-    private final String content;
-
-    public BlackListEvent(Object source, String address, String content) {
-        super(source);
-        this.address = address;
-        this.content = content;
-    }
-
-    // accessor and other methods...
-}
-
-public class EmailService implements ApplicationEventPublisherAware {
-
-    private List<String> blackList;
-    private ApplicationEventPublisher publisher;
-
-    public void setBlackList(List<String> blackList) {
-        this.blackList = blackList;
-    }
-
-    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
-        this.publisher = publisher;
-    }
-
-    public void sendEmail(String address, String content) {
-        if (blackList.contains(address)) {
-            publisher.publishEvent(new BlackListEvent(this, address, content));
-            return;
+public class GlobalException  implements HandlerExceptionResolver {
+    @Override public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        ModelAndView mv = new ModelAndView();
+        System.out.println("--------全局异常捕捉处理---------");
+        //判断不同异常类型，做不同视图跳转
+        if(ex instanceof ArithmeticException){
+            mv.setViewName("error1");
         }
-        // send email...
+        if(ex instanceof RuntimeException){
+            mv.setViewName("error2"); }
+        mv.addObject("index", ex.toString());
+        return mv;
     }
 }
+
 ```
 
 
 
-**基于注解的事件监听器**
+HandlerExceptionResolver常用实现类如下：
 
-从Spring 4.2开始，您可以使用`@EventListener`注释在托管bean的任何公共方法上注册事件侦听器
-
-```java
-public class BlackListNotifier {
-    private String notificationAddress;
-    public void setNotificationAddress(String notificationAddress) {
-        this.notificationAddress = notificationAddress;
-    }
-
-    @EventListener
-    public void processBlackListEvent(BlackListEvent event) {
-        // notify appropriate parties via notificationAddress...
-    }
-    //监听多个事件
-    @EventListener({ContextStartedEvent.class, ContextRefreshedEvent.class})
-    public void handleContextStart() {
-        ...
-    }
-}
-```
+- SimpleMappingExceptionResolver：异常类名称和错误视图名称之间的映射。用于在浏览器应用程序中呈现错误页面。
+- DefaultHandlerExceptionResolver：解决Spring MVC引发的异常并将它们映射到HTTP状态代码。
+- ResponseStatusExceptionResolver：使用`@ResponseStatus`注释解析异常，并根据注释中的值将它们映射到HTTP状态代码。
+- ExceptionHandlerExceptionResolver：通过调用或 类中的`@ExceptionHandler`方法来解决异常。
 
 
 
-您可以`ApplicationContext`使用`ContextLoaderListener`，注册一个，如下例所示：
+### 总结
 
-```xml
-<context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/daoContext.xml /WEB-INF/applicationContext.xml</param-value>
-</context-param>
+Spring官方推荐`@ControllerAdvice`的写法，理由主要有下面几点：
 
-<listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-</listener>
-```
-
-
-
-
-
-
-
-# 参考资料
-
-*   [Spring Framework 5.1.7](https://docs.spring.io/spring/docs/5.1.7.RELEASE/spring-framework-reference/)
-
-*   精通Spring 4.x  企业应用开发实战 / 陈雄华，林开雄 ，文建国编著
-
-     
-
-    
+1、使用注解的方式代码看上去更加的清晰。
+2、对于自定义异常的捕获会很方便。
+3、适用于对于返回json格式的情况（可以使用@ResponseBody注解方法对特定异常进行处理），使用HandlerExceptionResolver的话如果是ajax的请求，出现异常就会很尴尬，ajax并不认识ModelAndView。
