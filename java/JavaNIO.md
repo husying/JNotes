@@ -176,25 +176,25 @@ flip方法将Buffer从写模式切换到读模式。调用flip()方法会将posi
 
 ① 新建一个大小为 8 个字节的缓冲区，此时 position 为 0，而 limit = capacity = 8。capacity 变量不会改变，下面的讨论会忽略它。
 
-[![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/1bea398f-17a7-4f67-a90b-9e2d243eaa9a.png)](https://github.com/CyC2018/CS-Notes/blob/master/notes/pics/1bea398f-17a7-4f67-a90b-9e2d243eaa9a.png)
+
+
+![1bea398f-17a7-4f67-a90b-9e2d243eaa9a.png](assets/1bea398f-17a7-4f67-a90b-9e2d243eaa9a.png)
 
 ② 从输入通道中读取 5 个字节数据写入缓冲区中，此时 position 为 5，limit 保持不变。
 
-[![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/80804f52-8815-4096-b506-48eef3eed5c6.png)](https://github.com/CyC2018/CS-Notes/blob/master/notes/pics/80804f52-8815-4096-b506-48eef3eed5c6.png)
+![80804f52-8815-4096-b506-48eef3eed5c6.png](assets/80804f52-8815-4096-b506-48eef3eed5c6.png)
 
 ③ 在将缓冲区的数据写到输出通道之前，需要先调用 flip() 方法，这个方法将 limit 设置为当前 position，并将 position 设置为 0。
 
-[![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/952e06bd-5a65-4cab-82e4-dd1536462f38.png)](https://github.com/CyC2018/CS-Notes/blob/master/notes/pics/952e06bd-5a65-4cab-82e4-dd1536462f38.png)
+![952e06bd-5a65-4cab-82e4-dd1536462f38.png](assets/952e06bd-5a65-4cab-82e4-dd1536462f38.png)
 
 ④ 从缓冲区中取 4 个字节到输出缓冲中，此时 position 设为 4。
 
-[![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/b5bdcbe2-b958-4aef-9151-6ad963cb28b4.png)](https://github.com/CyC2018/CS-Notes/blob/master/notes/pics/b5bdcbe2-b958-4aef-9151-6ad963cb28b4.png)
+![b5bdcbe2-b958-4aef-9151-6ad963cb28b4.png](assets/b5bdcbe2-b958-4aef-9151-6ad963cb28b4.png)
 
 ⑤ 最后需要调用 clear() 方法来清空缓冲区，此时 position 和 limit 都被设置为最初位置。
 
-[![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/67bf5487-c45d-49b6-b9c0-a058d8c68902.png)](https://github.com/CyC2018/CS-Notes/blob/master/notes/pics/67bf5487-c45d-49b6-b9c0-a058d8c68902.png)
-
-
+![67bf5487-c45d-49b6-b9c0-a058d8c68902.png](assets/67bf5487-c45d-49b6-b9c0-a058d8c68902.png)
 
 ### 4> 代码示范
 
@@ -282,7 +282,7 @@ byte aByte = buf.get();
 
 只有套接字 Channel 才能配置为非阻塞，而 FileChannel 不能，为 FileChannel 配置非阻塞也没有意义。
 
-![img](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/overview-selectors.png)
+![overview-selectors.png](assets/overview-selectors.png)
 
 ### 2> 选择器创建
 

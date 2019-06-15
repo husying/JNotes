@@ -6,7 +6,7 @@
 
 Java集合类存放于 java.util 包中，是一个用来存放对象的容器。
 
-![Java集合](../../static-resources/learning-notes-images/images/Java集合-1559390873399.png)
+![1559390873399](assets/1559390873399.png)
 
 
 

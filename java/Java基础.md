@@ -1,8 +1,8 @@
 # JAVA基础
 
+![Java基础.png](assets/Java基础.png)
 
 
-![Java基础](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/Java基础.png)
 
 # 一、面向对象
 

@@ -60,9 +60,9 @@ Java的IO模型设计非常优秀，它使用Decorator**(装饰者)模式**，�
 
 # 二、IO分类
 
-![learning-notes IO流](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/2019-06-01_090652.png)
+![2019-06-01_090652.png](https://github.com/HusyCoding/static-resources/blob/master/learning-notes-images/images/2019-06-01_090652.png?raw=true)
 
-![IO （java.io ）](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/IO （java.io ）.png)
+![IO](assets/IO.png)
 
 **按照处理数据方向分类：**
 
@@ -189,7 +189,7 @@ Java I/O 使用了装饰者模式来实现。以 InputStream 为例，
 *   它有很多具体组件的实现类，如：FileInputStream 、ByteArrayInputStream 、PipedInputStream 等
 *   还有装饰者对象。如：FilterInputStream ；为组件提供额外的功能，其子类有：BufferInputStream 、DataInputStream 等等
 
-![InputStream](https://raw.githubusercontent.com/HusyCoding/static-resources/master/learning-notes-images/images/InputStream.png)
+![InputStream.png](https://github.com/HusyCoding/static-resources/blob/master/learning-notes-images/images/InputStream.png?raw=true)
 
 
 
