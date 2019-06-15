@@ -1109,11 +1109,37 @@ public class SysLogAspect {
 
 # 四、Spring MVC
 
+## 1、了解SpringMVC
+
 Spring MVC是基于Servlet API构建的原始Web框架
 
 Spring MVC是一个基于Java的实现了MVC设计模式的轻量级Web框架，通过把Model，View，Controller分离，将web层进行职责解耦，把复杂的web应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。
 
-## DispatcherServlet  
+
+
+**springMVC&Struts2 区别**
+
+*   拦截机制：Struts2 是类级别拦截，SpringMVC是方法级别的拦截。
+*   底层框架：Struts2 是采用过滤器实现的filter，springmvc 采用 servlet 实现的
+*   性能方面：Struts2 每次请求都会实例化一个Action；SpringMVC的Controller Bean默认**单例模式**
+*   配置方面：spring MVC和Spring是无缝的。从这个项目的管理和安全上也比Struts2高。
+
+## 2、SpringMVC工作原理
+
+前端控制 --> 处理器映射器-->处理器适配器-->后端控制层-->视图解析-->渲染
+
+*   用户请求-->**前端控制器**DispatcherServlet。
+*   DispatcherServlet-->调用HandlerMapping **处理器映射器**。解析请求对应的Handler
+*   处理器映射器根据地址找到具体的处理器，**生成处理器对象及处理器拦截器对象**-->并返回给DispatcherServlet。
+*   DispatcherServlet-->调用HandlerAdapter **处理器适配器**。
+*   HandlerAdapter 根据Handler来调用后端控制器**Controller进行业务处理**
+*   Controller-->**返回ModelAndView** 给 HandlerAdapter处理器适配器
+*   HandlerAdapter-->ModelAndView返回给DispatcherServlet。
+*   DispatcherServlet将ModelAndView-->传给ViewReslover**视图解析器**进行解析成具体View。
+*   DispatcherServlet根据View进行**渲染视图**
+*   DispatcherServlet响应用户。
+
+### 1> DispatcherServlet  
 
 DispatcherServlet  是前端控制器，通过使用Java配置或在Servlet说明书中声明和映射`web.xml`通过使用Java配置或在Servlet说明书中声明和映射`web.xml`，反过来，`DispatcherServlet`使用Spring的配置来发现它需要请求映射，视图解析，异常处理，委托组件
 
@@ -1153,35 +1179,43 @@ Spring Boot遵循不同的初始化顺序。Spring Boot使用Spring配置来引�
 
 ![mvc上下文层次结构](assets/mvc-context-hierarchy.png)
 
+### 2> 视图解析器
+
+Spring MVC与JSP和JSTL一起使用
+
+使用JSP进行开发时，可以声明一个`InternalResourceViewResolver`或一个`ResourceBundleViewResolver`。
+
+*   `ResourceBundleViewResolver`依赖于属性文件来定义映射到类和URL的视图名称
+*   `InternalResourceViewResolver`也可以用于JSP。作为最佳实践，
+*   建议将JSP文件放在目录下的`'WEB-INF'`目录中，以便客户端无法直接访问。
+
+```xml
+<bean id="viewResolver" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+    <property name="basename" value="views"/>
+</bean>
+```
+
+```xml
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <property name="suffix" value=".jsp"/>
+</bean>
+```
+
+使用JSP标准标记库（JSTL）时，必须使用特殊的视图类 `JstlView`
+
+且JSP 页面需要引入
+
+```xml
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+```
 
 
-## SpringMVC工作原理
 
-前端控制 --> 处理器映射器-->处理器适配器-->后端控制层-->视图解析-->渲染
+## 3、控制层
 
-*   用户请求-->**前端控制器**DispatcherServlet。
-*   DispatcherServlet-->调用HandlerMapping **处理器映射器**。解析请求对应的Handler
-*   处理器映射器根据地址找到具体的处理器，**生成处理器对象及处理器拦截器对象**-->并返回给DispatcherServlet。
-*   DispatcherServlet-->调用HandlerAdapter **处理器适配器**。
-*   HandlerAdapter 根据Handler来调用后端控制器**Controller进行业务处理**
-*   Controller-->**返回ModelAndView** 给 HandlerAdapter处理器适配器
-*   HandlerAdapter-->ModelAndView返回给DispatcherServlet。
-*   DispatcherServlet将ModelAndView-->传给ViewReslover**视图解析器**进行解析成具体View。
-*   DispatcherServlet根据View进行**渲染视图**
-*   DispatcherServlet响应用户。
-
-
-
-## springMVC&&Struts2 区别
-
-*   拦截机制：Struts2 是类级别拦截，SpringMVC是方法级别的拦截。
-*   底层框架：Struts2 是采用过滤器实现的filter，springmvc 采用 servlet 实现的
-*   性能方面：Struts2 每次请求都会实例化一个Action；SpringMVC的Controller Bean默认**单例模式**
-*   配置方面：spring MVC和Spring是无缝的。从这个项目的管理和安全上也比Struts2高。
-
-
-
-## 请求映射
+### 1>请求映射
 
 使用`@RequestMapping`注释将请求映射到控制器方法。它具有各种属性，可通过URL，HTTP方法，请求参数，标头和媒体类型进行匹配。您可以在类级别使用它来表示共享映射，或者在方法级别使用它来缩小到特定的端点映射。
 
@@ -1192,8 +1226,6 @@ Spring Boot遵循不同的初始化顺序。Spring Boot使用Spring配置来引�
 *   `@PutMapping`
 *   `@DeleteMapping`
 *   `@PatchMapping`
-
-
 
 **URI模式**
 
@@ -1226,9 +1258,7 @@ public class OwnerController {
 }
 ```
 
-
-
-## 重定向属性  
+### 2> 重定向属性  
 
 定义重定向：
 
@@ -1240,44 +1270,93 @@ public String upload(...) {
 }
 ```
 
+### 3> 代码演示
+
+```java
+package com.husy.controller;
+
+import com.husy.model.UserVo;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * @author hsy
+ */
+@RestController
+// 请求地址映射类级别
+@RequestMapping("/home")
+public class IndexController {
+
+	/**
+	 * 将请求映射到方法
+	 * @return
+	 */
+	@RequestMapping("index")
+	public String index(){
+		return "index";
+	}
+	/**
+	 * 将多个请求映射到一个方法
+	 * @return
+	 */
+	@RequestMapping(value = {"","/page","page*","view/*,**/msg"	})
+	public String indexMultipleMapping() {
+		return "Hello from index multiple mapping.";
+	}
+	/**
+	 * 定义请求方式 post
+	 * @return
+	 */
+	@RequestMapping(value ="type"  ,method = RequestMethod.POST)
+	public String postMapping() {
+		return "Hello from post";
+	}
+
+	/**
+	 * 使用 @RequestParam 注解的传递参数，personId 必须传递
+	 * @param inputStr
+	 * @return
+	 */
+	 @RequestMapping(value = "/id")
+	 public String getId(@RequestParam("paramId") String inputStr  ) {
+		return "Get Param value element,then id is "+ inputStr;
+	}
+
+	/**
+	 * 使用json 对象传递参数
+	 * @param userVo
+	 * @return
+	 */
+	@RequestMapping(value = "/user")
+	public UserVo getIdByJson(@RequestBody UserVo userVo ) {
+		return  userVo;
+	}
+
+	/**
+	 * 	使用 @RequestParam 注解的 传递参数，参数可选是否传参。
+	 * @param username
+	 * @return
+	 */
+	@RequestMapping(value = "/name")
+	public String getIdByValue(@RequestParam(value ="name", required = false) String username) {
+		return "Get Param value element ,then id is "+ username;
+	}
+	/**
+	 * 处理动态 URI，动态url 传参
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/fetch/{id}", method = RequestMethod.GET)
+	public String getDynamicUriValue(@PathVariable String id) {
+		return "Dynamic URI parameter fetched,then id is "+id;
+	}
+}
 
 
-## 视图解析器
-
-Spring MVC与JSP和JSTL一起使用
-
-使用JSP进行开发时，可以声明一个`InternalResourceViewResolver`或一个`ResourceBundleViewResolver`。
-
-*   `ResourceBundleViewResolver`依赖于属性文件来定义映射到类和URL的视图名称
-
-*   `InternalResourceViewResolver`也可以用于JSP。作为最佳实践，
-*   建议将JSP文件放在目录下的`'WEB-INF'`目录中，以便客户端无法直接访问。
-
-```xml
-<bean id="viewResolver" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
-    <property name="basename" value="views"/>
-</bean>
 ```
 
-```xml
-<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
-    <property name="prefix" value="/WEB-INF/jsp/"/>
-    <property name="suffix" value=".jsp"/>
-</bean>
-```
-
-使用JSP标准标记库（JSTL）时，必须使用特殊的视图类 `JstlView`
-
-且JSP 页面需要引入
-
-```xml
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-```
 
 
-
-## 启用MVC注解
+## 4、启用MVC注解
 
 在Java配置中，您可以使用`@EnableWebMvc`批注来启用MVC配置，如以下示例所示：
 
@@ -1300,15 +1379,15 @@ public class WebConfig {
         https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/mvc
         https://www.springframework.org/schema/mvc/spring-mvc.xsd">
-
     <mvc:annotation-driven/>
-
 </beans>
 ```
 
 
 
-## 过滤器
+## 5、过滤器
+
+可参考资料：https://www.jianshu.com/p/3d421fbce734
 
 如果是springboot项目，在pom.xml 中配置`spring-boot-starter-web` 依赖即可
 
@@ -1322,7 +1401,7 @@ public class WebConfig {
 实现 Filter 接口。
 
 ```java
-@WebFilter(filterName="myFilter",urlPatterns="/*")
+@WebFilter(filterName="MyFilter",urlPatterns="/*")
 public class MyFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -1344,17 +1423,27 @@ public class MyFilter implements Filter {
 
 **内置容器**
 
-如果使用的容器时Springboot 的内置容器，则需要通过使用一个`@Configuration`类注释`@ServletComponentScan`并指定包含要注册的组件的包来自动注册嵌入式servlet容器。
+如果使用的容器是Springboot 的内置容器，需要使用`@ServletComponentScan`注解，注册到嵌入式servlet容器。这个@ServletComponentScan最好配置在 Apllication 这个上面，通用配置。
 
 默认情况下，`@ServletComponentScan`从带注释的类的包中进行扫描。
 
 ```java
 @SpringBootApplication
 @ServletComponentScan
-public class DemoApplication extends SpringBootServletInitializer {
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
-    }
+public class WebApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(WebApplication.class, args);
+	}
+}
+```
+
+也可以直接使用**@Component** 修饰，将Filter 注入到容器中，这同样有效果
+
+```java
+@Component
+@WebFilter(filterName="myFilter",urlPatterns="/*")
+public class MyFilter implements Filter {
+    ...  省略
 }
 ```
 
@@ -1362,11 +1451,15 @@ public class DemoApplication extends SpringBootServletInitializer {
 
 **外部容器**
 
-当使用外部容器部署 war 文件时，提供 `SpringBootServletInitializer`子类并覆盖其`configure`方法。这样做可以利用Spring Framework的Servlet 3.0支持，并允许您在servlet容器启动时配置应用程序。
+对于Springboot 使用外部容器，需要进行扩展`SpringBootServletInitializer`并覆盖其`configure`方法；
 
-通常，您应该更新应用程序的主类以进行扩展`SpringBootServletInitializer`，无需`@ServletComponentScan` 注释。
+如果没有重写 configure 方法，Tomcat是支持不了Spring 注解的，但是 @WebFilter  属于Servlet 3 的注解，所以 Tomcat 在启动时，是可以允许@WebFilte 在容器中注册的
 
-如以下示例所示：
+
+
+**注意：**在Tomcat 7 时， 已经支持Servlet 3 的使用， 允许在servlet容器启动时配置应用程序。
+
+Springboot使用外部容器如以下示例所示：
 
 ```java
 @SpringBootApplication
@@ -1400,9 +1493,24 @@ public class DemoApplication extends SpringBootServletInitializer {
 
 注：<scope>provided</scope>表示在编译和测试时使用（不加它，打的包中会指定tomcat，用tomcat部署时会因tomcat版本报错；而加上它，打包时不会把内置的tomcat打进去）
 
+同时移除内置Tomcat
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
 
 
-## 拦截器
+
+## 6、拦截器
 
 **应用场景**
 1、日志记录，可以记录请求信息的日志，以便进行信息监控、信息统计等。
@@ -1479,7 +1587,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 
 
-## 监听器
+## 7、监听器
 
 1、使用servlet 3.0 注解 @WebListener
 
@@ -1499,9 +1607,22 @@ public class RequestListenter implements ServletRequestListener {
 
 
 
-## 全局异常处理
+## 8、全局异常处理
 
-### 使用`@ControllerAdvice`
+全局异常处理一般可使用如下方式：
+
+*   通过使用  @ControllerAdvice
+*   通过实现 HandlerExceptionResolver
+
+
+
+Spring官方推荐`@ControllerAdvice`的写法，理由主要有下面几点：
+
+1、使用注解的方式代码看上去更加的清晰。
+2、对于自定义异常的捕获会很方便。
+3、适用于对于返回json格式的情况（可以使用@ResponseBody注解方法对特定异常进行处理），使用HandlerExceptionResolver的话如果是ajax的请求，出现异常就会很尴尬，ajax并不认识ModelAndView。
+
+### 1> 使用`@ControllerAdvice`
 
 通过`@ControllerAdvice`以自定义要为特定控制器和/或异常类型返回的JSON文档
 
@@ -1528,7 +1649,7 @@ public class WebExceptionHandler {
 
 
 
-### 实现HandlerExceptionResolver
+### 2> 实现HandlerExceptionResolver
 
 通过`HandlerExceptionResolver`实现
 
@@ -1575,10 +1696,767 @@ HandlerExceptionResolver常用实现类如下：
 
 
 
-### 总结
+# 五、Spring 注解
 
-Spring官方推荐`@ControllerAdvice`的写法，理由主要有下面几点：
+在spring 中开启注解，首先需要引入  xmlns:context="http://www.springframework.org/schema/context"
 
-1、使用注解的方式代码看上去更加的清晰。
-2、对于自定义异常的捕获会很方便。
-3、适用于对于返回json格式的情况（可以使用@ResponseBody注解方法对特定异常进行处理），使用HandlerExceptionResolver的话如果是ajax的请求，出现异常就会很尴尬，ajax并不认识ModelAndView。
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+	<context:component-scan base-package="com.husy"/> 
+</beans>
+```
+
+*   `<context:annotation-config/>`的作用：是用于激活那些已经在spring容器里注册过的bean（无论是通过xml的方式还是通过package sanning的方式）上面的注解。
+*   `<context:component-scan />`的作用：除了具有<context:annotation-config>的功能之外，<context:component-scan>还可以在指定的package下扫描以及注册javabean 。
+
+可参考资料：https://blog.csdn.net/qq_21439971/article/details/51462268
+
+
+
+## 1、常用注解
+
+在 Spring 中要使用，需要注解开启自动扫描功能。其中base-package 为需要扫描的包，可以使用模糊匹配
+
+```java
+<context:component-scan base-package="com.husy"/> 
+```
+
+常用注解如下：
+
+*   **@Configuration**  把一个类作为一个IoC容器，如果某方法上使用了@Bean，就会作为这个Spring容器中的Bean。
+
+*   **@ComponentScan**
+
+*   **@Bean** ：通过该注解实现依赖注入，@Lazy(true) 可以表示延迟初始化
+
+*   **@Scope** 用于指定scope作用域的（用在类上）
+
+*   **@Controller**	用于标注控制层组件（如struts中的action）
+
+*   **@Service**	用于标注业务层组件
+
+*   **@Repository**	用于标注数据访问组件，即DAO组件。
+
+*   **@Component**	泛指组件，当组件不好归类的时候，我们可以使用这个注解进行标注。
+
+*   **@Autowired** 默认按类型装配，如果我们想使用按名称装配，可以结合@Qualifier注解一起使用。
+
+    如下：@Autowired + @Qualifier("personDaoBean") 存在多个实例配合使用
+
+*   **@Qualifier**("personDaoBean")   **按名称装配**
+
+*   **@Resource**  **默认按名称装配**，当找不到与名称匹配的bean才会按类型装配。
+
+*   **@Async**异步方法调用
+
+*   **`@SpringBootApplication`**  申明启动类
+
+
+
+*   @AliasFor	用于属性限制
+*   @PostConstruct  用于指定初始化方法（用在方法上）
+*   @PreDestory  用于指定销毁方法（用在方法上）
+*   @DependsOn：定义Bean初始化及销毁时的顺序
+*   @Primary：自动装配时当出现多个Bean候选者时，被注解为@Primary的Bean将作为首选者，否则将抛出异常
+*   @PreDestroy 摧毁注解 默认 单例  启动就加载
+
+
+
+### 1> 组件注解
+
+*   @Controller 控制层组件申明
+*   @Service ：服务层组件申明 
+*   @Repository ：数据访问层组件申明  （表示没怎么用到过😅😅）
+*   @Component ：通用组件申明
+
+如果某个类的头上带有特定的注解【@Component/@Repository/@Service/@Controller】，就会将这个对象作为Bean注册进Spring容器
+
+
+
+这些注解的类还可以其他注解进行修饰
+
+*   @Scope：对象在spring容器（IOC容器）中的生命周期
+
+
+
+*   @Configuration：
+
+
+
+
+
+### 2> 自动装配注解
+
+*   @Autowired + @Qualifier()
+*   @Resource
+
+
+
+**@Autowired**
+
+*   就是自动装配，其作用是为了消除代码Java代码里面的getter/setter与bean属性中的property。
+*   默认按类型匹配的方式，在容器查找匹配的Bean，当**有且仅有一个匹配的Bean**时，Spring将其注入@Autowired标注的变量中，否则需要与 @Qualifier() 搭配使用
+
+**@Qualifier()**
+
+*   容器中有一个以上匹配的Bean，则可以通过@Qualifier注解限定Bean的名称
+
+代码如下：
+
+```java
+public class BMWCar implements ICar{
+    public String getCarName(){
+        return "BMW car";
+    }
+}
+public class BenzCar implements ICar{
+    public String getCarName(){
+        return "Benz car";
+    }
+}
+public class CarFactory {
+    @Autowired
+    private ICar car; 
+}
+
+```
+
+```xml
+<!-- Autowired注解配合Qualifier注解 -->
+<bean id="carFactory" class="com.spring.model.CarFactory" />
+<bean id="bmwCar" class="com.spring.service.impl.BMWCar" />
+<bean id="benz" class="com.spring.service.impl.BenzCar" />
+```
+
+通过 @Autowired + @Qualifier() 搭配 代替上述配置，如下：
+
+```java
+public class CarFactory { 
+    @Autowired
+    @Qualifier("bmwCar")
+    private ICar car;
+}
+
+
+```
+
+**@Resource**
+
+*   @Resource注解与@Autowired注解作用非常相似
+*   @Resource的装配顺序：
+    *   默认通过name属性去匹配bean，找不到再按type去匹配
+    *   指定了name或者type则根据指定的类型去匹配bean
+    *   指定了name和type则根据指定的name和type去匹配bean，任何一个不匹配都将报错
+
+
+
+**@Autowired 和 @Resource 的区别：**
+
+*   @Autowired 默认按照byType方式进行bean匹配，
+*   @Resource 默认按照byName方式进行bean匹配
+*   @Autowired是Spring的注解，@Resource是J2EE的注解，建议使用@Resource注解，以减少代码和Spring之间的耦合。
+
+------
+
+## 2、Controller层注解
+
+SpringMVC 中控制层的类一般在 控制层注解用 **`@Controller`**  修饰，
+
+SpringBoot 中，可以在的控制层用 **`@RestController`** 修饰
+
+**区别如下**：
+
+*   @Controller 注解，在对应的方法上，视图解析器可以解析return 的jsp,html页面，并且跳转到相应页面，若返回 json 等内容到页面，则需要加@ResponseBody注解
+*   @RestController注解，相当于@Controller+@ResponseBody两个注解的结合，返回json数据不需要在方法前面加@ResponseBody注解了，但使用@RestController这个注解，就不能返回jsp，html页面，视图解析器无法解析jsp，html页面
+
+
+
+### 1> @Controller  & @RestController
+
+源码如下
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Controller {
+    @AliasFor(annotation = Component.class)
+    String value() default "";
+}
+```
+
+
+
+源码如下
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Controller
+@ResponseBody
+public @interface RestController {
+    @AliasFor(annotation = Controller.class)
+    String value() default "";
+}
+```
+
+### 2> @RequestMapping
+
+源码如下
+
+```java
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Mapping
+public @interface RequestMapping {
+    String name() default "";
+    @AliasFor("path")
+    String[] value() default {};
+    @AliasFor("value")
+    String[] path() default {};
+    RequestMethod[] method() default {};
+    String[] params() default {};
+    String[] headers() default {};
+    String[] consumes() default {};
+    String[] produces() default {};
+}
+```
+
+用法：
+
+*   作用于控制器类或其方法级别
+*   映射多请求地址：可以将多个请求映射到一个方法上去
+*   绑定参数：可以配合 **`@RequestParam`** 一起使用，可以将请求的参数同处理方法的参数绑定在一起。 
+    *   **@RequestParam** 的参数
+        *   defaultValue ：定义默认值
+        *   required ：参数是否必传
+*   处理动态URL：可以同 **`@PathVaraible`** 注解一起使用，用来处理动态的 URI，URI 的值可以作为控制器中处理方法的参数。你也可以使用正则表达式来只处理可以匹配到正则表达式的动态 URI。 
+*   定义请求方式，请求的方法比如 GET （默认）, PUT, POST, DELETE 以及 PATCH。 
+    *   方法级别的注解变体有如下几个： 
+        *   **@GetMapping**
+        *   **@PostMapping**
+        *   @PutMapping
+        *   @DeleteMapping
+        *   @PatchMapping
+
+### 3> @ResponseBody 
+
+作用在类或方法上，方法将数据转为 json 数据直接写入 HTTP response body 中
+
+```java
+@RequestMapping("/login")
+@ResponseBody
+public User login(User user){
+    return user;
+}
+
+//User字段：userName pwd
+//那么在前台接收到的数据为：'{"userName":"xxx","pwd":"xxx"}'
+
+// 效果等同于如下代码：
+@RequestMapping("/login")
+public void login(User user, HttpServletResponse response){
+    response.getWriter.write(JSONObject.fromObject(user).toString());
+}
+```
+
+### 4> @RequestBody
+
+作用在形参列表上，用于将前台发送过来固定格式的数据【xml 格式或者 json等】封装为对应的 JavaBean 对象
+
+```java
+@RequestMapping(value = "user/login")
+@ResponseBody
+// 将ajax（datas）发出的请求写入 User 对象中
+public User login(@RequestBody User user) {   
+// 这样就不会再被解析为跳转路径，而是直接将user对象写入 HTTP 响应正文中
+    return user;    
+}
+```
+
+
+
+
+
+## 3、Service层注解
+
+使用 **`@Service`**   指定这是一个 service 类，该类可以使用 @Resource 或者 @Autowired +@Qualifier("DataDao") 装配
+
+```
+@Service("userService")
+@Scope("prototype")
+public class UserServiceImpl extends implements userService{
+
+}
+// 相当于applicationContext.xml文件里面的：
+<bean id="userService" class="com.husy.service.UserServiceImpl" scope="prototype">
+ 
+</bean>
+```
+
+
+
+## 4、Configuration 注解
+
+### 1> @Configuration
+
+@Configuration 注解主要用于定义配置类，配置spring容器(应用上下文)，可替换xml配置文件
+
+可以使用 @ComponentScan 开启自动扫描
+
+被注解的类内部包含一个或多个被 @Bean 注解的方法
+
+```java
+//开启注解配置
+@Configuration
+//添加自动扫描注解，basePackages为TestBean包路径
+@ComponentScan(basePackages = "com.test.spring.support.configuration")
+public class TestConfiguration {
+    public TestConfiguration(){
+         System.out.println("spring容器启动初始化。。。");
+    }
+
+    //取消@Bean注解注册bean的方式
+    @Bean
+    @Scope("prototype")
+    public TestBean testBean() {
+          return new TestBean();
+    }
+}
+
+```
+
+### 2> @SpringBootConfiguration
+
+**SpringBoot 也可以使用 @SpringBootConfiguration**
+
+@SpringBootConfiguration继承自@Configuration，二者功能也一致，标注当前类是配置类，
+并会将当前类内声明的一个或多个以@Bean注解标记的方法的实例纳入到spring容器中，并且实例名就是方法名。
+
+源码如下：
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Configuration
+public @interface SpringBootConfiguration {
+}
+```
+
+
+
+### 3> @ConfigurationProperties
+
+SpringBoot还可以使用@ConfigurationProperties注解可以注入在application.properties配置文件中的属性，和@Bean 或者 @Component 能生成spring bean 的注解结合起来使用
+
+```java
+@Bean(name = "dataSource")
+@ConfigurationProperties(prefix = "spring.datasource.druid") 
+public DataSource testDataSource( ) {
+    return DruidDataSourceBuilder.create().build();
+}
+```
+
+
+
+## 5、Aspact 注解
+
+### 1> AOP 依赖
+
+Spring 实现注解的方式需要引入如下包依赖：
+
+使用AspectJ注解需要依赖于以下几个类库
+aspectjweaver-1.6.10.jar
+
+spring-aop-4.3.10.RELEASE.jar
+
+spring-aspects-4.3.10.RELEASE.jar
+
+
+
+SpringBoot 依赖引入 spring-boot-starter-aop 包依赖就可以了
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+```
+
+spring-boot-starter-aop 进去上面源码查看，你会发现其内部已经依赖了spring-aop 和 aspectjweaver 包
+
+```xml
+<!--如下-->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>5.1.2.RELEASE</version>
+    <scope>compile</scope>
+</dependency>
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.2</version>
+    <scope>compile</scope>
+</dependency>
+```
+
+
+
+### 2> Execution 表达式类型
+
+在方法上使用 `@Pointcut` 申明一个连接点，表示该切面切入的位置，一般该方法不需要实现
+
+连接点类型有 9种： execution()、@annotation()、args()、@args()、within()、target()、@within()、@target()、this()
+
+| 类型            | 说明                                                         |
+| --------------- | ------------------------------------------------------------ |
+| **execution**   | 参数为方法匹配模式串，表示以目标类方法为连接点，<br />如 execution(*.greetTo())表示所有目标类中的greetTo()方法 |
+| **@annotation** | 参数为方法注解类名，表示以特定注解的目标类方法为连接点，<br />如 @annotation(com.annotation.SysLog) 表示任何标注了@SysLog注解的目标类方法。 |
+| args            | 参数为类名，表示以特定目标类方法的入参对象类型为连接点<br />如 args(com.husy.Waiter) 表示所有有且仅有一个按类型匹配于Waiter的入参的方法。 |
+| @args           | 参数为类型注解类名，表示以特定的目标类方法入参对象是否标准特定注解为连接点<br />如：@args(com.husy.Monit)表示匹配的方法的参数对象只有一个由@Monit注解 |
+| within          | 参数为类名匹配串，表示特定域下的所有连接点<br />如 within(com.baobaotao.service.*) 表示该包名下的所有连接点，也即包中所有类的所有方法 |
+| @within         | 参数为类型注解类名，假如目标类按类型匹配于某个类A，且类A标注了特定注解，则目标类的所有连接点匹配这个切点。 <br /> 如@within(com.baobaotao.Monitorable)定义的切点，假如Waiter类标注了 |
+| target()        | 参数为类名，假如目标类按类型匹配于指定类，则目标类的所有连接点匹配这个切点，<br />如通过target(com.baobaotao.Waiter)定义的切点，Waiter、以及Waiter实现类NaiveWaiter中所有连接点都匹配该切点。 |
+| @target()       | 参数为注解类名，目标类标注了特定注解，则目标类所有连接点匹配该切点。<br />如@target(com.baobaotao.Monitorable)，假如NaiveWaiter标注了@Monitorable，则NaiveWaiter所有连接点匹配切点。 |
+| this()          | 参数为类名，代理类按类型匹配于指定类，则被代理的目标类所有连接点匹配切点 |
+
+一般使用最多的是 execution 和 @annotation 两种，其他的笔者也不是特别熟悉。
+
+
+
+### 3> 通知类型
+
+AOP由 5 种通知分类： 
+
+*   @**Before**: 前置通知, 在方法执行之前执行
+*   @**After**: 后置通知, 在方法执行之后执行，不能访问目标方法的执行结果
+*   @**AfterRunning**: 返回通知, 在方法返回结果之后执行，不管正常返回还是异常退出
+*   @**AfterThrowing**: 异常通知, 在方法抛出异常之后
+*   @**Around**: 环绕通知, 围绕着方法执行，
+    *   连接点的参数类型必须是 `ProceedingJoinPoint`，它是JoinPoint子接口，
+    *   **在环绕通知中需要明确调用其 proceed() 来执行倍代理的方法。如果忘记，会导致通知执行了，但目标方法没有被执行**
+    *   如果需要返回目标方法执行后的结果，即调用 proceed() 的返回值。否则会出现空指针异常
+
+### 4> 代码范例
+
+想实现 AOP 注解编程，需要如下几步：
+
+**第一步： 申明切面类**
+
+*   在类上使用 `@Component`  注解把切面类加入到IOC容器中 
+*   在类上使用 `@Aspect` 注解 使之成为切面类
+
+**第二步：申明连接点**
+
+*   在方法上使用 `@Pointcut` 申明一个切入点，指定连接点类型 Execution
+*   也可以将连接点类型，定义在通知类型中。不用申明切入点了
+
+第三步：定义通知的处理方法
+
+*   使用 @Before、@After、@AfterRunning、@AfterThrowing、@Around
+
+    @**AfterRunning**: 返回通知, 在方法返回结果之后执行
+
+     　@**AfterThrowing**: 异常通知, 在方法抛出异常之后
+
+     　@**Around**: 环绕通知, 围绕着方法执行
+
+
+
+如下代码，系统日志注解解析切面
+
+```java
+@Aspect
+@Component
+public class SysLogAspect {
+    @Autowired
+    private ISysLogService sysLogService;
+
+    @Pointcut("@annotation(com.husy.annotation.SysLogAnnotation)")
+    public void controllerPointCut() { }
+
+    @Around("controllerPointCut()")
+    public Object around(ProceedingJoinPoint point) throws Throwable {
+        long beginTime = System.currentTimeMillis();
+        //执行目标方法
+        Object result = point.proceed();
+        //执行时长(毫秒)
+        long time = System.currentTimeMillis() - beginTime;
+        //保存日志
+        saveSysLog(point, time);
+        return result;
+    }
+    
+    private void saveSysLog(ProceedingJoinPoint joinPoint, long time) {
+        //从切面织入点处通过反射机制获取织入点处的方法
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        //获取切入点所在的方法
+        Method method = signature.getMethod();
+
+        //保存日志
+        SysLog sysLog = new SysLog();
+        //获取操作
+        SysLogAnnotation sysLogAnnotation = method.getAnnotation(SysLogAnnotation.class);
+        if (sysLogAnnotation != null) {
+            String value = sysLogAnnotation.value();
+            //注解上的描述
+            sysLog.setOperation(value);//保存获取的操作
+        }
+
+        //获取请求的类名
+        String className = joinPoint.getTarget().getClass().getName();
+        //获取请求的方法名
+        String methodName = method.getName();
+        sysLog.setMethod(className + "." + methodName + "()");
+
+        //请求的参数
+        Object[] params = joinPoint.getArgs();
+        JSON json = (JSON) JSON.toJSON(params);
+        sysLog.setParams(json.toJSONString());
+
+        // 获取token
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+
+        //设置IP地址
+        sysLog.setIp(IPUtils.getIpAddr(request));
+
+        // 设置操作人
+        SysUser sysUser = UserTool.getUser();
+
+        String userId = sysUser.getSysUserId();
+        String username = sysUser.getUsername();
+        sysLog.setOperator(userId);
+        sysLog.setUsername(username);
+
+        sysLog.setTime(time);
+        sysLog.setCreateTime(new Date());
+
+        //调用service保存SysLog实体类到数据库
+        sysLogService.save(sysLog);
+    }   
+}
+```
+
+
+
+## 6、Entity 注解
+
+## 7、自定义注解
+
+自定义注解运用场景：一般用于请求拦截（如：权限拦截）、或者切面处理（如：日志记录）等
+
+范例：
+
+```java
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+public @interface SysLog {
+    String value();
+    int type() default 0;  //0:查询、1:添加、2:修改、3:删除
+}
+```
+
+
+
+### 1> 格式规范
+
+在Java中创建自定义注解与编写接口很相似，除了它的接口关键字前有个@符号进行申明。
+
+**如 `@interface` **
+
+创建自定义注解注意以下几点：
+
+*   注解方法不能有参数。
+*   注解方法的返回类型：只能为基本数据类型，和 String、Enum、Class、Annotation 等数据类型
+*   注解方法可以包含默认值，使用  default 修饰。
+*   注解可以包含与其绑定的元注解，元注解为注解提供信息
+
+
+
+### 2> 元注解
+
+*   **`@Target`**：	   说明了Annotation被修饰的范围，即注解可以作用的地方
+*   **`@Retention`**： 什么时候使用该注解
+*   **`@Document`**：   注解是否将包含在JavaDoc中
+*   **`@Inherited`**：表示注解是否可以被继承
+
+
+
+**@Target**
+
+```java
+ElementType.ANNOTATION_TYPE // 可以给一个注解进行注解
+ElementType.CONSTRUCTOR 	// 可以给一个构造方法进行注解
+ElementType.FIELD 			// 可以给一个属性进行注解
+ElementType.LOCAL_VARIABLE  // 可以给一个局部变量进行注解
+ElementType.METHOD 			// 可以给一个方法进行注解
+ElementType.PACKAGE 		// 可以给一个包进行注解
+ElementType.PARAMETER 		// 可以给一个方法内的参数进行注解
+ElementType.TYPE 			// 可以给一个类型进行注解，比如类、接口、枚举
+```
+
+**@Retention**
+
+```java
+RetentionPolicy.SOURCE   // 注解仅存在于源码中，在class字节码文件中不包含
+RetentionPolicy.CLASS    // 默认的保留策略，注解会在class字节码文件中存在，但运行时无法获得
+RetentionPolicy.RUNTIME  // 注解会在class字节码文件中存在，在运行时可以通过反射获取到
+```
+
+**@Inherited**：注解可以被继承
+
+**@Document**：能够将注解中的元素包含到 Javadoc 中去。
+
+
+
+### 3> 注解解析器
+
+注解解析主要运用反射方式获取注解类信息
+
+```java
+ method.getAnnotation(SysLog.class)
+ class.getAnnotation(SysLog.class);  
+```
+
+**方式一：普通方式解析**
+
+```java
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Document
+@Inherited
+public @interface SysLog {
+    String value();
+    int type() default 0;  //0:查询、1:添加、2:修改、3:删除
+}
+
+//获得该包下这个类所有信息
+Class clazz=Class.forName("com.bjsxt.annotation.SxtStudent");
+//获得该类的所有注解
+Annotation[]annotation = clazz.getAnnotations();
+//获取注解类           根据注解名获取注解
+SysLog sysLog =(SysLog) clazz.getAnnotation(SysLog.class);  
+//获得类的属性的注解
+Field field = clazz.getDeclaredField("studentName");
+SxtField sxtField = field.getAnnotation(SysLog.class);
+System.out.println(sxtField.columName()+"--"+sxtField.type()+"--"+sxtField.length());
+```
+
+
+
+**方式 二：通过 Aop 切面处理**
+
+```java
+// 申明一个系统操作日志注解
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Document
+@Inherited
+public @interface SysLog {
+    String value();
+    int type() default 0;  //0:查询、1:添加、2:修改、3:删除
+}
+
+// 系统操作日志注解 处理类
+@Aspect
+@Component
+public class SysLogAspect {
+    @Autowired
+    private SysLogService sysLogService;
+
+    @Pointcut("@annotation(com.husy.annotation.SysLog)")
+    public void controllerPointCut() {}
+
+    @Around("controllerPointCut()")
+    public Object around(ProceedingJoinPoint point) throws Throwable {
+        long beginTime = System.currentTimeMillis();
+        //执行方法
+        Object result = point.proceed();
+        //执行时长(毫秒)
+        long time = System.currentTimeMillis() - beginTime;
+
+        //保存日志
+        saveSysLog(point, time);
+        return result;
+    }
+
+    private void saveSysLog(ProceedingJoinPoint joinPoint, long time) {
+        //从切面织入点处通过反射机制获取织入点处的方法
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        //获取切入点所在的方法
+        Method method = signature.getMethod();
+
+        // 实例化一个日志对象
+        SysLogDo sysLogDo = new SysLogDo();
+        //获取操作
+        SysLogAnnotation sysLogAnnotation = method.getAnnotation(SysLog.class);
+        if (sysLogAnnotation != null) {
+            String value = sysLogAnnotation.value();
+            //注解上的描述
+            sysLogDo.setOperation(value);//保存获取的操作
+        }
+
+        //获取请求的类名
+        String className = joinPoint.getTarget().getClass().getName();
+        //获取请求的方法名
+        String methodName = method.getName();
+        sysLogDo.setMethod(className + "." + methodName + "()");
+
+        //请求的参数
+        Object[] params = joinPoint.getArgs();
+        JSON json = (JSON) JSON.toJSON(params);
+        sysLogDo.setParams(json.toJSONString());
+
+        // 获取token
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+
+        //设置IP地址
+        sysLogDo.setIp(IPUtils.getIpAddr(request));
+
+        // 设置操作人
+        SysUser sysUser = UserTool.getUser();
+
+        String userId = sysUser.getSysUserId();
+        String username = sysUser.getUsername();
+        sysLogDo.setOperator(userId);
+        sysLogDo.setUsername(username);
+
+        sysLogDo.setTime(time);
+        sysLogDo.setCreateTime(new Date());
+
+        //调用service保存SysLog实体类到数据库
+        sysLogService.save(sysLogDo);
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+# 资料参考
+
+*   [Spring常用注解总结](https://www.cnblogs.com/xiaoxi/p/5935009.html)
+*   [Aspect的Execution表达式](https://zhuchengzzcc.iteye.com/blog/1504014)
