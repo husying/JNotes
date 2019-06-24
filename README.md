@@ -2,9 +2,9 @@
 
 主要记录一下 JAVA 学习的一个心得，大部分内容都是自己归纳整理的 。个人认为这是一个Java 程序员必须掌握的基础知识，它囊括了 java基础、集合、并发、IO、算法、设计模式等，对于需要找工作，准备面试的人来说，也许是一份很好的参考。
 
-| Java | 算法 | 数据库 | Web | 分布式 | 缓存 | 队列 | Linux | 常用技术 | 常见项目 |
+| Java | 设计模式 | 算法 | 数据库 | Web | 分布式 | 缓存 | 队列 | Linux | 常用技术 |
 | ---- | ---- | ---- | ------- | ------ | ---- | ---- | -------- | -------- | -------- |
-| [:bullettrain_side:](#bullettrain_sideJava) | [:art:](#art算法) | [:books:](#books数据库) |[:airplane:](#airplaneWeb) | [:rainbow:](#rainbow分布式 ) | [:guitar:](#guitar缓存) | [:rocket:](#rocket队列) | [:anchor:](#anchorLinux) | [:pencil:](#pencil常用技术) | [:bird:](#bird常见项目) |
+| [:bullettrain_side:](#bullettrain_sideJava)| [:scissors:](#scissors设计模式)  | [:art:](#art算法) | [:books:](#books数据库) |[:airplane:](#airplaneWeb) | [:rainbow:](#rainbow分布式 ) | [:guitar:](#guitar缓存) | [:rocket:](#rocket队列) | [:anchor:](#anchorLinux) | [:pencil:](#pencil常用技术) |
 
 
 
@@ -16,12 +16,15 @@
 * [Java JVM](./java/JVM.md)
 * [Java IO](./java/JavaIO.md)
 * [Java NIO](./java/JavaNIO.md)
-* Java JDBC （-------正在建设中，敬请期待！------）
-* Java 设计模式 （-------正在建设中，敬请期待！------）
+* [Java JDBC](./java/JavaJDBC.md) 
 * [JDK版本特性](./java/JDK版本特性)
 * [代码风格](https://github.com/alibaba/p3c)
 
 
+
+# :scissors:设计模式
+
+ （-------正在建设中，敬请期待！------）
 
 
 
@@ -29,14 +32,15 @@
 
 * [Java 数据结构](./data-structures/数据结构.md)
 * [排序算法](./algorithm/排序算法.md)
-* 查询算法 （-------正在建设中，敬请期待！------）
-* 加密算法 （-------正在建设中，敬请期待！------）
+* [查询算法](./algorithm/查询算法.md)
+* [加密算法](./algorithm/加密算法.md)
 
 
 
 # :books:数据库
 
-* MySQL （-------正在建设中，敬请期待！------）
+* MySQL（-------正在建设中，敬请期待！------）
+* Oracle （-------正在建设中，敬请期待！------）
 
 
 
@@ -45,7 +49,7 @@
 * Servlet （-------正在建设中，敬请期待！------）
 * Spring 系列 （-------正在建设中，敬请期待！------）
 * Mybatis （-------正在建设中，敬请期待！------）
-* Shiro （-------正在建设中，敬请期待！------）
+* [Shiro](./spring/Shiro原理与实践.md)
 * Tomcat （-------正在建设中，敬请期待！------）
 * Jetty （-------正在建设中，敬请期待！------）
 * Jenkins （-------正在建设中，敬请期待！------）
@@ -85,8 +89,6 @@
 * POI Excel （-------正在建设中，敬请期待！------）
 * 分布式事务 （-------正在建设中，敬请期待！------）
 * 分布式唯一ID （-------正在建设中，敬请期待！------）
-
-# :bird:常见项目
 
 * 秒杀系统 （-------正在建设中，敬请期待！------）
 * 支付系统 （-------正在建设中，敬请期待！------）

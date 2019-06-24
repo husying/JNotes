@@ -91,13 +91,18 @@
 **private < default < protected < public**
 
 private 		：本类
+
 default 		：本类、同一包
+
 protected	：本类、同一包、被继承
+
 public			:   本类、同一包、被继承、不同包
 
 protected 用于修饰成员，表示在继承体系中成员对于子类可见，但是这个访问修饰符对于类没有意义。
 
-如果子类的方法重写了父类的方法，那么子类中该方法的访问级别不允许低于父类的访问级别。这是为了确保可以使用父类实例的地方都可以使用子类实例，也就是确保满足里氏替换原则。
+如果子类的方法重写了父类的方法，那么子类中该方法的访问级别不允许低于父类的访问级别。这是为了确保可以
+
+使用父类实例的地方都可以使用子类实例，也就是确保满足里氏替换原则。
 
 ## 2、final 关键字
 
@@ -997,34 +1002,82 @@ inc.fermin(i); 是一个干扰项，考值传递还是引用传递
 
 ## 4、finally提前return
 
-1. **finally块的代码一定会执行，且只对提前return， 不会发生返回值修改**
-2. **返回值是基本数据类型 和 String 类型** ：finally块的**不会改变**try块catch块的`返回值`
-3. **返回值是引用类型**：finally块**会改变**try块catch块的返回对象的属性值，对象的引用地址并不改变
+1. **finally块的代码一定会执行**
 
-```java
-//值传递
-public class Test {
-	public static int fun(int i) {
-		try {
-			System.out.println(i);
-			return i; 
-		}catch (Exception e) {
-			System.out.println(i=20);
-			return i; 
-		}finally {
-			System.out.println(i=300);
-			return i;
-		}
-	}
-    public static void main(String[] argc) {
-    	System.out.println(fun(0));
+2. **当finally中有return时，不管什么类型，都会改变`返回值`**
+
+    ```java
+    public static String fun(String  key) {
+        try {
+            System.out.println(key="a");
+            return key; 
+        }catch (Exception e) {
+            System.out.println(key="b");
+            return key; 
+        }finally {
+            System.out.println(key="c");
+            return key;
+        }
     }
-}
-//输出
-0
-300
-300
-```
+    public static void main(String[] argc) {
+        System.out.println(fun("0"));
+    }
+    // 输出
+    a
+    c
+    c
+    ```
+
+3. **当finally中没有return时**
+
+    1. 返回值是基本数据类型 和 String 类型 ：finally块的**不会改变**try块catch块的`返回值`
+
+        ```java
+        public static String fun(String  key) {
+            try {
+                System.out.println(key="a");
+                return key; 
+            }catch (Exception e) {
+                System.out.println(key="b");
+                return key; 
+            }finally {
+                System.out.println(key="c");
+            }
+        }
+        public static void main(String[] argc) {
+            System.out.println(fun("0"));
+        }
+        ```
+
+        
+
+    2. 返回值是引用类型：finally块**会改变**try块catch块的返回对象的**属性值**，对象的引用地址并不改变
+
+        ```java
+        public static int fun(int i) {
+            int[] arr = {i};
+            try {
+                System.out.println(arr[0]=3);
+                return arr[0]; 
+            }catch (Exception e) {
+                System.out.println(arr[0]=20);
+                return arr[0]; 
+            }finally {
+                System.out.println(arr[0]=300);
+            }
+        }
+        public static void main(String[] argc) {
+            System.out.println(fun(0));
+        }
+        // 输出
+        3
+        300
+        3
+        ```
+
+        
+
+
 
 **关于返回值：**
 
@@ -1035,77 +1088,9 @@ public class Test {
 3.  执行完finally语句后，返回之前保存在局部变量表里的值。
 4.  **如果try，finally语句里均有return，忽略try的return，而使用finally的return.**
 
----
 
-**如果将返回值得类型换成String类型呢？**
-
-```java
-public class Test {
-	public static String fun(String s) {
-		try {
-			System.out.println(s);
-			System.out.println(Integer.parseInt(s));
-			return s; 
-		}catch (Exception e) {
-			s="2";
-			System.out.println(s);
-			return s; 
-		}finally {
-			s="3";
-			System.out.println(s="30");
-		}
-	}
-    public static void main(String[] argc) {
-    	System.out.println(fun("B"));
-    }
-}
-// 输出：
-B
-2
-30
-2
-```
-
-我们发现，String 类型的返回值。finally 块也不会对其返回值作出修改。
-
-
-
-**那如果是其他的对象引用类型呢；**
-
-```java
-public class Test {
-	public static int[] fun(int[] x ) {
-	        try{
-	            x[0] = 1;
-	            x[1] = 1;
-	            throw new Exception();
-	        } catch (Exception e){
-	            x[1] = 2;
-	            return x;
-	        }finally {
-	            x[1] = 3;
-	        }
-	}
-    public static void main(String[] argc) {
-    	int[] x = {0,0};
-        System.out.println(x==fun(x));
-    	System.out.println(Arrays.toString(fun(x)));
-    }
-}
-//输出
-true
-[1, 3]
-```
-
-从上面代码可以看出：
-
-对象的引用地址，并没有发生变化。但是对象属性值却发生改变了。
-
-这和方法的引用传递其实是一个道理！！
 
 ---
-
-
 
 ## 5、 控制流程
 
