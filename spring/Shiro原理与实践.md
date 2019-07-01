@@ -68,20 +68,29 @@ Shiro 可以帮助我们完成：
 
 
 
-# 二、认证过程
+# 二、身份认证
+
+在 shiro 中，用户需要提供 principals （身份）和 credentials（证明）给 shiro，从而应用能验证用户身份：
+
+*   **principals**：身份，即主体的标识属性，可以是任何东西，如用户名、邮箱等，唯一即可。一个主体可以有多个 principals，但只有一个 Primary principals，一般是用户名/密码/手机号。
+
+*   **credentials**：证明/凭证，即只有主体知道的安全值，如密码/数字证书等。最常见的 principals 和 credentials 组合就是用户名/密码了。接下来先进行一个基本的身份认证。
 
 使用 shiro 进行 用户身份验证的过程一般分三个步骤：
 
-1. Collect the Subject’s submitted principals and credentials（收集用户身份凭据，如用户名/密码）
-2. Submit the principals and credentials for authentication.（提交凭据进行认证）
-3. If the submission is successful, allow access, otherwise retry authentication or block access.（如果认证成功，则允许访问，否则不允许）
+1. 收集用户身份凭据，如用户名/密码
+2. 提交凭据进行认证
+3. 如果认证成功，则允许访问，否则不允许 
 
 ```java
 public static void main(String[] args) {
     // 先准备一些用户身份/凭据， 一般这些凭据都是通过数据库存储的
+    // 这里使用 ini 配置文件来创建一个SecurityManager 工厂
     Ini ini = new Ini();
     ini.setSectionProperty("users","zhang","123");
     Factory<SecurityManager> factory = new IniSecurityManagerFactory(ini);
+    
+    // 将SecurityManager 并绑定到 SecurityUtils
     SecurityManager securityManager = factory.getInstance();
     SecurityUtils.setSecurityManager(securityManager);
 
@@ -94,18 +103,25 @@ public static void main(String[] args) {
     try {
         // 3、身份认证
         subject.login(token);
-        System.out.println("---------------身份验证通过-------------");
     } catch (Exception e) {
-        // 身份认证失败处理
+        // 4、身份认证失败处理
         System.out.println("认证失败");
     }
-
-    // 退出
+    
+    Assert.assertEquals(true, subject.isAuthenticated()); //断言用户已经登录
+    // 5、退出 -- > 会自动委托给 SecurityManager.logout 方法退出
     subject.logout();
 }
 ```
 
+ 如 果 身 份 验 证 失 败 请 捕 获 AuthenticationException 或 其 子 类 ， 常 见 的 如 ：
 
+*   DisabledAccountException（禁用的帐号）
+*   LockedAccountException（锁定的帐号）
+*   UnknownAccountException（错误的帐号）
+*   ExcessiveAttemptsException（登录失败次数过多）
+*   IncorrectCredentialsException （错误的凭证）
+*   ExpiredCredentialsException（过期的凭证）
 
 
 
@@ -126,7 +142,17 @@ Shiro 框架具体认证过程如下：
 
 
 
+具体认证代码实现在 [Ream](#四、Ream) 中体现
+
+
+
+
+
+
+
 # 三、授权过程
+
+## 1、授权原理
 
 ![img](assets/ShiroAuthorizationSequence.png)
 
@@ -148,112 +174,227 @@ Shiro `SecurityManager`实现默认使用[`ModularRealmAuthorizer`](http://shiro
 
 
 
+## 2、授权过程
+
+具体认证代码实现在 [Ream](#四、Ream) 中体现
+
+
+
+## 3、授权验证
+
+Shiro 支持三种方式的授权验证：
+
+*   编程式：通过写 if/else 授权代码块完成
+*   注解式：通过在执行的 Java 方法上放置相应的注解完成
+*   JSP/GSP 标签：在 JSP/GSP 页面通过相应的标签完成：
+
+如下：
+
+编程式:
+
+```java
+Subject subject = SecurityUtils.getSubject();
+if(subject.hasRole(“admin”)) {
+	//有权限
+} else {
+	//无权限
+}
+```
+
+注解式：
+
+```java
+@RequiresRoles("admin")
+public void hello() {
+//有权限
+}
+```
+
+JSP/GSP 标签：
+
+```xml
+<shiro:hasRole name="admin">
+	<!— 有权限 —>
+</shiro:hasRole>
+```
+
+
+
+
+
+### 字符串通配符权限
+
+字符串通 配 符 权限规则：
+
+`“资源标识符：操作：对象实例 ID”` ：即对哪个资源的哪个实例可以进行什么操作。其默认支持通配符权限字符串
+
+*   `“:”`：表示资源/操作/实例的分割；
+*   `“,”`：表示操作的分割；
+*   `“*”`：表示任意资源/操作/实例。
+
+如：
+
+单个资源单个权限：
+
+```java
+subject().checkPermissions("system:user:update");
+```
+
+单个资源多个权限
+
+```java
+subject().checkPermissions("system:user:update", "system:user:delete");
+// 等同
+subject().checkPermissions("system:user:update,delete");
+```
+
+单个资源所有权限
+
+```java
+subject().checkPermissions("system:user:*");
+// 等同
+subject().checkPermissions("system:user");
+```
+
+ 所有资源全部 权限
+
+```java
+subject().checkPermissions("user:view");//用户拥有所有资源的“view”所有权限
+```
+
 
 
 # 四、Ream
 
-## 1、重写 Ream
+## 1、Realm  配置
 
 ![Realm](assets/Realm.png)
 
 
 
+以后一般继承 AuthorizingRealm（授权）即可；其继承了 AuthenticatingRealm（即身份验证），而且也间接继承了 CachingRealm（带有缓存实现）
+
+
+
+推荐使用 AuthorizingRealm，因为：
+
+*   AuthenticationInfo `doGetAuthenticationInfo`(AuthenticationToken token)：**表示获取身份验证信息；**
+
+*   AuthorizationInfo `doGetAuthorizationInfo`(PrincipalCollection principals)：**表示根据用户身份获取授权信**息。
+
+这种方式的好处是当只需要身份验证时只需要获取身份验证信息而不需要获取授权信息。对于 AuthenticationInfo 和 AuthorizationInfo 请参考其 Javadoc 获取相关接口信息。
+
+
+
+## 2、Realm 实现
+
 如上图所示：继承`AuthorizingRealm`即可，
 
 ```java
-public class ShiroRealm extends AuthorizingRealm {
+package com.husy.shiro.config;
+
+import com.husy.domain.SystemRole;
+import com.husy.domain.SystemUser;
+import com.husy.service.SystemRoleService;
+import com.husy.service.SystemUserService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+/**
+ * 用户认证和授权
+ */
+public class ShiroRealm  extends AuthorizingRealm {
+    private final Logger logger = LoggerFactory.getLogger(ShiroRealm.class);
+
     @Autowired
-    private UserService userService;
+    SystemUserService systemUserService;
+
+    @Autowired
+    SystemRoleService systemRoleService;
 
     /**
-     * 获取授权信息
+     * 授权：验证权限时调用
      * @param principalCollection
      * @return
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        // 实例化授权对象
+        logger.info("---------------- 执行 Shiro 权限获取 ---------------------");
+        // 获取用户第一种方式
+//        String name= (String) principalCollection.getPrimaryPrincipal();//获取登录用户名
+//        SystemUser user = systemUserService.findUserByName(name);
+        // 获取用户第二种方式
+        SystemUser user = (SystemUser) SecurityUtils.getSubject().getPrincipal();
+
+        // 获取用户角色
+        List<SystemRole> list = systemRoleService.findRoleByUserId(user.getUserId());
+
+        //添加角色和权限
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
 
-        //获取登录用户名
-        String username= (String) principalCollection.getPrimaryPrincipal();
-        //查询用户信息
-        UserDo userDo = userService.findUserByName(username);
-
-        // 查询用户角色
-        for (UserRole role: userDo.getRoles()) {
+        for (SystemRole role: list) {
             //添加角色
-            simpleAuthorizationInfo.addRole(role.getRoleName());
-            for (Permission permission: role.getPermissions()) {
-                //添加权限
-                simpleAuthorizationInfo.addStringPermission(permission.getPermission());
-            }
+            simpleAuthorizationInfo.addRole(role.getRoleCode());
+//            for (Permission permission: role.getPermissions()) {
+//                //添加权限
+//                simpleAuthorizationInfo.addStringPermission(permission.getPermission());
+//            }
         }
         return simpleAuthorizationInfo;
     }
 
     /**
-     * 获取身份验证信息
+     * 认证信息.(身份验证) : Authentication 是用来验证用户身份
      * @param authenticationToken
      * @return
      * @throws AuthenticationException
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        //加这一步的目的是在Post请求的时候会先进认证，然后在到请求
-        if (authenticationToken.getPrincipal() == null) {
-            return null;
+        logger.info("---------------- 执行 Shiro 凭证认证 ----------------------");
+        //获取用户名密码 第一种方式
+        //String username = (String) authenticationToken.getPrincipal();
+        //String password = new String((char[]) authenticationToken.getCredentials());
+
+        //获取用户名 密码 第二种方式
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) authenticationToken;
+        String username = usernamePasswordToken.getUsername();
+        String password = new String(usernamePasswordToken.getPassword());
+
+        if (StringUtils.isEmpty(password)) {
+            throw new UnknownAccountException("用户名或密码错误！");
         }
-        String username = (String)authenticationToken.getPrincipal();
-        UserDo userDo = userService.findByUsername(username);
-        if(userDo == null) {
-            throw new UnknownAccountException();//没找到帐号
+        // 查询用户信息
+        SystemUser systemUser = systemUserService.findUserByName(username);
+
+        if (null == systemUser) {
+            throw new UnknownAccountException();
         }
-        if(Boolean.TRUE.equals(userDo.getLocked())) {
-            throw new LockedAccountException(); //帐号锁定
+        if (!password.equals(systemUser.getUserPassword())) {
+            throw new IncorrectCredentialsException();
         }
-        //交给 AuthenticatingRealm 使用 CredentialsMatcher 进行密码匹配，如果觉得人家的不好可以在此判断或自定义实现
-        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-                userDo.getUsername(), //用户名
-                userDo.getPassword(), //密码
-                ByteSource.Util.bytes(userDo.getCredentialsSalt()),//salt = username + salt
-                getName() //realm name
-        );
-        return authenticationInfo;
+//        if (SystemUser.getLocked() == 1) {
+//            throw new LockedAccountException();
+//        }
+        logger.info("---------------- Shiro 凭证认证成功 ----------------------");
+        return new SimpleAuthenticationInfo(systemUser, password, getName());
     }
 }
 ```
 
-## 2、加密
 
-在org.apache.shiro.crypto.hash包中，提供了一些列的Md2,Md5,Sha256等等的散列算法相关的操作
 
-可以在申明 Ream 时设置
 
-```java
-/**
-     * realm实现身份认证Realm，，继承自AuthorizingRealm，此处的注入不可以缺少。否则会在UserRealm中注入对象会报空指针.
-     *
-     * @return
-     */
-@Bean
-public ShiroRealm myShiroRealm() {
-    ShiroRealm shiroRealm = new ShiroRealm();
-    shiroRealm.setCachingEnabled(true);
-    //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
-    shiroRealm.setAuthenticationCachingEnabled(true);
-    //缓存AuthenticationInfo信息的缓存名称 在ehcache-shiro.xml中有对应缓存的配置
-    //        shiroRealm.setAuthenticationCacheName("authenticationCache");
-    //启用授权缓存，即缓存AuthorizationInfo信息，默认false
-    shiroRealm.setAuthorizationCachingEnabled(true);
-    //缓存AuthorizationInfo信息的缓存名称  在ehcache-shiro.xml中有对应缓存的配置
-    //        shiroRealm.setAuthorizationCacheName("authorizationCache");
-    // 加密处理
-    //        shiroRealm.setCredentialsMatcher(hashedCredentialsMatcher());
-    return shiroRealm;
-}
-
-```
 
 
 
