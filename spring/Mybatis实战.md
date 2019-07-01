@@ -1,4 +1,4 @@
-# Spring DAO实战
+这里以SpringBoot +Mybatis 模式为基础讲解
 
 # 一、Mybatis 整合
 

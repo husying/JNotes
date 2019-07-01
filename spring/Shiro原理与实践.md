@@ -1,6 +1,6 @@
 # Shiro 原理与实践
 
-# 认识 Shiro
+# 一、认识 Shiro
 
 ## 1、Shiro 的作用
 
@@ -78,7 +78,7 @@ Shiro 可以帮助我们完成：
 
 
 
-# 认证过程
+# 二、认证过程
 
 使用 shiro 进行 用户身份验证的过程一般分三个步骤：
 
@@ -136,7 +136,7 @@ Shiro 框架具体认证过程如下：
 
 
 
-# 授权过程
+# 三、授权过程
 
 ![img](assets/ShiroAuthorizationSequence.png)
 
@@ -160,7 +160,9 @@ Shiro `SecurityManager`实现默认使用[`ModularRealmAuthorizer`](http://shiro
 
 
 
-# Ream
+# 四、Ream
+
+## 1、重写 Ream
 
 ![Realm](assets/Realm.png)
 
@@ -232,9 +234,40 @@ public class ShiroRealm extends AuthorizingRealm {
 }
 ```
 
+## 2、加密
+
+在org.apache.shiro.crypto.hash包中，提供了一些列的Md2,Md5,Sha256等等的散列算法相关的操作
+
+可以在申明 Ream 时设置
+
+```java
+/**
+     * realm实现身份认证Realm，，继承自AuthorizingRealm，此处的注入不可以缺少。否则会在UserRealm中注入对象会报空指针.
+     *
+     * @return
+     */
+@Bean
+public ShiroRealm myShiroRealm() {
+    ShiroRealm shiroRealm = new ShiroRealm();
+    shiroRealm.setCachingEnabled(true);
+    //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
+    shiroRealm.setAuthenticationCachingEnabled(true);
+    //缓存AuthenticationInfo信息的缓存名称 在ehcache-shiro.xml中有对应缓存的配置
+    //        shiroRealm.setAuthenticationCacheName("authenticationCache");
+    //启用授权缓存，即缓存AuthorizationInfo信息，默认false
+    shiroRealm.setAuthorizationCachingEnabled(true);
+    //缓存AuthorizationInfo信息的缓存名称  在ehcache-shiro.xml中有对应缓存的配置
+    //        shiroRealm.setAuthorizationCacheName("authorizationCache");
+    // 加密处理
+    //        shiroRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+    return shiroRealm;
+}
+
+```
 
 
-# 会话管理
+
+# 五、会话管理
 
 ![SessionManager](assets/SessionManager-1560484324202.png)
 
@@ -345,13 +378,61 @@ void delete(Session session);
 
 **RedisSessionDAO**提供了Redis的会话缓存功能
 
+# 六、web过滤器
+
+运行Web应用程序时，Shiro将创建一些有用的默认`Filter`实例，并`[main]`自动在该部分中使用它们。
+
+这些过滤器都定义在一个枚举类中`DefaultFilter`，通过name 获取
+
+```java
+public enum DefaultFilter {
+    //不需要登录就能访问,一般用于静态资源,或者移动端接口
+    anon(AnonymousFilter.class), 
+    //需要登录认证才能访问的资源
+    authc(FormAuthenticationFilter.class),
+    //Http身份验证拦截器,非常用类型
+    authcBasic(BasicHttpAuthenticationFilter.class),
+    //用户登出拦截器,主要属性:redirectURL退出登录后重定向的地址
+    logout(LogoutFilter.class), 
+    noSessionCreation(NoSessionCreationFilter.class),//不创建会话拦截过滤
+    //验证用户是否拥有资源权限，如：perms["user:add:*,user:modify:*"]
+    perms(PermissionsAuthorizationFilter.class),
+    //端口号过滤,如 port(80) 如果用户访问该页面是非 80，将自动将请求端口改为 80 并重定向到该 80 端口
+    port(PortFilter.class),
+    // rest 风格拦截器
+    rest(HttpMethodPermissionFilter.class),
+    //具备相应角色才能使用，如：roles["admin,guest"]
+    roles(RolesAuthorizationFilter.class),
+    //表示安全的url请求，协议为https
+    ssl(SslFilter.class),
+    //必须存在用户，当登入操作时不做检查
+    user(UserFilter.class);
+}
+```
+
+这些过滤器分为两组，一组是认证过滤器，一组是授权过滤器。
+
+* 认证过滤器：anon，authcBasic，auchc，user
+
+* 授权过滤器：perms，roles，ssl，rest，port
 
 
-# 加密
 
-在org.apache.shiro.crypto.hash包中，提供了一些列的Md2,Md5,Sha256等等的散列算法相关的操作
+**拦截器的通配符的写法**
 
-# 权限注解
+```java
+?：匹配一个字符
+*：匹配零个或多个字符
+**：匹配零个或多个路径
+```
+
+
+
+
+
+
+
+# 七、权限注解
 
 * `@RequiresAuthentication`：要求在访问或调用被注解的类/实例/方法时，Subject在当前的session中已经被验证
 * `@RequiresGuest`：要求当前Subject是一个“访客”，也就是，在访问或调用被注解的类/实例/方法时，他们没有被认证或者在被前一个Session记住
@@ -372,13 +453,7 @@ RequiresGuest
 
 
 
-# 单点登录
-
-# SSL 支持
-
-
-
-# Springboot整合
+# 八、Springboot整合
 
 实现 shiro 功能，一般有以下步骤：
 
