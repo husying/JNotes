@@ -1,6 +1,6 @@
 # Shiro 原理与实践
 
-# 认识 Shiro
+# 一、认识 Shiro
 
 ## 1、Shiro 的作用
 
@@ -50,13 +50,13 @@ Shiro 可以帮助我们完成：
 
 **Subject**：主体，可以看到主体可以是任何可以与应用交互的“用户”；
 
-**SecurityManager**：**安全管理器，Shiro的核心**；管理着所有Subject、且负责进行认证和授权、及会话、缓存的管理。相当于SpringMVC中的DispatcherServlet或者Struts2中的FilterDispatcher；所有具体的交互都通过SecurityManager进行控制；
+**SecurityManager**：**安全管理器，Shiro的核心**；管理着所有Subject、且负责进行认证和授权、及会话、缓存的管理。相当于SpringMVC中的`DispatcherServlet`或者Struts2中的`FilterDispatcher`；所有具体的交互都通过SecurityManager进行控制；
+
+**Realm**：可以有1个或多个Realm，Shiro 从从 Realm 获取安全数据（如用户、角色、权限），就是说SecurityManager要验证用户身份，那么它需要从 Realm 获取相应的用户进行比较以确定用户身份是否合法；需要从 Realm 得到用户相应的角色/权限进行验证用户是否能进行操作；可以把 Realm 看成 DataSource，即安全数据源。 
 
 **Authenticator**：认证器，负责主体认证的，可自定义实现认证策略（Authentication Strategy）
 
 **Authrizer**：授权器，或者访问控制器，用来决定主体是否有权限进行相应的操作；即控制着用户能访问应用中的哪些功能；
-
-**Realm**：可以有1个或多个Realm，可以认为是安全实体数据源，即用于获取安全实体的；由用户提供，需要实现自己的Realm；
 
 **SessionManager**：session 管理中心；
 
@@ -68,17 +68,7 @@ Shiro 可以帮助我们完成：
 
 
 
-**Shiro 工作过程**
-
-![shiro working](../../../static-resources/learning-notes-images/Shiro原理与实践/shiro working.png)
-
-
-
-
-
-
-
-# 认证过程
+# 二、认证过程
 
 使用 shiro 进行 用户身份验证的过程一般分三个步骤：
 
@@ -136,7 +126,7 @@ Shiro 框架具体认证过程如下：
 
 
 
-# 授权过程
+# 三、授权过程
 
 ![img](assets/ShiroAuthorizationSequence.png)
 
@@ -160,7 +150,9 @@ Shiro `SecurityManager`实现默认使用[`ModularRealmAuthorizer`](http://shiro
 
 
 
-# Ream
+# 四、Ream
+
+## 1、重写 Ream
 
 ![Realm](assets/Realm.png)
 
@@ -232,9 +224,40 @@ public class ShiroRealm extends AuthorizingRealm {
 }
 ```
 
+## 2、加密
+
+在org.apache.shiro.crypto.hash包中，提供了一些列的Md2,Md5,Sha256等等的散列算法相关的操作
+
+可以在申明 Ream 时设置
+
+```java
+/**
+     * realm实现身份认证Realm，，继承自AuthorizingRealm，此处的注入不可以缺少。否则会在UserRealm中注入对象会报空指针.
+     *
+     * @return
+     */
+@Bean
+public ShiroRealm myShiroRealm() {
+    ShiroRealm shiroRealm = new ShiroRealm();
+    shiroRealm.setCachingEnabled(true);
+    //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
+    shiroRealm.setAuthenticationCachingEnabled(true);
+    //缓存AuthenticationInfo信息的缓存名称 在ehcache-shiro.xml中有对应缓存的配置
+    //        shiroRealm.setAuthenticationCacheName("authenticationCache");
+    //启用授权缓存，即缓存AuthorizationInfo信息，默认false
+    shiroRealm.setAuthorizationCachingEnabled(true);
+    //缓存AuthorizationInfo信息的缓存名称  在ehcache-shiro.xml中有对应缓存的配置
+    //        shiroRealm.setAuthorizationCacheName("authorizationCache");
+    // 加密处理
+    //        shiroRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+    return shiroRealm;
+}
+
+```
 
 
-# 会话管理
+
+# 五、会话管理
 
 ![SessionManager](assets/SessionManager-1560484324202.png)
 
@@ -345,13 +368,127 @@ void delete(Session session);
 
 **RedisSessionDAO**提供了Redis的会话缓存功能
 
+# 六、web过滤器
+
+运行Web应用程序时，Shiro将创建一些有用的默认`Filter`实例，并`[main]`自动在该部分中使用它们。
+
+<<<<<<< HEAD
+# 安全管理
+
+```java
+@Bean
+public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
+    ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+    shiroFilterFactoryBean.setSecurityManager(securityManager);
+    // 没有登陆的用户只能访问登陆页面
+    shiroFilterFactoryBean.setLoginUrl("/auth/login");
+    // 登录成功后要跳转的链接
+    shiroFilterFactoryBean.setSuccessUrl("/auth/index");
+    // 未授权界面;
+    shiroFilterFactoryBean.setUnauthorizedUrl("/auth/error");
+    //自定义拦截器
+    Map<String, Filter> filtersMap = new LinkedHashMap<>();
+    //限制同一帐号同时在线的个数。
+    filtersMap.put("kickout", kickoutSessionControlFilter());
+    shiroFilterFactoryBean.setFilters(filtersMap);
+    // 权限控制map.
+    Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+
+    filterChainDefinitionMap.put("/auth/logout", "logout");
+    filterChainDefinitionMap.put("/auth/kickout", "anon");
+    filterChainDefinitionMap.put("/**", "authc");
+    shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+    return shiroFilterFactoryBean;
+}
+```
+
+shiro过滤器过滤属性含义
+
+*   **securityManager**：这个属性是必须的。
+
+*   **loginUrl** ：没有登录的用户请求需要登录的页面时自动跳转到登录页面，不是必须的属性，不输入地址的话会自动寻找项目web项目的根目录下的”/login.jsp”页面。
+
+*   **successUrl** ：登录成功默认跳转页面，不配置则跳转至”/”。如果登陆前点击的一个需要登录的页面，则在登录自动跳转到那个需要登录的页面。不跳转到此。
+
+*   **unauthorizedUrl** ：没有权限默认跳转的页面
+
+ 
+
+**其权限过滤器及配置释义**
+
+*   anon ：匿名使用
+*   authc ：需要认证(登录)才能使用
+*   user ：必须存在用户，当登入操作时不做检查
+*   ssl ：表示安全的url请求，协议为https
+*   rest ：其中请求方式为post，get，delete等
+*   roles
+*   perms
+*   port
+*   authcBasic ：表示httpBasic认证
+
+```
+anon:例子/admins/**=anon 没有参数，表示可以匿名使用。
+authc:例如/admins/user/**=authc表示需要认证(登录)才能使用，没有参数
+roles(角色)：例子/admins/user/=roles[admin],参数可以写多个，多个时必须加上引号，并且参数之间用逗号分割，当有多个参数时，例如admins/user/=roles["admin,guest"],每个参数通过才算通过，相当于hasAllRoles()方法。
+perms（权限）：例子/admins/user/=perms[user:add:*],参数可以写多个，多个时必须加上引号，并且参数之间用逗号分割，例如/admins/user/=perms["user:add:,user:modify:"]，当有多个参数时必须每个参数都通过才通过，想当于isPermitedAll()方法。
+rest：例子/admins/user/=rest[user],根据请求的方法，相当于/admins/user/=perms[user:method] ,其中method为post，get，delete等。
+port：例子/admins/user/**=port[8081],当请求的url的端口不是8081是跳转到schemal://serverName:8081?queryString,其中schmal是协议http或https等，serverName是你访问的host,8081是url配置里port的端口，queryString是你访问的url里的？后面的参数。
+authcBasic：例如/admins/user/**=authcBasic没有参数表示httpBasic认证
+ssl:例子/admins/user/**=ssl没有参数，表示安全的url请求，协议为https
+user:例如/admins/user/**=user没有参数表示必须存在用户，当登入操作时不做检查
+```
 
 
-# 加密
 
-在org.apache.shiro.crypto.hash包中，提供了一些列的Md2,Md5,Sha256等等的散列算法相关的操作
+```java
+public enum DefaultFilter {
+    //不需要登录就能访问,一般用于静态资源,或者移动端接口
+    anon(AnonymousFilter.class), 
+    //需要登录认证才能访问的资源
+    authc(FormAuthenticationFilter.class),
+    //Http身份验证拦截器,非常用类型
+    authcBasic(BasicHttpAuthenticationFilter.class),
+    //用户登出拦截器,主要属性:redirectURL退出登录后重定向的地址
+    logout(LogoutFilter.class), 
+    noSessionCreation(NoSessionCreationFilter.class),//不创建会话拦截过滤
+    //验证用户是否拥有资源权限，如：perms["user:add:*,user:modify:*"]
+    perms(PermissionsAuthorizationFilter.class),
+    //端口号过滤,如 port(80) 如果用户访问该页面是非 80，将自动将请求端口改为 80 并重定向到该 80 端口
+    port(PortFilter.class),
+    // rest 风格拦截器
+    rest(HttpMethodPermissionFilter.class),
+    //具备相应角色才能使用，如：roles["admin,guest"]
+    roles(RolesAuthorizationFilter.class),
+    //表示安全的url请求，协议为https
+    ssl(SslFilter.class),
+    //必须存在用户，当登入操作时不做检查
+    user(UserFilter.class);
+}
+```
 
-# 权限注解
+这些过滤器分为两组，一组是认证过滤器，一组是授权过滤器。
+
+* 认证过滤器：anon，authcBasic，auchc，user
+
+* 授权过滤器：perms，roles，ssl，rest，port
+
+
+
+**拦截器的通配符的写法**
+
+```java
+?：匹配一个字符
+*：匹配零个或多个字符
+**：匹配零个或多个路径
+```
+
+
+
+
+
+
+
+# 七、权限注解
 
 * `@RequiresAuthentication`：要求在访问或调用被注解的类/实例/方法时，Subject在当前的session中已经被验证
 * `@RequiresGuest`：要求当前Subject是一个“访客”，也就是，在访问或调用被注解的类/实例/方法时，他们没有被认证或者在被前一个Session记住
@@ -372,13 +509,7 @@ RequiresGuest
 
 
 
-# 单点登录
-
-# SSL 支持
-
-
-
-# Springboot整合
+# 八、Springboot整合
 
 实现 shiro 功能，一般有以下步骤：
 
