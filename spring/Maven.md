@@ -10,32 +10,6 @@
 *   Plug-in：maven的插件集合
 *   Repository：仓库，即放置Artifact的地方
 
-# 常用maven依赖
-
-## 图片验证码
-
-1、Google Kaptcha
-
-```xml
-<dependency>
-    <groupId>com.github.axet</groupId>
-    <artifactId>kaptcha</artifactId>
-    <version>${kaptcha.version}</version>
-</dependency>
-```
-
-
-
-
-
-# SpringBoot 依赖
-
-[全部依赖](https://docs.spring.io/spring-boot/docs/2.2.0.BUILD-SNAPSHOT/reference/html/using-spring-boot.html#using-boot-maven)
-
-常用依赖如下
-
-
-
 
 
 <scope>
