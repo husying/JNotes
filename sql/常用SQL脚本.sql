@@ -21,6 +21,8 @@ SELECT @a := @a + 1 AS 'index', DATE_ADD(DATE_SUB(CURRENT_DATE,INTERVAL DAYOFMON
 FROM mysql.help_topic,(SELECT @a:=0,@m:=day(LAST_DAY(CURRENT_DATE))) temp
 WHERE @a<@m
 
+
+
 # 查询今年所有月份日期
 SELECT @a := @a + 1 AS 'no', DATE_FORMAT(DATE(DATE_ADD(DATE_SUB(CURRENT_DATE,INTERVAL MONTH(CURRENT_DATE) MONTH), INTERVAL @a MONTH)),'%Y-%m') AS 'month'
 FROM mysql.help_topic,(SELECT @a:=0,@m:=12) temp
