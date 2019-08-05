@@ -43,6 +43,76 @@
 
 
 
+# EXPLAIN
+
+获取查询执行计划的信息
+
+explain 的输出列
+
+* **id** ： SELECT识别符。这是SELECT的查询序列号
+* **select_type**：SELECT类型
+* **table** ：输出的行所引用的表
+* **type**：联接类型。从最佳类型到最坏类型进行排序：system>const>eq_ref>ref>ref_or_null>index_merge>unique_subquery>index_subquery>range>index>ALL
+* **possible_keys**：指出MySQL能使用哪个索引在该表中找到行
+* **key**：显示MySQL实际决定使用的键(索引)。如果没有选择索引,键是NULL。
+* **key_len**：显示MySQL决定使用的键长度，如果键是NULL,则长度为NULL。
+* **ref**：显示使用哪个列或常数与key一起从表中选择行。
+* **rows**：显示MySQL认为它执行查询时必须检查的行数。多行之间的数据相乘可以估算要处理的行数。
+* **filtered**：显示了通过条件过滤出的行数的百分比估计值。
+* **Extra**：该列包含MySQL解决查询的详细信息
+
+
+
+## 1、select_type
+
+SELECT类型,可以为以下任何一种:
+
+- **SIMPLE**：简单SELECT(不使用UNION或子查询)
+- **PRIMARY**：最外面的SELECT
+- **UNION**：UNION中的第二个或后面的SELECT语句
+- **DEPENDENT UNION**：UNION中的第二个或后面的SELECT语句,取决于外面的查询
+- **UNION RESULT**：UNION 的结果
+- **SUBQUERY**：子查询中的第一个SELECT
+- **DEPENDENT SUBQUERY**：子查询中的第一个SELECT,取决于外面的查询
+- **DERIVED**：导出表的SELECT(FROM子句的子查询)
+
+
+
+## 2、type
+
+联接类型。下面给出各种联接类型,按照从最佳类型到最坏类型进行排序:
+
+- **system**：表仅有一行(=系统表)。这是const联接类型的一个特例。
+- **const**：表最多有一个匹配行,它将在查询开始时被读取。因为仅有一行,在这行的列值可被优化器剩余部分认为是常数。const表很快,因为它们只读取一次!
+- **eq_ref**：索引查找，最多从该表中读取一行。一般使用主键或唯一索引
+- **ref**：索引访问
+- **ref_or_null**：ref 的变体，表示MySQL必须在初次查找的结果里进行第二次查找已找出null条数
+- **index_merge**:该联接类型表示使用了索引合并优化方法。
+- **unique_subquery**:该类型替换了下面形式的IN子查询的ref: value IN (SELECT primary_key FROM single_table WHERE some_expr) unique_subquery是一个索引查找函数,可以完全替换子查询,效率更高。
+- **index_subquery**:该联接类型类似于unique_subquery。可以替换IN子查询,但只适合下列形式的子查询中的非唯一索引: value IN (SELECT key_column FROM single_table WHERE some_expr)
+- **range**：范围扫描，where 带有`between` 或者 `>`、`<` 等符号
+- **index**：和全表扫描一样，只是MySQL扫描表时按索引持续进行而不是行
+- **ALL**：全表扫描
+
+## 3、Extra
+
+该列包含MySQL解决查询的详细信息，常见的重要的值如下：
+
+* `Using index`：表示MySQL将使用覆盖索引，以避免访问表。
+* `Using where`：表示MySQL将在存储引擎检索行后在进行过滤，暗示：查询可受益于不同的索引
+* `Using temporary`：表示MySQL对查询结果排序时会使用一个临时表
+* `Using filesort`：表示MySQL对查询结果使用一个外部索引排序
+
+其他：
+
+- **Distinct**:MySQL发现第1个匹配行后,停止为当前的行组合搜索更多的行。
+- **Not exists**:MySQL能够对查询进行LEFT JOIN优化,发现1个匹配LEFT JOIN标准的行后,不再为前面的的行组合在该表内检查更多的行。
+- **range checked for each record (index map: #)**:MySQL没有发现好的可以使用的索引,但发现如果来自前面的表的列值已知,可能部分索引可以使用。
+- **Using sort_union(...), Using union(...), Using intersect(...)**:这些函数说明如何为index_merge联接类型合并索引扫描。
+- **Using index for group-by**:类似于访问表的Using index方式,Using index for group-by表示MySQL发现了一个索引,可以用来查 询GROUP BY或DISTINCT查询的所有列,而不要额外搜索硬盘访问实际的表。
+
+
+
 # 索引设计原则
 
 1. **索引的列选择查询频繁的列，在where，group by，order by，on从句中出现的列**，⽽不是出查询结果集总的列
@@ -106,11 +176,22 @@
 
 
 
-## OR 查询
+## OR /IN 查询
+
+**OR**
 
 innodb引擎，使用OR 查询所有列会是索引失效，OR 两边的列都是不能使用索引
 
 但是，可以使用`覆盖索引`，或者使用`UNION替代`
+
+
+
+**IN** 
+
+in 和 not in 也要慎用，否则会导致全表扫描
+
+* 索引有效：in ('a')
+* 索引无效：in （'a' , 'b'）
 
 
 
@@ -144,13 +225,7 @@ innodb引擎，使用OR 查询所有列会是索引失效，OR 两边的列都�
 
 1、尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
 
-无论哪种InnoDB还是MyISAM 引擎，使用HASH索引或者BTREE 索引，`!=`或`<>`操作符不会使索引失效
-
-
-
-2、in 和 not in 也要慎用，否则会导致全表扫描
-
-经测试，该说法有误
+无论哪种InnoDB还是MyISAM 引擎，使用HASH索引或者BTREE 索引，`!=`或`<>`操作符不会使索引失效（MySQL版本8.0.16下）
 
 
 
