@@ -56,3 +56,43 @@ Alter table tabname add column col type
 
 
 
+# 日历表
+
+当我们在做数据报表的时候，经常会去查询近一段时间显示的数据，但是拿到的数据却是某一天没数据的话是查询不出来的，但是我们希望没数据的那天显示为0
+
+这时有两种解决办法
+
+其一：重写sql语句，使用 SELECT  UNION 一个个写出来，还有一种就是创建日历表
+
+其二：在返回数据的java代码中重新拼接数据，先获取三十日的日期，把没数据的补0即可
+
+
+
+**创建日历表**
+
+```sql
+# =====================>> 创建日历表  start <<========================
+DROP TABLE IF EXISTS `num`;
+CREATE TABLE `num` (i INT);
+INSERT INTO `num` (i) VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)
+
+# 日期的表
+DROP TABLE IF EXISTS `t_calendar`;
+CREATE TABLE t_calendar(
+	report_date DATE
+); 
+ 
+-- 生成并插入当前年初前后 10 年的日期数据
+INSERT INTO t_calendar(report_date) 
+SELECT ADDDATE( DATE_SUB(DATE_SUB(curdate(),INTERVAL DAYOFYEAR(CURDATE())-1 DAY),INTERVAL 10 YEAR ) ,numlist.id) AS `date`
+FROM(
+	SELECT id FROM (
+		SELECT n1.i + n10.i * 10  + n100.i * 100 + n1000.i * 1000 AS id
+		FROM num n1	CROSS JOIN num AS n10 CROSS JOIN num AS n100 CROSS JOIN num AS n1000
+	) t WHERE t.id<(select TimeStampDiff(DAY,DATE_SUB(DATE_SUB(curdate(),INTERVAL DAYOFYEAR(CURDATE())-1 DAY),INTERVAL 10 YEAR ),DATE_SUB(DATE_SUB(curdate(),INTERVAL DAYOFYEAR(CURDATE())-1 DAY),INTERVAL -11 YEAR )))
+) AS numlist;
+
+DROP TABLE `num`;
+# =====================>> 创建日历表  end <<========================
+```
+

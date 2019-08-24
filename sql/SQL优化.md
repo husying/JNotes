@@ -1,3 +1,5 @@
+# MySQL 优化
+
 # 表设计原则
 
 ## 1、类型选择
@@ -23,7 +25,16 @@
 
 
 
-最佳实践：
+
+
+**UUID主键和自增主键的区别**：
+
+* UUID主键插入行不仅花费的时间更长，而且索引占用的空间更大，这是因为UUID主键字段更长，且会有页分裂和碎片存在导致。
+* 自增主键插入式顺序插入。存在并发插入时导致间隙锁竞争
+
+
+
+## 2、最佳实践：
 
 *   使用MySQL 内建的类型来存储日期和时间，而非字符串类型
 *   整型(UNSIGNED INT)存储IP地址，MySQL提供INET_ATON把字符串的IP转换成整数，以及INET_NTOA把整数IP转换成字符串
@@ -32,6 +43,8 @@
 
 
 # SQL 优化
+
+## 常见优化方案
 
 - 避免select *，将需要查找的字段列出来。
 - 控制 in 的个数建议在200内，建议 exists 代替 in
@@ -43,7 +56,7 @@
 
 
 
-# EXPLAIN
+## EXPLAIN
 
 获取查询执行计划的信息
 
@@ -63,7 +76,7 @@ explain 的输出列
 
 
 
-## 1、select_type
+### select_type
 
 SELECT类型,可以为以下任何一种:
 
@@ -78,7 +91,7 @@ SELECT类型,可以为以下任何一种:
 
 
 
-## 2、type
+### type
 
 联接类型。下面给出各种联接类型,按照从最佳类型到最坏类型进行排序:
 
@@ -91,10 +104,10 @@ SELECT类型,可以为以下任何一种:
 - **unique_subquery**:该类型替换了下面形式的IN子查询的ref: value IN (SELECT primary_key FROM single_table WHERE some_expr) unique_subquery是一个索引查找函数,可以完全替换子查询,效率更高。
 - **index_subquery**:该联接类型类似于unique_subquery。可以替换IN子查询,但只适合下列形式的子查询中的非唯一索引: value IN (SELECT key_column FROM single_table WHERE some_expr)
 - **range**：范围扫描，where 带有`between` 或者 `>`、`<` 等符号
-- **index**：和全表扫描一样，只是MySQL扫描表时按索引持续进行而不是行
+- **index**：和全表扫描一样，只是MySQL扫描表时按索引持续进行而不是行（按索引排序）
 - **ALL**：全表扫描
 
-## 3、Extra
+### Extra
 
 该列包含MySQL解决查询的详细信息，常见的重要的值如下：
 
@@ -124,7 +137,37 @@ SELECT类型,可以为以下任何一种:
 
 
 
+* 优先 WHERE 子句中的排序、分组和范围
 
+* 当不需要考虑排序和分组时，将选择性最高的列放在前面。
+
+  确认顺序方法，如：
+
+  ```sql
+  select * from payment where staff_id = 2 and customer_id 584 ;
+  ```
+
+  计算：
+
+  ```sql
+  select 
+  	count(distinct staff_id)/count(*) as staff_id_selectivity,
+  	count(distinct customer_id)/count(*) as customer_id_selectivity,
+  	count(*)
+  from payment 
+  ******************** 1.row ************************
+  	staff_id_selectivity：0.0001
+   customer_id_selectivity：0.0373
+  				   count：16049
+  ```
+
+  从以上结果，customer_id 的选择性更高，所以应该将其作为索引列的第一列
+
+
+
+
+
+---
 
 # 索引失效
 
@@ -213,19 +256,30 @@ in 和 not in 也要慎用，否则会导致全表扫描
 
 
 
+**最常见的就是有索引的时间字段了，千万不要在这类字段上使用函数，否则会索引实现**
+
+
+
 ## 空值判断
 
 索引列在使用 `is null`  或者 `is not  null` 判断时，索引会失效
 
+eg：经过测试 is null 并不会失效，
 
 
-## 注意
 
+## 不等号
+
+尽量避免在 where 子句中使用`!=`或`<>`操作符，否则将引擎放弃使用索引而进行全表扫描。
+
+
+
+**注意**
 以下说法在网上很流行，但经过小编测试，发现说法有误
 
 1、尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
 
-无论哪种InnoDB还是MyISAM 引擎，使用HASH索引或者BTREE 索引，`!=`或`<>`操作符不会使索引失效（MySQL版本8.0.16下）
+无论哪种InnoDB还是MyISAM 引擎，使用HASH索引或者BTREE 索引，!=或<>操作符不会使索引失效（MySQL版本8.0.16）
 
 
 

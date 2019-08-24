@@ -182,3 +182,86 @@ mysql> SELECT * FROM student s RIGHT  JOIN class c ON c.sid = s.sid;
 # 索引基础
 
 索引类型分：B-tree 索引、Hash 索引（常见的只有Memory 引擎显式支持）
+
+## 前缀索引
+
+对于BLOB、text 或者很长的 varchar 类型的列，必须使用前缀索引，在MySQL中，前缀长度最大值为255字节。对于存储引擎为MyISAM或InnoDB的数据表，前缀最长为1000字节。
+
+```sql
+ALTER TABLE schema.tableName ADD INDEX idx_xxx(columnName(7))
+```
+
+优点：索引更小更快
+
+缺点：无法用索引做order by 和group by，也无法使用它做覆盖扫描
+
+
+
+**如何确定前缀索引长度？**
+
+ 可以通过计算选择性来确定前缀索引的选择性，计算方法如下
+
+ 全列选择性：
+
+```sql
+SELECT COUNT(DISTINCT column_name) / COUNT(*) FROM table_name;
+```
+
+ 某一长度前缀的选择性
+
+```sql
+SELECT COUNT(DISTINCT LEFT(column_name, prefix_length)) / COUNT(*) FROM table_name;
+```
+
+ 当前缀的选择性越接近全列选择性的时候，索引效果越好。
+
+
+
+
+
+## 联合索引
+
+又称多列索引，索引按照最左列进行排序，
+
+选择索引列顺序的原则：
+
+- 优先 WHERE 子句中的排序、分组和范围
+- 当不需要考虑排序和分组时，将选择性最高的列放在前面。
+
+
+
+当不需要考虑排序和分组时，将选择性最高的列放在前面。
+
+确认顺序方法，如：
+
+```sql
+select * from payment where staff_id = 2 and customer_id 584 ;
+```
+
+计算：
+
+```sql
+select 
+	count(distinct staff_id)/count(*) as staff_id_selectivity,
+	count(distinct customer_id)/count(*) as customer_id_selectivity,
+	count(*)
+from payment 
+******************** 1.row ************************
+	staff_id_selectivity：0.0001
+ customer_id_selectivity：0.0373
+				   count：16049
+```
+
+从以上结果，customer_id 的选择性更高，所以应该将其作为索引列的第一列
+
+## 聚簇索引
+
+聚簇索引不是一种单独的索引类型，而是一种数据存储方式。一个表只能有一个聚簇索引
+
+
+
+
+
+## 覆盖索引
+
+覆盖索引指：索引包含（或者说覆盖）所有需要查询的字段的值，一般在EXPLAIN 的Extra列会出现“Using index”的信息
