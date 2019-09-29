@@ -1385,9 +1385,27 @@ public class WebConfig {
 
 
 
-## 5、过滤器
+## 5、过滤器、拦截器、切面
 
-可参考资料：https://www.jianshu.com/p/3d421fbce734
+### **过滤器**
+
+过滤器可以**拦截到方法的请求和响应**(ServletRequest request, ServletResponse response),并对**请求响应**做出过滤操作
+
+使用过滤器的目的是用来**做一些过滤操作**，获取我们想要获取的数据，比如：在过滤器中修改字符编码；在**过滤器中修改HttpServletRequest的一些参数**，包括：过滤低俗文字、危险字符等。
+
+过滤器**依赖于servlet容器**。在实现上，基于函数回调，它可以对几乎所有请求进行过滤，一个过滤器实例只能在**容器初始化时调用一次。**
+
+**Filter随web应用的启动而启动**，只初始化一次，随web应用的停止而销毁。
+
+> 1.启动服务器时加载过滤器的实例，并**调用init()方法**来初始化实例；
+>
+> 2.每一次请求时都**只调用方法doFilter()进行处理**；
+>
+> 3.停止服务器时**调用destroy()方法**，销毁实例。
+
+
+
+**Filter 实战**
 
 如果是springboot项目，在pom.xml 中配置`spring-boot-starter-web` 依赖即可
 
@@ -1508,9 +1526,21 @@ public class DemoApplication extends SpringBootServletInitializer {
 </dependency>
 ```
 
+可参考资料：https://www.jianshu.com/p/3d421fbce734
 
 
-## 6、拦截器
+
+> **问题》**
+>
+> filter中是没法使用注入的bean的，也就是无法使用@Autowired?
+>
+> 其实Spring中，web应用启动的顺序是：**listener->filter->servlet**，先初始化listener，然后再来就filter的初始化，**再接着才到我们的dispathServlet的初始化**，因此，当我们需要在filter里注入一个注解的bean时，就会注入失败，**因为filter初始化时，注解的bean还没初始化，没法注入。**
+
+
+
+### 拦截器
+
+依赖于web框架，在SpringMVC中就是依赖于SpringMVC框架。在实现上,**基于Java的反射机制，属于面向切面编程（AOP）的一种运用**
 
 **应用场景**
 1、日志记录，可以记录请求信息的日志，以便进行信息监控、信息统计等。
@@ -1543,8 +1573,6 @@ public class IndexInterceptor extends HandlerInterceptorAdapter {
     }
 }
 ```
-
-
 
 
 
@@ -1587,6 +1615,14 @@ public class WebConfig implements WebMvcConfigurer {
 
 
 
+
+
+### 切面
+
+AOP操作可以对操作进行横向的拦截,最大的优势在于他可以**获取执行方法的参数**,对方法进行统一的处理。常见**使用日志,事务,请求参数安全验证**等
+
+
+
 ## 7、监听器
 
 1、使用servlet 3.0 注解 @WebListener
@@ -1606,6 +1642,14 @@ public class RequestListenter implements ServletRequestListener {
 ```
 
 
+
+**过滤器、拦截器、Aspect的区别**
+
+![img](assets/e8f97e5a29a54882a3189bc5a21e8015.jpg)
+
+如果三者方式同时采用，那他们的**执行顺序是什么**呢？
+
+> filter -> interceptor -> ControllerAdvice -> aspect -> controller
 
 ## 8、全局异常处理
 
