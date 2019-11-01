@@ -134,7 +134,7 @@ SELECT * FROM student s inner JOIN class c ON c.sid = s.sid;
 
 **即：查出两个表中所有满足 `ON` 条件的数据，即`两个表的交集`**
 
-
+![img](assets/1053629-370c020e1df96a03.webp)
 
 ## LEFT JOIN
 
@@ -156,7 +156,7 @@ mysql> SELECT * FROM student s LEFT  JOIN class c ON c.sid = s.sid;
 
 **即：查出两个表中所有满足 `ON` 条件的数据，外加`左表`不满足`ON`的数据**
 
-
+![img](assets/1053629-5a796455662a3544.webp)
 
 ## RIGHT JOIN
 
@@ -176,6 +176,28 @@ mysql> SELECT * FROM student s RIGHT  JOIN class c ON c.sid = s.sid;
 同理右连接RIGHT JOIN就是求两个表的交集外加右表剩下的数据。再次从笛卡尔积的角度描述，右连接就是从笛卡尔积中挑出ON子句条件成立的记录，然后加上右表中剩余的记录（见最后一条）。
 
 **即：查出所有满足 `ON` 条件的数据，外加`右表`不满足`ON`的数据**
+
+
+
+## Join 实现原理
+
+**Join执行过程**
+
+在MySQL中，A left join B on condition 的执行过程如下：
+
+1）以 table_A 为驱动表，检索 table_B
+2）根据 on 条件过滤 table_B 的数据，构建 table_A 结果集，并且添加外部行。
+3）对结果集执行 where 条件过滤。如果A中有一行匹配 where 子句但是B中没有一行匹配on条件，则生成另一个B行，其中所有列设置为NULL。
+4）执行 group by 语句分组
+5）执行 having 语句对分组结果筛选
+6）执行 select 出结果集。
+7）执行 distinct 对结果去重
+8）执行 order by 语句
+9）执行 limit 语句
+
+上面需要注意的重点是：MySQL会先进行连接查询，**然后再使用where子句查询结果，再从结果执行order by**。所以如果被驱动表数据过大，会造成检索行过多。可以利用子查询先查询出一个较小的结果集，然后再用连接驱动。
+
+right join 的执行类似 left join ，只是表的角色相反。
 
 
 

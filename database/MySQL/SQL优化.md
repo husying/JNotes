@@ -137,6 +137,24 @@ SELECT类型,可以为以下任何一种:
 
 
 
+连接查询
+
+```
+select * from a left join b --小的在前
+on 	a.XXX = b.XXX
+where 	xxx=xxx   --这里才是关键一定要把能排除的行最多的条件放前面
+group 	by 	xxx
+having 	xxx=xxx  --having条件对搜索效率没有优化,因为必须遍历完系统才会判断having条件
+```
+
+select 语句执行顺序图
+
+![img](assets/a044ad345982b2b75818ea1c30adcbef77099b67.jpg)
+
+
+
+
+
 * 优先 WHERE 子句中的排序、分组和范围
 
 * 当不需要考虑排序和分组时，将选择性最高的列放在前面。
@@ -162,8 +180,6 @@ SELECT类型,可以为以下任何一种:
   ```
 
   从以上结果，customer_id 的选择性更高，所以应该将其作为索引列的第一列
-
-
 
 
 

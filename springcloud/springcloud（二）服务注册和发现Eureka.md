@@ -1,10 +1,8 @@
-# springcloud（二） 服务注册和发现Eureka
-
-
-
 # Eureka简介
 
-Eureka 是一个用于服务注册和发现的组件，Eureka 分为Eureka  Server（服务端） 和 Eureka Client（客户端）
+Eureka是Netflix开源的一款提供服务注册和发现的组件，它提供了完整的Service Registry和Service Discovery实现。也是springcloud体系中最重要最核心的组件之一。
+
+Eureka 分为Eureka  Server（服务端） 和 Eureka Client（客户端）
 
 Eureka 优点：
 
@@ -17,8 +15,8 @@ Eureka 优点：
 主要包括以下3个角色
 
 * Register Service：服务注册中心，它是一个Eureka  Server  ，提供服务注册和发现功能
-* Provider Service：服务提供者，它是一个Eureka  Client，提供服务
-* Consumer Service：服务消费者，它是一个Eureka  Client，消费服务
+* Provider Service：服务提供者，它是一个Eureka  Client，将自身服务注册到Eureka，从而使服务消费方能够找到
+* Consumer Service：服务消费者，它是一个Eureka  Client，从Eureka获取注册服务列表，从而能够消费服务
 
 
 
@@ -28,6 +26,10 @@ Eureka 优点：
 * 在服务启动时，服务提供者Eureka  Client 向服务注册中心Eureka  Server 注册，将自己的信息（比如服务名和服务IP地址等）通过REST API的形式提交给服务注册中心Eureka  Server 
 * 服务消费者Eureka  Client 也向服务注册中心Eureka  Server ，同时获取一份服务注册列表的信息，该列表包含了所有向服务中心Eureka  Server 注册的服务信息。
 * 服务消费者Eureka  Client获取注册列表信息后，服务消费者就知道了服务提供者的IP地址，可以通过Http 远程调用来消费服务提供者的服务
+
+
+
+![img](assets/eureka-architecture-overview.png)
 
 
 
@@ -77,7 +79,11 @@ DiscoveryManager.getInstance().shutdownComponent();
 
 # 为什么Eureka Client获取服务实例这么慢
 
-1. Eureka client 的注册延迟
+1. **Eureka Server 的响应缓存**
+
+   **Eureka Server维护默认每30秒更新一次响应缓存，所以即使刚刚注册的实例，也不会立即出现在服务注册列表中**
+
+2. Eureka client 的注册延迟
 
    Eureka client 启动后不会立即注册，有个延迟时间，如果跟踪代码会发现延迟时间为40秒，源码在eureka-client-1.6.2.jar的DefaultEurekaClientConfig类中，代码如下：
 
@@ -90,10 +96,6 @@ DiscoveryManager.getInstance().shutdownComponent();
 
    
 
-2. Eureka Server 的响应缓存
-
-   Eureka Server维护默认每30秒更新一次响应缓存，所以即使刚刚注册的实例，也不会立即出现在服务注册列表中
-
 3. Eureka Client 的缓存
 
    Eureka Client 保留注册表信息的缓存，该缓存每30秒更一次，因此，Eureka Client 刷新本地缓存，并发现其他新注册的实例可能需要30秒
@@ -101,10 +103,6 @@ DiscoveryManager.getInstance().shutdownComponent();
 4. LoadBalancer 的缓存
 
    Ribbon 的负载平衡器从本地的Eureka Client 获取服务注册列表信息。Ribbon 本身还维护了缓存，以避免每个请求都需要从Eureka Client 获取服务注册列表。此缓存每30秒刷新一次，所以至少需要30秒才能使用新注册的实例
-
-
-
-**综上因素，一个新注册的实例，默认延迟40秒才进行注册，因此不能立马被Eureka Server发现。另外，刚注册的Eureka Client因为调用方各种缓存没有及时获取到最新的服务注册列表信息。**
 
 
 
@@ -128,5 +126,375 @@ eureka.server.enable-self-preservation=false
 
 
 
-参考资料：《深入理解Spring Cloud与微服务构建》
+
+
+# 案例实践
+
+微服务一般采用 Maven 多 module 结构。所以我们需要创建一个maven主工程
+
+结构如下：
+
+> springcloud-eureka
+>
+> ​	|__eureka-server
+>
+> ​	|__eureka-client
+
+
+
+主工程项目springcloud-eureka的 pom 文件如下：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.husy</groupId>
+    <artifactId>springcloud-eureka</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.9.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
+    </properties>
+
+    <modules>
+        <module>eureka-server</module>
+        <module>eureka-client</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
+```
+
+
+
+## Eureka Server
+
+**1、pom文件配置**
+
+springcloud 已集成了Eureka 服务器，只需要引用`spring-cloud-starter-netflix-eureka-server` 依赖即可
+
+。在很多博文和文章中都引用的是`spring-cloud-starter-eureka-server`，这里需要说明一下，`spring-cloud-starter-eureka-server`是之前的版本，官方推荐使用的是前者。
+
+![1570677293649](assets/1570677293649.png)
+
+![1570677396266](assets/1570677396266.png)
+
+
+
+所以，我们pom 文件如下：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.husy</groupId>
+        <artifactId>springcloud-eureka</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>eureka-server</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+```
+
+
+
+**2、配置文件**
+
+在默认设置下，该服务注册中心也会将自己作为客户端来尝试注册它自己，所以我们需要禁用它的客户端注册行为。
+
+这里使用的是*application.yml*，如下：
+
+```properties
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    # 表示是否将自己注册到Eureka Server，默认为true
+    registerWithEureka: false
+    # 表示是否从Eureka Server获取注册信息，默认为true。
+    fetchRegistry: false
+    serviceUrl:
+      # 设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。
+      # 默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+```
+
+
+
+**3、启动类**
+
+添加启动代码中添加`@EnableEurekaServer`注解
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServerApplication.class, args);
+	}
+}
+```
+
+
+
+ok，Eureka Server 初步搭建完成。启动工程后，访问：http://localhost:8761/eureka ，可以看到下面的页面，其中还没有发现任何服务
+
+![1570678280491](assets/1570678280491.png)
+
+
+
+## Eureka Client
+
+**1、pom文件**
+
+客户端需要引用`spring-cloud-starter-netflix-eureka-client`和`spring-boot-starter-web` 依赖
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.husy</groupId>
+        <artifactId>springcloud-eureka</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>eureka-client</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+```
+
+
+
+**2、配置文件**
+
+```properties
+spring:
+  application:
+    name: eureka-client
+server:
+  port: 8762
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+
+```
+
+
+
+**3、 客户端代码**
+
+```java
+@SpringBootApplication
+@RestController
+@EnableEurekaClient
+public class EurekaClientApplication {
+
+	@RequestMapping("/")
+	public String home() {
+		return "Hello world";
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaClientApplication.class, args);
+	}
+
+}
+```
+
+
+
+启动后，我们重新访问服务端页面：http://localhost:8761/eureka ，如下：
+
+![1570680105311](assets/1570680105311.png)
+
+
+
+我们可以看到有一个服务已经注册了。
+
+
+
+## Eureka Cluster Server
+
+在微服务项目中，Eureka Server 的作用举足轻重，如果单服务的话，遇到故障或毁灭性问题。那整个项目将停止运行。因此对Eureka 进行高可用集群是非常必要的
+
+
+
+这里只介绍三台集群的配置情况，每台注册中心分别又指向其它两个节点即可，修改pom 文件。
+
+**1、pom 文件**
+
+```properties
+---
+spring:
+  profiles: peer1
+server:
+  port: 8001
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: http://peer2:8002/eureka/,http://peer3:8003/eureka/
+---
+spring:
+  profiles: peer2
+server:
+  port: 8002
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8001/eureka/,http://peer3:8003/eureka/
+---
+spring:
+  profiles: peer3
+server:
+  port: 8003
+eureka:
+  instance:
+    hostname: peer3
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8001/eureka/,http://peer2:8002/eureka/
+```
+
+
+
+本地搭建Eureka Server 集群，需要修改 host 文件，我的在C:\Windows\System32\drivers\etc目录下
+
+在文件最后加上以下代码：
+
+>127.0.0.1 peer1
+>
+>127.0.0.1 peer2
+>
+>127.0.0.1 peer3
+
+
+
+打包编译后，用 `java -jar` 启动 ，方式如下
+
+> ```
+> java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer1
+> java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer2
+> java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer3
+> ```
+
+依次启动完成后，浏览器输入：`http://localhost:8001/` 效果图如下：
+
+![1570701599343](assets/1570701599343.png)
+
+
+
+**注意：**
+
+只启动peer1 后，报异常，如下：
+
+![1570701415543](assets/1570701415543.png)
+
+这正常现象，只要启动完3个服务后，就不会报错了。小伙伴们不要慌。
+
+## Eureka Cluster Client
+
+修改 Eureka Client的配置文件，修改如下：
+
+```properties
+server:
+  port: 8101
+spring:
+  application:
+    name: eureka-client
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8001/eureka/
+```
+
+启动项目，再次浏览器输入：`http://localhost:8001/` 
+
+![1570701671090](assets/1570701671090.png)
+
+
+
+[GitHub代码](https://github.com/HusyCoding/springcloud-example.git)
+
 

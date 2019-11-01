@@ -1,4 +1,4 @@
-## 微服务
+## 微服务简介
 
 ### 微服务的诞生
 
@@ -72,15 +72,17 @@
 
 ## 服务划分
 
-原则：是服务和服务之间无耦合，任何一个服务都可以被替换，服务有自己 严格的边界；
+**横向拆分**。按照不同的业务域进行拆分，例如订单、营销、风控、积分资源等。形成独立的业务领域微服务集群。
 
-不过服务的划分没有具体的划分方法， 一般来说根据业务来划分服务，领域驱动设计具有指 
-
-导作用
+**纵向拆分**。把一个业务功能里的不同模块或者组件进行拆分。例如把公共组件拆分成独立的原子服务，下沉到底层，形成相对独立的原子服务层。这样一纵一横，就可以实现业务的服务化拆分。
 
 
 
-总之，微服务的设计一定要渐进式的，并且随着业务发展而发展
+要做好微服务的分层：梳理和抽取核心应用、公共应用，作为独立的服务下沉到核心和公共能力层，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求
+
+
+
+总之，微服务的设计一定要**渐进式**的，总的原则是**服务内部高内聚，服务之间低耦合。**
 
 
 
@@ -97,7 +99,19 @@
 
 
 
+### 给数据库带来的挑战
 
+随着服务拆分后，我们遇到最大的问题就是后台管理的联合查询，每个微服务都有自己独立的数据库，那么后台该怎么处理？
+
+这里一般有如下几种方式：
+
+1. 严格按照微服务的划分来做，微服务相互独立，各微服务数据库也独立，后台需要展示数据时，调用各微服务的接口来获取对应的数据，再进行数据处理后展示出来，这是标准的用法，也是最麻烦的用法。
+2. 将业务高度相关的表放到一个库中，将业务关系不是很紧密的表严格按照微服务模式来拆分，这样既可以使用微服务，也避免了数据库分散导致后台系统统计功能难以实现，是一个折中的方案。
+3. 数据库严格按照微服务的要求来切分，以满足业务高并发，实时或者准实时将各微服务数据库数据同步到NoSQL数据库中，在同步的过程中进行数据清洗，用来满足后台业务系统的使用，推荐使用MongoDB、HBase等。
+
+
+
+三种方案在不同的公司我都使用过，第一种方案适合业务较为简单的小公司；第二种方案，适合在原有系统之上，慢慢演化为微服务架构的公司；第三种适合大型高并发的互联网公司。
 
 ## 熔断器
 
@@ -161,31 +175,6 @@
 
 
 
-## SpringCloud常用组件
-
-* Eureka：服务注册和发现组件
-
-* Hystrix：熔断组件
-
-* Ribbon：负载均衡组件
-
-* Zuul：路由网关
-
-以上4个组件来自于Netflix 公司，统称为Spring Cloud Netflix 
-
-* Spring Cloud Config：配置文件统一管理
-* Spring Cloud Security：Spring Security组件封装，提供用户验证和权限验证，一般与Spring Security OAuth2 组一起使用，通过搭建授权服务，验证Token或者JWT这种形式对整个微服务系统进行安全验证
-* Spring Cloud  Sleuth：分布式链路追踪组件，他分封装了Dapper、Zipkin、Kibana 的组件
-* Spring Cloud Stream：Spring Cloud框架的数据流操作包，可以封装RabbitMq，ActiveMq，Kafka，Redis等消息组件，利用Spring Cloud Stream可以实现消息的接收和发送
-
-
-
-一个简单的Spring Cloud 构建的微服务系统，通常由服务注册中心Eureka、网关Zuul、配置中心Config和授权服务Auth构成
-
-![1569743798115](assets/1569743798115.png)
-
-
-
 
 
 ## 微服务框架
@@ -201,3 +190,48 @@
 * 从开发风格考虑，Dubbo倾向于xml的配置方式，Spring cloud 基于Spring Boot ，采用基于注解和JavaBean配置方式的敏捷开发
 * 从开发速度上考虑，Spring cloud 具有更高的开发和部署速度
 * 从通信方式上考虑，Spring cloud 基于HTTP Restful 风格，服务于服务之间完全无关、无耦合。Dubbo 基于远程调用，对接口、平台和语言有强依赖性，如果需要实现跨平台，需要有额外的中间件。
+
+
+
+**所以Dubbo专注于服务治理；Spring Cloud关注于微服务架构生态。**
+
+## SpringCloud常用组件
+
+- Eureka：服务注册和发现组件
+- Hystrix：熔断组件
+- Ribbon：负载均衡组件
+- Zuul：路由网关
+
+以上4个组件来自于Netflix 公司，统称为Spring Cloud Netflix 
+
+- Spring Cloud Config：配置文件统一管理
+- Spring Cloud Security：Spring Security组件封装，提供用户验证和权限验证，一般与Spring Security OAuth2 组一起使用，通过搭建授权服务，验证Token或者JWT这种形式对整个微服务系统进行安全验证
+- Spring Cloud  Sleuth：分布式链路追踪组件，他分封装了Dapper、Zipkin、Kibana 的组件
+- Spring Cloud Stream：Spring Cloud框架的数据流操作包，可以封装RabbitMq，ActiveMq，Kafka，Redis等消息组件，利用Spring Cloud Stream可以实现消息的接收和发送
+
+
+
+一个简单的Spring Cloud 构建的微服务系统，通常由服务注册中心Eureka、网关Zuul、配置中心Config和授权服务Auth构成
+
+![1569743798115](assets/1569743798115.png)
+
+
+
+Spring Cloud Netflix功能：
+
+- 服务发现：可以注册Eureka实例，并且客户端可以使用Spring托管的Bean发现实例
+- 服务发现：可以使用声明性Java配置创建嵌入式Eureka服务器
+- 断路器：Hystrix客户端可以使用简单的注释驱动的方法装饰器构建
+- 断路器：具有声明性Java配置的嵌入式Hystrix仪表板
+- 声明式REST客户端：Feign创建一个用JAX-RS或Spring MVC注释修饰的接口的动态实现。
+- 客户端负载均衡器：功能区
+- 外部配置：从Spring Environment到Archaius的桥梁（使用Spring Boot约定启用Netflix组件的本机配置）
+- 路由器和过滤器：Zuul过滤器的自动重新注册，以及用于反向代理创建的简单配置约定
+
+
+
+# 参考资料汇总
+
+- 《深入理解Spring Cloud与微服务构建》  PDF
+- [纯洁的微笑](http://www.ityouknow.com/spring-cloud.html)
+- [官方文档](https://cloud.spring.io/spring-cloud-static/Greenwich.SR3/single/spring-cloud.html)
