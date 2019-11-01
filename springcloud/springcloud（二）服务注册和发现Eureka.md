@@ -134,15 +134,15 @@ eureka.server.enable-self-preservation=false
 
 结构如下：
 
-> springcloud-eureka
+> springcloud-chapters
 >
 > ​	|__eureka-server
 >
-> ​	|__eureka-client
+> ​	|__eureka-client-producer
 
 
 
-主工程项目springcloud-eureka的 pom 文件如下：
+主工程项目springcloud-chapters的 pom 文件如下：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -152,10 +152,10 @@ eureka.server.enable-self-preservation=false
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.husy</groupId>
-    <artifactId>springcloud-eureka</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>springcloud-chapters</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <packaging>pom</packaging>
+    
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -169,9 +169,19 @@ eureka.server.enable-self-preservation=false
     </properties>
 
     <modules>
+        <!--注册中心-->
         <module>eureka-server</module>
-        <module>eureka-client</module>
+        <!--服务提供者  单实例-->
+        <module>eureka-client-producer</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -184,7 +194,13 @@ eureka.server.enable-self-preservation=false
             </dependency>
         </dependencies>
     </dependencyManagement>
-
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+    </repositories>
 </project>
 ```
 
@@ -210,24 +226,22 @@ springcloud 已集成了Eureka 服务器，只需要引用`spring-cloud-starter-
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.husy</groupId>
-        <artifactId>springcloud-eureka</artifactId>
+        <artifactId>springcloud-chapters</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
+
     <artifactId>eureka-server</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>eureka-server</name>
+    <description>注册中心</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -239,7 +253,6 @@ springcloud 已集成了Eureka 服务器，只需要引用`spring-cloud-starter-
             </plugin>
         </plugins>
     </build>
-
 </project>
 
 ```
@@ -288,13 +301,15 @@ public class EurekaServerApplication {
 
 
 
-ok，Eureka Server 初步搭建完成。启动工程后，访问：http://localhost:8761/eureka ，可以看到下面的页面，其中还没有发现任何服务
+ok，Eureka Server 初步搭建完成。启动工程后，访问：http://localhost:8761 ，可以看到下面的页面，其中还没有发现任何服务
 
 ![1570678280491](assets/1570678280491.png)
 
 
 
 ## Eureka Client
+
+创建module工程 eureka-client-producer
 
 **1、pom文件**
 
@@ -304,26 +319,34 @@ ok，Eureka Server 初步搭建完成。启动工程后，访问：http://localh
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.husy</groupId>
-        <artifactId>springcloud-eureka</artifactId>
+        <artifactId>springcloud-chapters</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>eureka-client</artifactId>
+    <artifactId>eureka-client-producer</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>eureka-client-producer</name>
+    <description>服务提供者</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
@@ -333,9 +356,7 @@ ok，Eureka Server 初步搭建完成。启动工程后，访问：http://localh
             </plugin>
         </plugins>
     </build>
-
 </project>
-
 ```
 
 
@@ -353,8 +374,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-
-
 ```
 
 
@@ -362,30 +381,35 @@ eureka:
 **3、 客户端代码**
 
 ```java
-@SpringBootApplication
 @RestController
+public class HiController {
+	@Value("${server.port}")
+	String port;
+
+	@RequestMapping("/hi")
+	public String Hello(@RequestParam String name) {
+		return "Hello " + name + ",There port is " + port;
+	}
+}
+```
+
+**4、启动类**
+
+```java
+@SpringBootApplication
 @EnableEurekaClient
-public class EurekaClientApplication {
-
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
-
+public class EurekaClientProducerApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(EurekaClientApplication.class, args);
+		SpringApplication.run(EurekaClientProducerApplication.class, args);
 	}
-
 }
 ```
 
 
 
-启动后，我们重新访问服务端页面：http://localhost:8761/eureka ，如下：
+启用服务，启动后，我们重新访问服务端页面：http://localhost:8762/hi?name=husy，如下：
 
 ![1570680105311](assets/1570680105311.png)
-
-
 
 我们可以看到有一个服务已经注册了。
 
@@ -404,37 +428,41 @@ public class EurekaClientApplication {
 ```properties
 ---
 spring:
-  profiles: peer1
+  profiles: server1
 server:
-  port: 8001
+  port: 8761
 eureka:
   instance:
-    hostname: peer1
+    hostname: server1
   client:
+    # 表示是否将自己注册到Eureka Server，默认为true
+    registerWithEureka: false
+    # 表示是否从Eureka Server获取注册信息，默认为true。
+    fetchRegistry: false
     serviceUrl:
-      defaultZone: http://peer2:8002/eureka/,http://peer3:8003/eureka/
+      # 设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。
+      # 默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。
+#      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: http://server1:8761/eureka/
+
 ---
 spring:
-  profiles: peer2
+  profiles: server2
 server:
-  port: 8002
+  port: 8762
 eureka:
   instance:
-    hostname: peer2
+    hostname: server2
   client:
+    # 表示是否将自己注册到Eureka Server，默认为true
+    registerWithEureka: false
+    # 表示是否从Eureka Server获取注册信息，默认为true。
+    fetchRegistry: false
     serviceUrl:
-      defaultZone: http://peer1:8001/eureka/,http://peer3:8003/eureka/
----
-spring:
-  profiles: peer3
-server:
-  port: 8003
-eureka:
-  instance:
-    hostname: peer3
-  client:
-    serviceUrl:
-      defaultZone: http://peer1:8001/eureka/,http://peer2:8002/eureka/
+      # 设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。
+      # 默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。
+#      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: http://server2:8762/eureka/
 ```
 
 
@@ -446,18 +474,13 @@ eureka:
 >127.0.0.1 peer1
 >
 >127.0.0.1 peer2
->
->127.0.0.1 peer3
 
 
 
 打包编译后，用 `java -jar` 启动 ，方式如下
 
-> ```
 > java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer1
 > java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer2
-> java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer3
-> ```
 
 依次启动完成后，浏览器输入：`http://localhost:8001/` 效果图如下：
 
@@ -467,13 +490,15 @@ eureka:
 
 **注意：**
 
-只启动peer1 后，报异常，如下：
+只启动 server1 后，报异常，如下：
 
 ![1570701415543](assets/1570701415543.png)
 
 这正常现象，只要启动完3个服务后，就不会报错了。小伙伴们不要慌。
 
-## Eureka Cluster Client
+
+
+**Eureka Cluster Client**
 
 修改 Eureka Client的配置文件，修改如下：
 

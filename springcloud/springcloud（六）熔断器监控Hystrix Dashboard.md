@@ -14,8 +14,6 @@ Turbine作为 Netflix 开源了 Hystrix 的组件 ， Turbine 用于聚合多个
 
 
 
-
-
 # 案例演练
 
 ## Hystrix Dashboard
