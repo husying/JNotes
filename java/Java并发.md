@@ -107,17 +107,22 @@ public class Main {
 *   Callable的 **call() **方法 **可以返回值和抛出异常 **，通过 Future 对象进行封装
 
 ```java
-//Callable  启动线程方式
-class ThreadDemo implements Callable<Integer> {
-	public Integer call() throws Exception { return null;}
-}
-public class Test { 
-	public static void main(String[] args) {
-		ThreadDemo td = new ThreadDemo();
-		FutureTask<Integer> result = new FutureTask<Integer>(td);
-		new Thread(result).start();
-	}  
-}
+// 创建一个线程池
+ExecutorService executor = Executors.newFixedThreadPool(2);
+//创建一个Callable，3秒后返回String类型
+Callable myCallable = new Callable() {
+    @Override
+    public String call() throws Exception {
+    　　Thread.sleep(3000);
+    　　System.out.println("calld方法执行了");
+    　　return "call方法返回值";
+    }
+};
+System.out.println("提交任务之前 "+LocalDatetime.now());
+Future future = executor.submit(myCallable);
+System.out.println("提交任务之后，获取结果之前 "+LocalDatetime.now());
+System.out.println("获取返回值: "+future.get());
+System.out.println("获取到结果之后 "+ LocalDatetime.now());
 ```
 
 
@@ -737,10 +742,11 @@ public void synMethod(){
 
 ```
 
-**注意：** 
+**注意：** ***Synchronized作用范围***
 
 *   synchronized 修饰方法是**类锁**、修饰代码块是**对象锁**，
 *   如果同步方法或代码块**被static修饰时也为类锁**，因为同一个对象的多个实例，在进入静态的同步方法时，一次只能有一个类实例进入，所以同步方法体效率和性能没有同步块高
+*   synchronized 作用于一个对象实例时，锁住的是所有以该对象为锁的代码块。
 
 
 
@@ -1277,7 +1283,7 @@ BlockingQueue接口有：ArrayBlockingQueue ， DelayQueue ， LinkedBlockingDeq
 *   tidying：所有任务都执行完（包含阻塞队列里面任务）当前线程池活动线程为0，将要调用terminated方法
 *   terminated：终止状态。terminated方法调用完成以后的状态
 
-RUNNING -> SHUTDOWN:显式调用shutdown()方法，或者隐式调用了finalize(),它里面调用了shutdown（）方法。
+RUNNING -> SHUTDOWN：显式调用shutdown()方法，或者隐式调用了finalize(),它里面调用了shutdown（）方法。
 
 
 

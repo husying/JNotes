@@ -124,15 +124,7 @@ Java NIO中的Buffer用于和NIO通道进行交互，数据是从通道读入缓
 
 ### 1> 实现类
 
-Java NIO里关键的Buffer实现：
-
-*   ByteBuffer
-*   CharBuffer
-*   DoubleBuffer
-*   FloatBuffer
-*   IntBuffer
-*   LongBuffer
-*   ShortBuffer
+Java NIO里关键的Buffer实现：ByteBuffer、CharBuffer、DoubleBuffer、FloatBuffer、IntBuffer、LongBuffer、ShortBuffer
 
 这些Buffer覆盖了你能通过IO发送的基本数据类型：**byte, short, int, long, float, double 和 char。**
 

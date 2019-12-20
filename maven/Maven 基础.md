@@ -21,7 +21,7 @@ groupId、artifactId、version 这3个元素定义了一个项目基本坐标。
   * system：系统依赖范围，和provided一致，但需要使用systemPath显式的指定依赖文件路径
   * import：导入依赖
 * type，定义打包的类型
-* optional
+* optional： 是否为可选依赖
 * exclusions：用来排除传递性依赖
 
 
