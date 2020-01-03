@@ -1,17 +1,3 @@
----
-title: 面试之Java篇（2）三大特性和六大原则
-typora-root-url: 面试之Java篇（2）三大特性和六大原则
-categories:
-- 技术栈
-- Java
-tags:
-- 面试
-- Java
-date: 2019/12/29 15:08:30
----
-
-
-
 # 三大特性
 
 在 Java 编程中三大特性指的是**封装、继承、多态**

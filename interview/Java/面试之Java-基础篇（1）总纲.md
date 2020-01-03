@@ -1,13 +1,5 @@
 ---
-title: 面试之Java篇（1）总纲
-typora-root-url: 面试之Java篇（1）总纲
-categories:
-- 技术栈
-- Java
-tags:
-- 面试
-- Java
-date: 2019/12/29 15:08:25
+typora-root-url: 面试之Java-基础篇（1）总纲
 ---
 
 ​		Java 篇章中，一般我们面试时都会考察我们掌握的基础点，看是否基础牢固，决定了我们是不是能进一步的交流，如果一个人的基础都牢固，那面试官肯定不要你。

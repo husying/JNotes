@@ -1,12 +1,5 @@
 ---
-title: 面试之Java-基础篇（6）逻辑运算
 typora-root-url: 面试之Java-基础篇（6）逻辑运算
-categories:
-- 技术栈
-- Java 
-tags:
-- 面试
-- Java
 ---
 
 在本篇章中会从参数传递、++ 和 += 运算、try/catch、循环、switch 等方面讲述来讲述一下，在 Java 中的一些逻辑运算规则
