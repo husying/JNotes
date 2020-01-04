@@ -22,7 +22,6 @@ Java集合类存放于 java.util 包中，是一个用来存放对象的容器�
 
 
 
-
 **Set**
 
 特点：唯一，不重复
@@ -328,7 +327,7 @@ private static int hugeCapacity(int minCapacity) {
 
 ------
 
-## 3、Vectot
+## 3、Vector
 
 Vectot的扩容：默认初始容量`10`，可以通过构造器 **指定** 的**初始容量**和**容量增量**，每次增加 **`2 倍`**
 
@@ -565,7 +564,7 @@ List<String> list2 = Arrays.asList(arr);
 
 list1.set(0, "AA");
 System.out.println("Array:"+Arrays.toString(arr));
-System.out.println("List :"+list2.toString());
+System.out.println("List :"+list1.toString());
 
 System.out.println();
 
@@ -575,7 +574,7 @@ System.out.println("List :"+list2.toString());
 
 // 输出
 Array:[1, 2, 3, 4, 5]
-List :[1, 2, 3, 4, 5]
+List :[AA, 2, 3, 4, 5]
 
 Array:[a, 2, 3, 4, 5]
 List :[a, 2, 3, 4, 5]
