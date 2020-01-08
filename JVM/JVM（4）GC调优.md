@@ -1,5 +1,5 @@
 ---
-typora-root-url: JVM（4）GC 调优
+typora-root-url: JVM（4）GC调优
 ---
 
 

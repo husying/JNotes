@@ -1,5 +1,5 @@
 ---
-typora-root-url: Spring Cloud 实战练习（1）服务注册与发现 Eureka
+typora-root-url: SpringCloud实战练习（1）服务注册与发现Eureka
 ---
 
 

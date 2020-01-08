@@ -1,5 +1,5 @@
 ---
-typora-root-url: Spring Cloud 实战练习（5）路由网关 Zuul
+typora-root-url: SpringCloud实战练习（5）路由网关Zuul
 ---
 
 

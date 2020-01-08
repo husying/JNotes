@@ -1,5 +1,5 @@
 ---
-typora-root-url: Spring Cloud 实战练习（4）熔断监控 Hystrix
+typora-root-url: SpringCloud实战练习（4）熔断监控Hystrix
 ---
 
 # 案例演练

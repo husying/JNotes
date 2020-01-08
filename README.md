@@ -70,8 +70,8 @@ CSDN 博客：https://blog.csdn.net/u013234928
 
 * [JVM（1）内存模型](./JVM/JVM（1）内存模型.md)
 * [JVM（2）类的加载](./JVM/JVM（2）类的加载.md)
-* [JVM（3）GC 回收机制](./JVM/JVM（3）GC 回收机制.md)
-* [JVM（4）GC 调优](./JVM/JVM（4）GC 调优.md)
+* [JVM（3）GC回收机制](./JVM/JVM（3）GC回收机制.md)
+* [JVM（4）GC调优](./JVM/JVM（4）GC调优.md)
 
 
 
@@ -122,12 +122,12 @@ CSDN 博客：https://blog.csdn.net/u013234928
 
 - ## Spring Cloud 
 
-  * [Spring Cloud 实战练习（1）服务注册与发现 Eureka](./Action/Spring Cloud 实战练习（1）服务注册与发现 Eureka.md)
-  * [Spring Cloud 实战练习（2）负载均衡 Ribbon](./Action/Spring Cloud 实战练习（2）负载均衡 Ribbon.md)
-  * [Spring Cloud 实战练习（3）声明式调用 Feign](./Action/Spring Cloud 实战练习（3）声明式调用 Feign.md)
-  * [Spring Cloud 实战练习（4）熔断监控 Hystrix](./Action/Spring Cloud 实战练习（4）熔断监控 Hystrix.md)
-  * [Spring Cloud 实战练习（5）路由网关 Zuul](./Action/Spring Cloud 实战练习（5）路由网关 Zuul.md)
-  * [Spring Cloud 实战练习（6）配置中心Config](./Action/Spring Cloud 实战练习（6）配置中心Config.md)
+  * [SpringCloud实战练习（1）服务注册与发现Eureka](./Action/SpringCloud实战练习（1）服务注册与发现Eureka.md)
+  * [SpringCloud实战练习（2）负载均衡Ribbon](./Action/SpringCloud实战练习（2）负载均衡Ribbon.md)
+  * [SpringCloud实战练习（3）声明式调用Feign](./Action/SpringCloud实战练习（3）声明式调用Feign.md)
+  * [SpringCloud实战练习（4）熔断监控Hystrix](./Action/SpringCloud实战练习（4）熔断监控Hystrix.md)
+  * [SpringCloud实战练习（5）路由网关Zuul](./Action/SpringCloud实战练习（5）路由网关Zuul.md)
+  * [SpringCloud实战练习（6）配置中心Config](./Action/SpringCloud实战练习（6）配置中心Config.md)
   * [源码地址](https://github.com/HusyCoding/springcloud-chapters.git)
 
   

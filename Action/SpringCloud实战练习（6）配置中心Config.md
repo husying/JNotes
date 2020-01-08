@@ -1,5 +1,5 @@
 ---
-typora-root-url: Spring Cloud 实战练习（6）配置中心Config
+typora-root-url: SpringCloud实战练习（6）配置中心Config
 ---
 
 # 案例演练

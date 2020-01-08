@@ -1,5 +1,5 @@
 ---
-typora-root-url: JVM（3）GC 回收机制
+typora-root-url: JVM（3）GC回收机制
 ---
 
 
