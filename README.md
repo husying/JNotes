@@ -1,105 +1,175 @@
-# Learning-Notes
+# JNotes
 
-主要记录一下 JAVA 学习的一个心得，大部分内容都是自己归纳整理的 。个人认为这是一个Java 程序员必须掌握的基础知识，它囊括了 java基础、集合、并发、IO、算法、设计模式等，对于需要找工作，准备面试的人来说，也许是一份很好的参考。
-
-| Java | 设计模式 | 算法 | 数据库 | Web | 分布式 | 缓存 | 队列 | Linux | 常用技术 |
-| ---- | ---- | ---- | ------- | ------ | ---- | ---- | -------- | -------- | -------- |
-| [:bullettrain_side:](#bullettrain_sideJava)| [:scissors:](#scissors设计模式)  | [:art:](#art算法) | [:books:](#books数据库) |[:airplane:](#airplaneWeb) | [:rainbow:](#rainbow分布式 ) | [:guitar:](#guitar缓存) | [:rocket:](#rocket队列) | [:anchor:](#anchorLinux) | [:pencil:](#pencil常用技术) |
+主要记录一下 JAVA 学习的一个心得，大部分内容都是自己归纳整理的 。个人认为这是一个 Java 程序员必须掌握的基础知识，它将囊括了 Java基础、集合、并发、IO、算法、设计模式等，相信对于需要找工作，准备面试的人来说，也许是一份很好的参考。
 
 
 
-# :bullettrain_side:Java
+个人博客：www.husycode.cn
 
-* [Java 基础](./java/Java基础.md)
-* [Java 集合](./java/Java集合.md)
-* [Java 并发](./java/Java并发.md)
-* [Java JVM](./java/JVM.md)
-* [Java IO](./java/JavaIO.md)
-* [Java NIO](./java/JavaNIO.md)
-* [Java JDBC](./java/JavaJDBC.md) 
-* [JDK版本特性](./java/JDK版本特性)
-* [代码风格](https://github.com/alibaba/p3c)
+CSDN 博客：https://blog.csdn.net/u013234928
+
+欢迎订阅收藏！！！
 
 
 
-# :scissors:设计模式
-
- （-------正在建设中，敬请期待！------）
+---
 
 
 
-# :art:算法
+# :books:技术栈
 
-* [Java 数据结构](./data-structures/数据结构.md)
-* [排序算法](./algorithm/排序算法.md)
-* [查询算法](./algorithm/查询算法.md)
-* [加密算法](./algorithm/加密算法.md)
+|Java|JVM|DB|Web|Sys|Algo|Design|RPC|Questions|
+| :--: | :--: | :--: | :-----: | :----: | ---- | ---- | -------- | -------- |
+| [:boom:](#boomJava) | [:maple_leaf:](#maple_leafJVM) | [:floppy_disk:](#floppy_disk数据库) | [:globe_with_meridians:](#globe_with_meridiansWeb) |[:dvd:](#dvd操作系统) | [:art:](#art数据结构与算法) | [:scissors:](#scissors设计模式) | [:clapper:](#clapper分布式微服务) |[:pencil:](#pencil面试题集)|
 
+## :boom:Java
 
+* ### Java-基础篇
 
-# :books:数据库
+  * [Java-基础篇（1）总纲](./Java/Java-基础篇（1）总纲.md)
+  * [Java-基础篇（2）三大特性和六大原则](./Java/Java-基础篇（2）三大特性和六大原则.md)
+  * [Java-基础篇（3）常用关键字特性](./Java/Java-基础篇（3）常用关键字特性.md)
+  * [Java-基础篇（4）数据类型](./Java/Java-基础篇（4）数据类型.md)
+  * [Java-基础篇（5）类加载和初始化](./Java/Java-基础篇（5）类加载和初始化.md)
+  * [Java-基础篇（6）逻辑运算](./Java/Java-基础篇（6）逻辑运算.md)
+  * [Java-基础篇（7）反射](./Java/Java-基础篇（7）反射.md)
+  * [Java-基础篇（8）异常](./Java/Java-基础篇（8）异常.md)
+  * [Java-基础篇（9）内部类](./Java/Java-基础篇（9）内部类.md)
+  * [Java-基础篇（10）泛型](./Java/Java-基础篇（10）泛型.md)
 
-* MySQL（-------正在建设中，敬请期待！------）
-* Oracle （-------正在建设中，敬请期待！------）
+* ### Java-集合篇
 
+  * [Java-集合篇（1）集合](./Java/Java-集合篇（1）集合.md)
+  * [Java-集合篇（2）集合之List](./Java/Java-集合篇（2）集合之List.md)
+  * [Java-集合篇（3）集合之Set](./Java/Java-集合篇（3）集合之Set.md)
+  * [Java-集合篇（4）集合之Queue](./Java/Java-集合篇（4）集合之Queue.md)
+  * [Java-集合篇（5）集合之Map](./Java/Java-集合篇（5）集合之Map.md)
 
+* ### Java-多线程篇
 
-# :airplane:Web
+  * [Java 并发](./java/Java并发.md)
 
-* Servlet （-------正在建设中，敬请期待！------）
-* [Spring](./spring/Spring.md)
-* Mybatis （-------正在建设中，敬请期待！------）
-* [Shiro](./spring/Shiro原理与实践.md)
-* Tomcat （-------正在建设中，敬请期待！------）
-* Jetty （-------正在建设中，敬请期待！------）
-* Jenkins （-------正在建设中，敬请期待！------）
+* ### Java-IO/NIO篇
 
+  * [Java IO](./java/JavaIO.md)
+  * [Java NIO](./java/JavaNIO.md)
 
+* ### Java-JDBC篇
 
-# :rainbow:分布式微服务
+  * [Java JDBC](./java/JavaJDBC.md) 
 
-* SpringCloud （-------正在建设中，敬请期待！------）
-* ZooKeeper （-------正在建设中，敬请期待！------）
-* Dubbo （-------正在建设中，敬请期待！------）
-* Nginx （-------正在建设中，敬请期待！------）
+* ### JDK-版本篇
 
-
-
-# :guitar:缓存
-
-* [Redis](./cache/redis.md)
-
-* MongoDB （-------正在建设中，敬请期待！------）
+  * [JDK版本特性](./java/JDK版本特性)
 
   
 
-# :rocket:队列
-
-* RabbitMQ （-------正在建设中，敬请期待！------）
-* Kafka （-------正在建设中，敬请期待！------）
-
-# :anchor:Linux
-
-* linux （-------正在建设中，敬请期待！------）
 
 
+## :maple_leaf:JVM
 
-# :pencil:常用技术
-
-* POI Excel （-------正在建设中，敬请期待！------）
-* 分布式事务 （-------正在建设中，敬请期待！------）
-* 分布式唯一ID （-------正在建设中，敬请期待！------）
-
-* 秒杀系统 （-------正在建设中，敬请期待！------）
-* 支付系统 （-------正在建设中，敬请期待！------）
-* 分布式调度系统 （-------正在建设中，敬请期待！------）
-* 分布式日志系统 （-------正在建设中，敬请期待！------）
+* [JVM（1）内存模型](./JVM/JVM（1）内存模型.md)
+* [JVM（2）类的加载](./JVM/JVM（2）类的加载.md)
+* [JVM（3）GC 回收机制](./JVM/JVM（3）GC 回收机制.md)
+* [JVM（4）GC 调优](./JVM/JVM（4）GC 调优.md)
 
 
 
-# 参考资料
+## :floppy_disk:数据库
 
-*   [JavaGuide | GitHub](https://github.com/Snailclimb/JavaGuide)
-*   [CyC2018 | GitHub](https://github.com/CyC2018)
-*   [Java IO教程 | 并发编程网](http://ifeve.com/java-io/)
+## :globe_with_meridians:Web
+
+## :dvd:操作系统
+
+## :art:数据结构与算法
+
+- [Java 数据结构](./Notes/data-structures/数据结构.md)
+- [排序算法](./Notes/algorithm/排序算法.md)
+- [查询算法](./Notes/algorithm/查询算法.md)
+- [加密算法](./Notes/algorithm/加密算法.md)
+
+
+
+## :scissors:设计模式
+
+## :clapper:分布式微服务
+
+## :pencil:面试题集
+
+## :microphone:HR和Offer 
+
+
+
+---
+
+
+
+# :pushpin:实战经验
+
+- 开发规范
+
+- 开发工具
+
+- 安装图解
+
+- 常用快捷键
+
+  
+
+# :flashlight:学习演练
+
+- Spring Boot 
+
+- ## Spring Cloud 
+
+  - [Spring Cloud 实战练习（1）服务注册与发现 Eureka](./Action/Spring Cloud 实战练习（1）服务注册与发现 Eureka.md)
+  - [Spring Cloud 实战练习（2）负载均衡 Ribbon](./Action/Spring Cloud 实战练习（2）负载均衡 Ribbon.md)
+  - [Spring Cloud 实战练习（3）声明式调用 Feign](./Action/Spring Cloud 实战练习（3）声明式调用 Feign.md)
+  - [Spring Cloud 实战练习（4）熔断监控 Hystrix](./Action/Spring Cloud 实战练习（4）熔断监控 Hystrix.md)
+  - [Spring Cloud 实战练习（5）路由网关 Zuul](./Action/Spring Cloud 实战练习（5）路由网关 Zuul.md)
+  - [Spring Cloud 实战练习（6）配置中心Config](./Action/Spring Cloud 实战练习（6）配置中心Config.md)
+  - [源码地址](https://github.com/HusyCoding/springcloud-chapters.git)
+
+  
+
+# :anchor:个人项目
+
+# :mag_right:资源收藏
+
+文章存在有参考、借鉴如下资料内容，所有推荐都是一些大神整理，值得学习膜拜！！
+
+**推荐书籍**
+
+- 深入理解Spring Cloud与微服务构建
+- [阿里巴巴Java开发手册（华山版）](https://github.com/alibaba/p3c/blob/master/%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%EF%BC%88%E5%8D%8E%E5%B1%B1%E7%89%88%EF%BC%89.pdf)
+- 高性能MySQL（第3版）
+- JAVA核心知识点整理
+
+
+
+**推荐网站**
+
+- [纯洁的微笑](http://www.ityouknow.com)
+- [Java 全栈知识体系](https://www.pdai.tech/)
+
+
+
+**推荐开源项目**
+
+- [CS-Notes](https://github.com/CyC2018/CS-Notes)
+- [advanced-java](https://github.com/doocs/advanced-java)
+- [JCSprout](https://github.com/crossoverJie/JCSprout)
+- [JavaGuide](https://github.com/Snailclimb/JavaGuide)
+
+
+
+# :memo:随笔
+
+# :bulb:关于
+
+
+
+
+
+
 
