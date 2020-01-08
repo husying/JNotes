@@ -47,20 +47,20 @@ CSDN 博客：https://blog.csdn.net/u013234928
 
 * ### Java-多线程篇
 
-  * [Java 并发](./java/Java并发.md)
+  * [Java 并发](./Java/Java并发.md)
 
 * ### Java-IO/NIO篇
 
-  * [Java IO](./java/JavaIO.md)
-  * [Java NIO](./java/JavaNIO.md)
+  * [Java IO](./Java/JavaIO.md)
+  * [Java NIO](./Java/JavaNIO.md)
 
 * ### Java-JDBC篇
 
-  * [Java JDBC](./java/JavaJDBC.md) 
+  * [Java JDBC](./Java/JavaJDBC.md) 
 
 * ### JDK-版本篇
 
-  * [JDK版本特性](./java/JDK版本特性)
+  * [JDK版本特性](./Java/JDK版本特性)
 
   
 
