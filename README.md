@@ -120,10 +120,11 @@ CSDN 博客：https://blog.csdn.net/u013234928
 # :pushpin:实战经验
 
 *   **开发规范**
-    *   [Java-规范（1）命名规约](./Experience/Java-规范（1）命名规约.md)
-
+    *   [规范（1）Java命名规约](./Experience/规范（1）Java命名规约.md)
+    *   [规范（2）MySQL表设计规约](./Experience/规范（2）MySQL表设计规约.md)
+    
 *   **性能优化**
-    *   [MySQL优化（1）模糊查询](./Experience/MySQL优化（1）模糊查询.md)
+    *   [性能优化（1）MySQL模糊查询](./Experience/性能优化（1）MySQL模糊查询.md)
 *   常用快捷键
 *   开发工具
 *   安装图解
