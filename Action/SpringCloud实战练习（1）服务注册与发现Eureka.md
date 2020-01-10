@@ -1,6 +1,4 @@
----
-typora-root-url: SpringCloud实战练习（1）服务注册与发现Eureka
----
+
 
 
 
@@ -86,9 +84,9 @@ typora-root-url: SpringCloud实战练习（1）服务注册与发现Eureka
 
 springcloud 已集成了Eureka 服务器，只需要引用spring-cloud-starter-netflix-eureka-server 依赖即可。在很多博文和文章中都引用的是spring-cloud-starter-eureka-server，这里需要说明一下，spring-cloud-starter-eureka-server是之前的版本，官方推荐使用的是前者。
 
-![img](570677293649.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570677293649.png)
 
-![img](570677396266.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570677396266.png)
 
 **pom文件配置**
 
@@ -161,9 +159,9 @@ public class EurekaServerApplication {
 
 **启动测试**
 
-启动工程后，在浏览器访问：[http://localhost:8001](http://localhost:8761) ，可以看到下面的页面，其中还没有发现任何服务
+启动工程后，在浏览器访问：http://localhost:8001，可以看到下面的页面，其中还没有发现任何服务
 
-![img](570678280491.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570678280491.png)
 
 
 
@@ -244,9 +242,9 @@ public class EurekaClientProducerApplication {
 com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EUREKA-CLIENT/localhost:eureka-client:8762 - registration status: 204
 ```
 
-这说明 Eureka client 客户端已经向Eureka Server 注册了，在浏览器访问 [http://localhost:8001](http://localhost:8761)，页面显示如下
+这说明 Eureka client 客户端已经向Eureka Server 注册了，在浏览器访问 http://localhost:8001，页面显示如下
 
-![img](570680105311.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570680105311.png)
 
 我们可以看到有一个服务已经注册了。
 
@@ -336,13 +334,13 @@ eureka:
 
 依次启动完成后，浏览器输入：http://localhost:8001/ 效果图如下：
 
-![img](570701599343.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570701599343.png)
 
 **注意：**
 
 只启动 server1 后，报异常，如下：
 
-![img](570701415543.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/570701415543.png)
 
 这正常现象，只要启动完3个服务后，就不会报错了。小伙伴们不要慌。
 
@@ -383,4 +381,4 @@ eureka:
 
 再次浏览器输入：http://localhost:8001/  ；页面显示如下：
 
-![img](clipboard-1578061881346.png)
+![](./SpringCloud实战练习（1）服务注册与发现Eureka/clipboard-1578061881346.png)

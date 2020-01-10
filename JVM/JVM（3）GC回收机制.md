@@ -1,6 +1,4 @@
----
-typora-root-url: JVM（3）GC回收机制
----
+
 
 以下图片引用他人，已忘记从哪拷贝，如图片作者需特殊说明，请联系...
 
@@ -8,7 +6,7 @@ typora-root-url: JVM（3）GC回收机制
 
 在 JVM 中 GC 的回收机制也是非常重要的一块，废话不多说，先上张图
 
-![JVM  GC ](clipboard.png)
+![JVM  GC ](./JVM（3）GC回收机制/clipboard.png)
 
 
 
@@ -85,7 +83,7 @@ typora-root-url: JVM（3）GC回收机制
 *   算法分为“标记”和“清除”两个阶段
 *   缺点：效率不高，**产生大量不连续的内存碎片**
 
-![标记-清除算法](clipboard-1578404417512.png)
+![标记-清除算法](./JVM（3）GC回收机制/clipboard-1578404417512.png)
 
 
 
@@ -101,7 +99,7 @@ typora-root-url: JVM（3）GC回收机制
 *   **需要分配担保**：survivor空间不足时，需要老年代进行分配担保，来保证所有对象有存活的情况
 *   **gc过程简单，运行高效** ,不需要考虑内存碎片等复杂情况
 
-![复制算法](clipboard-1578404442145.png)
+![复制算法](./JVM（3）GC回收机制/clipboard-1578404442145.png)
 
 
 
@@ -111,7 +109,7 @@ typora-root-url: JVM（3）GC回收机制
 
 理对象，而是将存活对象移向内存的一端。然后清除端边界外的对象
 
-![标记-整理算法](clipboard-1578404472763.png)
+![标记-整理算法](./JVM（3）GC回收机制/clipboard-1578404472763.png)
 
 
 
@@ -161,7 +159,7 @@ typora-root-url: JVM（3）GC回收机制
 
 # 垃圾收集器
 
-![垃圾收集器](clipboard-1578404707683.png)
+![垃圾收集器](./JVM（3）GC回收机制/clipboard-1578404707683.png)
 
 
 

@@ -1,6 +1,4 @@
----
-typora-root-url: SpringCloud实战练习（5）路由网关Zuul
----
+
 
 
 
@@ -50,7 +48,7 @@ Zuul 采取了动态读取、编译和运行这些过滤器。过滤器之间不
 *   一种常见的使用方式是对不同的渠道使用不同的 Zuul 来进行路由，例如移动端共用Zuul 关实例；Web 端用另一个 Zuul网关实例，其他的客户端用另外 Zuul 实例进行路由
 *   另一种常见的集群是通过Ngnix 和 Zuul 相互结合来做负载均衡。暴露在最外面的是Ngnix 主从双热备进行Keepalive, Ngnix 经过某种路由策略，将请求路由转发到 Zuul 集群上，Zuul 最终将请求分发到具体的服务上。架构图如图所示：
 
-![img](clipboard.png)
+![](./SpringCloud实战练习（5）路由网关Zuul/clipboard.png)
 
 
 

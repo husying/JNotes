@@ -1,6 +1,4 @@
----
-typora-root-url: Java-基础篇（8）异常
----
+
 
 
 
@@ -12,7 +10,7 @@ Throwable 是 Java 语言中所有错误或异常的超类。下一层分为 **E
 
 * **Exception（RuntimeException、CheckedException）**： Exception 又 有 两 个 分 支 ， 一 个 是 运 行 时 异 常 RuntimeException ， 一 个 是CheckedException。
 
-![img](untitled%20diagram.png)
+![](./Java-基础篇（8）异常/untitled%20diagram.png)
 
 
 

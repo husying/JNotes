@@ -1,10 +1,8 @@
----
-typora-root-url: JVM（1）内存模型
----
+
 
 # JVM内存分布
 
-![JVM 内存](/clipboard-1578317326416.png)
+![JVM 内存](./JVM（1）内存模型/clipboard-1578317326416.png)
 
 **JVM 内存区域主要分为：**
 
@@ -20,7 +18,7 @@ typora-root-url: JVM（1）内存模型
 
 
 
-![内存分布](/clipboard-1578317375718.png)
+![内存分布](./JVM（1）内存模型/clipboard-1578317375718.png)
 
 
 
@@ -42,7 +40,7 @@ typora-root-url: JVM（1）内存模型
 
 Java 堆从 GC 的角度还可以细分为: **新生代**(*Eden 区*、*From Survivor 区*和 *To Survivor 区*)和**老年代**。
 
-![img](/clipboard.png)
+![img](./JVM（1）内存模型/clipboard.png)
 
 
 

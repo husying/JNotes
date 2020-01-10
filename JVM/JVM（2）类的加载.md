@@ -1,6 +1,4 @@
----
-typora-root-url: JVM（2）类的加载
----
+
 
 
 
@@ -10,7 +8,7 @@ typora-root-url: JVM（2）类的加载
 
 在 jvm 中，Java类的加载过程分为5个部分：加载，验证，准备，解析，初始化，下面我们就分别来看一下这5个过程。
 
-![加载过程](clipboard.png)
+![加载过程](./JVM（2）类的加载/clipboard.png)
 
 
 
@@ -148,7 +146,7 @@ JVM 提供了 3 种类加载器：
 
     负责加载用户路径（classpath）上的类库。JVM 通过双亲委派模型进行类的加载，当然我们也可以通过继承 java.lang.ClassLoader实现自定义的类加载器。
 
-![双亲委派](/clipboard-1578402208674.png)
+![双亲委派](./JVM（2）类的加载/clipboard-1578402208674.png)
 
 
 

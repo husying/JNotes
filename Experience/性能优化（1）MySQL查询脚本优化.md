@@ -1,6 +1,4 @@
----
-typora-root-url: 性能优化（1）MySQL查询脚本优化
----
+
 
 
 
@@ -146,13 +144,13 @@ ENGINE=InnoDB;
 
 这里测试 `user` 表的 `idx_name_age_sex` 索引
 
-![](clipboard.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard.png)
 
-![](clipboard-1578661516953.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661516953.png)
 
-![](clipboard-1578661521717.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661521717.png)
 
-![](clipboard-1578661527077.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661527077.png)
 
 有上图可以看出，**最左前缀原则是指在联合索引中，第一个索引列，必须存在**，否则无法使用该联合索引
 
@@ -164,7 +162,7 @@ ENGINE=InnoDB;
 
 ### 模糊查询导致失效
 
-![](clipboard-1578661567723.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661567723.png)
 
 由上图可知在 where 子查询条件中，模糊查询 like 在使用 '%' 时，出现的位置不同，索引效果不同，很明显：模糊查询中，使用后缀查询会是索引失效，但可以使用前缀查询。
 
@@ -178,9 +176,9 @@ ENGINE=InnoDB;
 
 一般指，数字转换为字符串的情况
 
-![](clipboard-1578661602653.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661602653.png)
 
-![](clipboard-1578661607014.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661607014.png)
 
 有上图可以看出，在  `name = 111` 的条件中，虽然找到了  `idx_name_age_sex` 索引，但key 列为空，索引并没有被使用
 
@@ -188,9 +186,9 @@ ENGINE=InnoDB;
 
 ### OR 或 IN 导致失效
 
-![](clipboard-1578661626158.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661626158.png)
 
-![](clipboard-1578661634793.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661634793.png)
 
 通过上图我们可以非常诧异！！ 为什么？网络上不是说 IN 或 NOT IN 会导致索引失效吗？
 
@@ -212,17 +210,17 @@ ENGINE=InnoDB;
 
 **对应 OR 的情况：**
 
-![](clipboard-1578661662739.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661662739.png)
 
-![](clipboard-1578661669184.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661669184.png)
 
-![](clipboard-1578661674389.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661674389.png)
 
 由上图可以看出， **or 是使索引失效，指的是 or 两边不同列的情况。**
 
 对于这种失效情况，我们可以使用覆盖索引进行优化，如下：
 
-![](clipboard-1578661687904.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661687904.png)
 
 所查出的列全都属于 `idx_name_age_address` 索引的列。
 
@@ -236,11 +234,11 @@ ENGINE=InnoDB;
 
 在where子句中，索引列参与到函数计算时索引会失效
 
-![](clipboard-1578661709607.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661709607.png)
 
-![](clipboard-1578661714205.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661714205.png)
 
-![](clipboard-1578661719118.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661719118.png)
 
 由上图可见，当我们将索引列 进行函数运算时，索引将会失效；
 
@@ -264,9 +262,9 @@ where create_time <= '2019-01-01 00:00:00'  and create_time > '2019-01-01 23:59:
 
 ### NULL 值判断导致失效
 
-![](clipboard-1578661784240.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661784240.png)
 
-![](clipboard-1578661789470.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661789470.png)
 
 通过上图我们可以发现 IS NULL 或 IS NOT NULL 不会导致索引失效
 
@@ -278,13 +276,13 @@ where create_time <= '2019-01-01 00:00:00'  and create_time > '2019-01-01 23:59:
 
 如下，数据条数在2条内：
 
-![](clipboard-1578661804578.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661804578.png)
 
-![](clipboard-1578661808662.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661808662.png)
 
-![](clipboard-1578661815292.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661815292.png)
 
-![](clipboard-1578661822200.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661822200.png)
 
  MySQL 5.7 同样存在此问题。但 5.8 不会出现这情况。不过这是为什么呢？下面有篇文章解释的非常不错
 
@@ -298,13 +296,13 @@ https://mp.weixin.qq.com/s/CEJFsDBizdl0SvugGX7UmQ
 
 ### 不等号、大于小于号导致失效
 
-![](clipboard-1578661866149.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661866149.png)
 
 在MySQL 5.8 版本 ，不等号、大于小于号不会导致索引失效，但是在5.6，5.7 版本中 “!=”  ，也会因为数据量不同，效果不同，如下：
 
-![](clipboard-1578661878814.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661878814.png)
 
-![](clipboard-1578661887905.png)
+![](./性能优化（1）MySQL查询脚本优化/clipboard-1578661887905.png)
 
 
 

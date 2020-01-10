@@ -1,6 +1,4 @@
----
-typora-root-url: Java-集合篇（1）集合
----
+
 
 
 
@@ -13,7 +11,7 @@ typora-root-url: Java-集合篇（1）集合
 2.  Map：是映射表的基础接口
 3.  Iterator：迭代器，可以通过迭代器遍历集合中的数据
 
-![集合类关系](/clipboard-1578149517475.png)
+![集合类关系](./Java-集合篇（1）集合/clipboard-1578149517475.png)
 
 
 
@@ -25,13 +23,13 @@ typora-root-url: Java-集合篇（1）集合
 
 *   **Queue**：队列，具备先进先出或者先进后出的特点；常见**LinkedList**：可以用它来实现双向队列。**PriorityQueue**：基于堆结构实现，可以用它来实现优先队列。
 
-![Collection集合特点](/clipboard-1578149500539.png)
+![Collection集合特点](./Java-集合篇（1）集合/clipboard-1578149500539.png)
 
 ## Map 接口
 
 Map 是通过键值对存储，其键名唯一，键值可重复
 
-![Map 集合特点](/clipboard-1578149461477.png)
+![Map 集合特点](./Java-集合篇（1）集合/clipboard-1578149461477.png)
 
 ## Iterator
 

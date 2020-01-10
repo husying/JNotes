@@ -1,6 +1,4 @@
----
-typora-root-url: SpringCloud实战练习（6）配置中心Config
----
+
 
 # 案例演练
 
@@ -317,7 +315,7 @@ Spring Cloud Bus 是用轻量的消息代理将分布式的节点连接起来，
 
 Spring Cloud Bus 可选的消息代理组建包括 RabbitMQ、 AMQP 、Kafka 等
 
-![img](clipboard.png)
+![](./SpringCloud实战练习（6）配置中心Config/clipboard.png)
 
 这里了从Git 上读取，因此eureka-server-config项目改造如下：
 

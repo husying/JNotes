@@ -1,6 +1,4 @@
----
-typora-root-url: Java-基础篇（6）逻辑运算
----
+
 
 在本篇章中会从参数传递、++ 和 += 运算、try/catch、循环、switch 等方面讲述来讲述一下，在 Java 中的一些逻辑运算规则
 
@@ -131,7 +129,7 @@ public static int print2() {
 }
 ```
 
-查看汇编指令如![执行偏移地址为6时的指令执行情况](image-20200101202719891.png)
+查看汇编指令如![执行偏移地址为6时的指令执行情况](./Java-基础篇（6）逻辑运算/image-20200101202719891.png)
 
 ```java
 public static int print1();

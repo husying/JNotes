@@ -1,6 +1,4 @@
----
-typora-root-url: SpringCloud实战练习（4）熔断监控Hystrix
----
+
 
 # 案例演练
 
@@ -129,11 +127,11 @@ Hystrix Dashboard 需要Actuator 的起依赖、 Hystrix Dashboard 的起步依�
 
 修改 eureka-client-hystrix 工程，重新启动，在浏览器上访问http://localhost:8203/hystrix ，浏览器显示的界面如下：
 
-![img](clipboard-1578063450332.png)
+![](./SpringCloud实战练习（4）熔断监控Hystrix/clipboard-1578063450332.png)
 
 在界面上依次填写http://localhost:8203/actuator/hystrix.stream  2000 aa（这个可 以随意填写）单击“ monitor ”，进入页面如下：
 
-![img](clipboard-1578063450333.png)
+![](./SpringCloud实战练习（4）熔断监控Hystrix/clipboard-1578063450333.png)
 
 **问题：**
 
@@ -161,7 +159,7 @@ public ServletRegistrationBean getServlet() {
 
 重新刷新监控面板页面，如下
 
-![img](clipboard.png)
+![](./SpringCloud实战练习（4）熔断监控Hystrix/clipboard.png)
 
 上面是在Feign 中使用 Hystrix Dashboard，我们也可以在RestTemplate 中使用，修改方式同理。我们对eureka-client-ribbon进行修改，如下：新增Actuator 的起依赖、 Hystrix Dashboard 的起步依赖和 Hystrix 起步依赖。启动类添加 @EnableHystrix、@EnableHystrixDashboard注解
 
@@ -226,6 +224,6 @@ public class EurekaClientTurbineApplication {
 
 **测试：**
 
-在浏览器上访问http://localhost:8025/hystrix，然后输入地址 [http://localhost:8025/turbine.stream ](http://localhost:8025/turbine.stream)，点击进入，页面如下：
+在浏览器上访问http://localhost:8025/hystrix，然后输入地址 http://localhost:8025/turbine.stream ，点击进入，页面如下：
 
-![img](/clipboard-1578063830295.png)
+![](./SpringCloud实战练习（4）熔断监控Hystrix/clipboard-1578063830295.png)

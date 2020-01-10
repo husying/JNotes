@@ -1,6 +1,4 @@
----
-typora-root-url: Java-集合篇（3）集合之Set
----
+
 
 
 
@@ -16,7 +14,7 @@ typora-root-url: Java-集合篇（3）集合之Set
 
 HashSet 通过 hashCode 值来确定元素在内存中的位置。一个 hashCode 位置上可以存放多个元素。底层其实是数组+单向链表实现，如图：
 
-![hashcode实现](clipboard-1578149491166.png)
+![hashcode实现](./Java-集合篇（3）集合之Set/clipboard-1578149491166.png)
 
 
 
