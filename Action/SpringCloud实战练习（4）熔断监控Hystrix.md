@@ -77,17 +77,17 @@ public class EurekaClientHystrixFeignApplication {
 
 **启动测试**
 
-依次启动eureka-server、eureka-client-producer、eureka-client-hystrix-feign，在浏览器上访问http://localhost:8203/hi?name=aaa，浏览器显示如下：
+依次启动eureka-server、eureka-client-producer、eureka-client-hystrix-feign，在浏览器上访问http://localhost:8203/hi?name=aaa ，浏览器显示如下：
 
 >   Hello aaa,There port is 8101
 
-关闭工程eureka-client-producer，即它处于不可用状态，此时eureka-client-hystrix无法调用eureka-client-producer，再次在浏览器上访问http://localhost:8203/hi?name=aaa，浏览器显示如下：
+关闭工程eureka-client-producer，即它处于不可用状态，此时eureka-client-hystrix无法调用eureka-client-producer，再次在浏览器上访问http://localhost:8203/hi?name=aaa ，浏览器显示如下：
 
 >   hi,aaa,sorry,error !!!
 
 
 
-## **RestTemplate** 实战
+## RestTemplate实战
 
 复制工程 eureka-client-ribbon 为 eureka-client-hystrix-ribbon  。 引入依赖 spring-cloud-starter-netflix-hystrix，如下
 
