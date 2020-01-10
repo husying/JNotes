@@ -8,6 +8,10 @@
 
 CSDN 博客：https://blog.csdn.net/u013234928
 
+GitHub仓库：https://github.com/HusyCoding/JNotes.git
+
+Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
+
 欢迎订阅收藏！！！
 
 
