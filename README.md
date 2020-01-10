@@ -77,6 +77,12 @@ CSDN 博客：https://blog.csdn.net/u013234928
 
 ## :floppy_disk:数据库
 
+*   [MySQL-进阶之Explain详解](./DB/MySQL-进阶之Explain详解.md)
+
+
+
+
+
 ## :globe_with_meridians:Web
 
 ## :dvd:操作系统
@@ -120,11 +126,12 @@ CSDN 博客：https://blog.csdn.net/u013234928
 # :pushpin:实战经验
 
 *   **开发规范**
-    *   [规范（1）Java命名规约](./Experience/规范（1）Java命名规约.md)
-    *   [规范（2）MySQL表设计规约](./Experience/规范（2）MySQL表设计规约.md)
+    *   [规范之Java命名规约](./Experience/规范之Java命名规约.md)
+    *   [规范之MySQL表设计规约](./Experience/规范之MySQL表设计规约.md)
     
 *   **性能优化**
-    *   [性能优化（1）MySQL模糊查询](./Experience/性能优化（1）MySQL模糊查询.md)
+    *   [性能优化（1）MySQL查询脚本优化](./DB/性能优化（1）MySQL查询脚本优化.md)
+    *   [性能优化（2）MySQL模糊查询](./Experience/性能优化（2）MySQL模糊查询.md)
 *   常用快捷键
 *   开发工具
 *   安装图解

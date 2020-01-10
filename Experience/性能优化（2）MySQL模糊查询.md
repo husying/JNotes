@@ -1,5 +1,5 @@
 ---
-typora-root-url: 性能优化（1）MySQL模糊查询
+typora-root-url: 性能优化（2）MySQL模糊查询
 ---
 
 关于MySQL模糊查询有优化问题，网络上如下几种方案：
