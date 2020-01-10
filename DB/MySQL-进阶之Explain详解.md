@@ -1,9 +1,3 @@
----
-typora-root-url: MySQL-进阶之Explain详解
----
-
-
-
 在 MySQL 性能优化中，慢查询优化是我们经常需要解决的问题。通常我们可以使用 Explain 命令来了解 SQL 语句的执行计划，仅对select语句有效
 
 
@@ -12,7 +6,7 @@ typora-root-url: MySQL-进阶之Explain详解
 
 代码演示如下
 
-![](clipboard.png)
+![](./MySQL-进阶之Explain详解/clipboard.png)
 
 
 
@@ -27,12 +21,19 @@ explain 查询会输出 12 列，如：id、select_type、table、partitions、t
 表示查询类型，主要用于区别普通查询，联合查询，子查询等的复杂查询
 
 >   **SIMPLE**：简单SELECT(不使用UNION或子查询)
+>   
 >   **PRIMARY**：最外面的SELECT
+>   
 >   **UNION**：UNION中的第二个或后面的SELECT语句
+>   
 >   **DEPENDENT UNION**：UNION中的第二个或后面的SELECT语句,取决于外面的查询
+>   
 >   **UNION RESULT**：UNION 的结果
+>   
 >   **SUBQUERY**：子查询中的第一个SELECT
+>   
 >   **DEPENDENT SUBQUERY**：子查询中的第一个SELECT,取决于外面的查询
+>   
 >   **DERIVED**：导出表的SELECT(FROM子句的子查询)
 
 
@@ -48,11 +49,17 @@ explain 查询会输出 12 列，如：id、select_type、table、partitions、t
 **注意：一般保证查询至少达到range级别，最好能达到ref**
 
 >   **ALL**：Full Table Scan， MySQL将遍历全表以找到匹配的行
+>   
 >   **index**：Full Index Scan，index与ALL区别为index类型只遍历索引树
+>   
 >   **range**：只检索给定范围的行，如： between/in、> 、< 、in 等方式
+>   
 >   **ref**：表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
+>   
 >   **eq_ref**： 类似ref，区别就在使用的索引是唯一索引，对于每个索引键值，表中只有一条记录匹配，简单来说，就是多表连接中使用primary key或者 unique key作为关联条件
+>   
 >   **const/system**： 当MySQL对查询最多有一个匹配行，在这行的列值可被优化器剩余部分认为是常数。如将主键置于where列表中，MySQL就能将该查询转换为一个常量，system是const类型的特例，当查询的表只有一行的情况下，使用system
+>   
 >   **NULL**：MySQL在优化过程中分解语句，执行时甚至不用访问表或索引，例如从一个索引列里选取最小值可以通过单独索引查找完成。
 
 
@@ -69,11 +76,11 @@ explain 查询会输出 12 列，如：id、select_type、table、partitions、t
 
 
 
-**key_len：**表示索引中使用的字节数
+**key_len**：表示索引中使用的字节数
 
-**ref：**列与索引的比较，表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
+**ref**：列与索引的比较，表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
 
-**rows：**估算出结果集行数，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数
+**rows**：估算出结果集行数，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数
 
 
 
