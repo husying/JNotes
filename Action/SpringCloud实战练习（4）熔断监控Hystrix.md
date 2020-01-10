@@ -224,6 +224,8 @@ public class EurekaClientTurbineApplication {
 
 **测试：**
 
-在浏览器上访问http://localhost:8025/hystrix，然后输入地址 http://localhost:8025/turbine.stream ，点击进入，页面如下：
+在浏览器上访问 http://localhost:8025/hystrix ，
+
+然后输入地址 http://localhost:8025/turbine.stream ，点击进入，页面如下：
 
 ![](./SpringCloud实战练习（4）熔断监控Hystrix/clipboard-1578063830295.png)

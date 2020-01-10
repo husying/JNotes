@@ -114,7 +114,7 @@ server:
 
 Spring Cloud Config 有它的一套访问规则，我们通过这套规则在浏览器上直接访问就可以。
 
-我们这里通过浏览器输入http://localhost:8004/eureka-client-config-dev.yml，页面显示如下：
+我们这里通过浏览器输入 http://localhost:8004/eureka-client-config-dev.yml ，页面显示如下：
 
 >   server:  
 >
@@ -183,7 +183,7 @@ public class EurekaClientConfigApplication {
 
 **启动测试**
 
-启动 工程eureka-server-config 后，在启动eureka-client-config。在浏览器 访问[http://localhost:8207/hi](http://localhost:8005/hi)，页面显示如下：
+启动 工程eureka-server-config 后，在启动eureka-client-config。在浏览器 访问  http://localhost:8207/hi ，页面显示如下：
 
 >   hello world 1
 
@@ -297,7 +297,7 @@ eureka:
       defaultZone: http://localhost:8001/eureka
 ```
 
-依次启动 eureka-server、 eureka-server-config、 eureka-client-config 工程，在浏览器 访问[http://localhost:8207/hi](http://localhost:8005/hi)，页面显示如下：
+依次启动 eureka-server、 eureka-server-config、 eureka-client-config 工程，在浏览器 访问 http://localhost:8207/hi ，页面显示如下：
 
 >   hello world 1
 
@@ -346,7 +346,7 @@ eureka:
       defaultZone: http://localhost:8001/eureka
 ```
 
-在GitHub仓库https://github.com/HusyCoding/springcloud-chapters中的eureka-server-config/shareconfig 位置，我们的eureka-client-config-dev.yml 如下：
+在GitHub仓库 https://github.com/HusyCoding/springcloud-chapters 中的eureka-server-config/shareconfig 位置，我们的eureka-client-config-dev.yml 如下：
 
 ```yml
 server:
@@ -399,7 +399,7 @@ public class EurekaClientConfigApplication
 
 **测试**
 
-1、依次启动 eureka-server、 eureka-server-config、 eureka-client-config 工程，在浏览器 访问[http://localhost:8207/hi](http://localhost:8005/hi)，页面显示如下：
+1、依次启动 eureka-server、 eureka-server-config、 eureka-client-config 工程，在浏览器 访问 http://localhost:8207/hi ，页面显示如下：
 
 >   hello world 1
 
@@ -409,7 +409,7 @@ public class EurekaClientConfigApplication
 >
 >   curl -v -X POST "http://localhost:8207/actuator/bus-refresh"
 
-在次浏览器访问[http://localhost:8207/hi](http://localhost:8005/hi)，页面显示如下：
+在次浏览器访问 http://localhost:8207/hi ，页面显示如下：
 
 >   hello world 2
 
