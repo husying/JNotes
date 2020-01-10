@@ -159,7 +159,7 @@ public class EurekaServerApplication {
 
 **启动测试**
 
-启动工程后，在浏览器访问：http://localhost:8001，可以看到下面的页面，其中还没有发现任何服务
+启动工程后，在浏览器访问：http://localhost:8001 ，可以看到下面的页面，其中还没有发现任何服务
 
 ![](./SpringCloud实战练习（1）服务注册与发现Eureka/570678280491.png)
 
@@ -242,7 +242,7 @@ public class EurekaClientProducerApplication {
 com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EUREKA-CLIENT/localhost:eureka-client:8762 - registration status: 204
 ```
 
-这说明 Eureka client 客户端已经向Eureka Server 注册了，在浏览器访问 http://localhost:8001，页面显示如下
+这说明 Eureka client 客户端已经向Eureka Server 注册了，在浏览器访问  http://localhost:8001 ，页面显示如下
 
 ![](./SpringCloud实战练习（1）服务注册与发现Eureka/570680105311.png)
 
@@ -332,7 +332,7 @@ eureka:
 >
 >   java -jar eureka-server-1.0-SNAPSHOT.jar --spring.profiles.active=peer3
 
-依次启动完成后，浏览器输入：http://localhost:8001/ 效果图如下：
+依次启动完成后，浏览器输入：http://localhost:8001/  效果图如下：
 
 ![](./SpringCloud实战练习（1）服务注册与发现Eureka/570701599343.png)
 

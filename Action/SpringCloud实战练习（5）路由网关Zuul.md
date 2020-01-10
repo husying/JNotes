@@ -123,7 +123,7 @@ public class EurekaClientZuulApplication {
 >
 >   hi aaa,i am form port:8102
 
-浏览器多次访问 http://localhost:8206/feign/hi?name=aaa，http://localhost:8206/ribbon/hi?name=aaa，会出现同一结果
+浏览器多次访问 http://localhost:8206/feign/hi?name=aaa ，http://localhost:8206/ribbon/hi?name=aaa ，会出现同一结果
 
 
 
@@ -135,7 +135,7 @@ public class EurekaClientZuulApplication {
 zuul.prefix=/v1
 ```
 
-重启eureka-client-zuul 服务，在浏览上访问 http://localhost:8206/v1/client/hi?name=aaa，就会出现如下显示
+重启eureka-client-zuul 服务，在浏览上访问 http://localhost:8206/v1/client/hi?name=aaa ，就会出现如下显示
 
 >   hi aaa,i am form port:8101
 >
@@ -217,7 +217,7 @@ public class MyFallbackProvider implements FallbackProvider {
 }
 ```
 
-重启eureka-client-zuul 服务，并且关闭 eureka-client-producer 的两个实例，在浏览上访问 [http://localhost:8206/v1/client/hi?name=aaa](http://localhost:8206/client/hi?name=aaa)，就会出现如下显示
+重启eureka-client-zuul 服务，并且关闭 eureka-client-producer 的两个实例，在浏览上访问 http://localhost:8206/v1/client/hi?name=aaa ，就会出现如下显示
 
 >   eureka-client-zuul: error!!!! i'm the fallback.
 

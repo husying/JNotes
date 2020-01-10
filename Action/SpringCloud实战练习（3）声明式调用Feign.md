@@ -126,7 +126,7 @@ public class HiController {
 
 这里我们启动eureka-server 工程，端口号为8001，在启动两个 eureka-cluster-client-producer 工程，端口分表8101和8102。在启动eureka-client-feign 工程，端口号为8202 
 
-在浏览器上多次访问http://localhost:8202/hi?name=aaa，浏览器会轮流显示以下内容：
+在浏览器上多次访问http://localhost:8202/hi?name=aaa ，浏览器会轮流显示以下内容：
 
 >   hi aaa,i am form port:8101 
 >
