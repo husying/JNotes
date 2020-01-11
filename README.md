@@ -113,7 +113,30 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 ## :scissors:设计模式
 
-
+*   [设计模式之简介](./Design/设计模式之简介.md)
+*   [设计模式（1）工厂模式](./Design/设计模式（1）工厂模式.md)
+*   设计模式（2）抽象工厂模式
+*   设计模式（3）单例模式
+*   设计模式（4）建造者模式
+*   设计模式（5）原型模式
+*   设计模式（6）适配器模式
+*   设计模式（7）装饰器模式
+*   设计模式（8）代理模式
+*   设计模式（9）外观模式
+*   设计模式（10）桥接模式
+*   设计模式（11）组合模式
+*   设计模式（12）享元模式
+*   设计模式（13）策略模式
+*   设计模式（14）模板模式
+*   设计模式（15）观察者模式
+*   设计模式（16）迭代器模式
+*   设计模式（17）责任链模式
+*   设计模式（18）命令模式
+*   设计模式（19）备忘录模式
+*   设计模式（20）状态模式
+*   设计模式（21）访问者模式
+*   设计模式（22）中介者模式
+*   设计模式（23）解释器模式
 
 ## :clapper:分布式微服务
 
@@ -150,7 +173,7 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 # :flashlight:学习演练
 
-- Spring Boot 
+- ## Spring Boot 
 
 - ## Spring Cloud 
 
@@ -165,6 +188,8 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
   
 
 # :anchor:个人项目
+
+
 
 # :mag_right:资源收藏
 
@@ -188,6 +213,7 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 - [纯洁的微笑](http://www.ityouknow.com)
 - [Java 全栈知识体系](https://www.pdai.tech/)
+- [菜鸟教程](https://www.runoob.com/)
 
 
 
@@ -201,6 +227,8 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 
 # :memo:随笔
+
+
 
 # :bulb:关于
 
