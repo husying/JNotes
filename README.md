@@ -89,6 +89,9 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 ## :globe_with_meridians:Web
 
+* [Spring（1）介绍](./Web/Spring（1）介绍.md)
+* [Spring（2）IOC和DI](./Web/Spring（2）IOC和DI.md)
+
 
 
 ## :dvd:操作系统
@@ -146,6 +149,10 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 ## :pencil:面试题集
 
+
+
+
+
 ## :microphone:HR和Offer 
 
 *   [面试谈话技巧](./Notes/面试谈话技巧.md)
@@ -175,6 +182,14 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 - ## Spring Boot 
 
+    - [SpringBoot实战（1）springboot-chapters介绍](./Action/SpringBoot实战（1）springboot-chapters介绍.md)
+    - [SpringBoot实战（2）helloword](./Action/SpringBoot实战（2）helloword.md)
+    - [SpringBoot实战（3）读取配置文件](./Action/SpringBoot实战（3）读取配置文件.md)
+
+    
+
+    
+
 - ## Spring Cloud 
 
   * [SpringCloud实战练习（1）服务注册与发现Eureka](./Action/SpringCloud实战练习（1）服务注册与发现Eureka.md)
@@ -188,6 +203,10 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
   
 
 # :anchor:个人项目
+
+* [springboot-chapters](https://github.com/HusyCoding/springboot-chapters.git)
+* [springcloud-chapters](https://github.com/HusyCoding/springcloud-chapters.git)
+* [java-design-pattern](https://github.com/HusyCoding/java-design-pattern.git)
 
 
 
