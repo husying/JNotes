@@ -95,7 +95,7 @@ future1.get(3, TimeUnit.SECONDS)
 * **阻塞状态（BLOCKED）**：阻塞状态是指线程因为某种原因放弃了 cpu 使用权，也即让出了 cpu timeslice，暂时停止运行。直到线程进入可运行(runnable)状态，才有机会再次获得 cpu timeslice 转到运行(running)状态。阻塞的情况分三种
 * **线程死亡（DEAD）**：线程会以三种方式结束，结束后就是死亡状态。
 
-![](多线程（2）Thread/untitled diagram.png)
+![](./多线程（2）Thread/untitled diagram.png)
 
 
 
@@ -219,7 +219,7 @@ future1.get(3, TimeUnit.SECONDS)
 2. **异常结束**：2. 线程抛出一个未捕获的 Exception 或 Error。
 3. **调用 stop**：3. 直接调用该线程的 stop()方法来结束该线程—该方法通常容易导致死锁，不推荐使用。
 
-![](多线程（2）Thread/clipboard.png)
+![](./多线程（2）Thread/clipboard.png)
 
 
 

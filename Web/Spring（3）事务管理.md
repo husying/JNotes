@@ -34,7 +34,7 @@ Spring事务的其实就是数据库对事务的支持，使用JDBC的事务管�
 
 Spring事务管理的核心接口是PlatformTransactionManager ；事务管理器接口通过getTransaction方法根据指定的传播行为返回当前活动的事务或创建一个新的事务，这个方法里面的参数是TransactionDefinition类，这个类就定义了一些基本的事务属性。 
 
-![](Spring（3）事务管理/1120165-20171003112557490-1092711802.png)
+![](./Spring（3）事务管理/1120165-20171003112557490-1092711802.png)
 
 在TransactionDefinition接口中定义了它自己的传播行为和隔离级别 ，源码如下：
 

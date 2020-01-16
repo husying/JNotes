@@ -52,13 +52,9 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 * ### Java-多线程篇
 
   * [多线程（1）基础](./Java/多线程（1）基础.md)
-
   * [多线程（2）Thread](./Java/多线程（2）Thread.md)
-
   * [多线程（3）线程池](./Java/多线程（3）线程池.md)
-
   * [多线程（4）线程同步](./Java/多线程（4）线程同步.md)
-
   * [多线程（5）锁分类](./Java/多线程（5）锁分类.md)
 
       
