@@ -4,7 +4,7 @@
 
 
 
-个人博客：www.husycode.cn
+个人博客：http://www.husycode.cn
 
 CSDN 博客：https://blog.csdn.net/u013234928
 
