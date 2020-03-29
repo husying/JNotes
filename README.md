@@ -93,7 +93,7 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 *   [MySQL数据库-基础篇（4）常用函数](./DB/MySQL数据库-基础篇（4）常用函数.md)
 *   [MySQL数据库-基础篇（5）索引](./DB/MySQL数据库-基础篇（5）索引.md)
 *   [MySQL数据库-开发篇（1）设计规范](./DB/MySQL数据库-开发篇（1）设计规范.md)
-*   [MySQL数据库-开发篇（2）SQL 语法](./DB/MySQL数据库-开发篇（2）SQL 语法.md)
+*   [MySQL数据库-开发篇（2）SQL语法](./DB/MySQL数据库-开发篇（2）SQL语法.md)
 *   [MySQL数据库-优化篇（1）Explain分析](./DB/MySQL数据库-优化篇（1）Explain分析.md)
 *   [MySQL数据库-优化篇（2）优化](./DB/MySQL数据库-优化篇（2）优化.md)
 
