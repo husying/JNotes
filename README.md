@@ -87,7 +87,15 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 ## :floppy_disk:数据库
 
-*   [MySQL-进阶之Explain详解](./DB/MySQL-进阶之Explain详解.md)
+*   [MySQL数据库-基础篇（1）存储引擎](./DB/MySQL数据库-基础篇（1）存储引擎.md)
+*   [MySQL数据库-基础篇（2）事务与锁](./DB/MySQL数据库-基础篇（2）事务与锁.md)
+*   [MySQL数据库-基础篇（3）数据类型](./DB/MySQL数据库-基础篇（3）数据类型.md)
+*   [MySQL数据库-基础篇（4）常用函数](./DB/MySQL数据库-基础篇（4）常用函数.md)
+*   [MySQL数据库-基础篇（5）索引](./DB/MySQL数据库-基础篇（5）索引.md)
+*   [MySQL数据库-开发篇（1）设计规范](./DB/MySQL数据库-开发篇（1）设计规范.md)
+*   [MySQL数据库-开发篇（2）SQL 语法](./DB/MySQL数据库-开发篇（2）SQL 语法.md)
+*   [MySQL数据库-优化篇（1）Explain分析](./DB/MySQL数据库-优化篇（1）Explain分析.md)
+*   [MySQL数据库-优化篇（2）优化](./DB/MySQL数据库-优化篇（2）优化.md)
 
 
 
@@ -129,10 +137,10 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 *   [设计模式之简介](./Design/设计模式之简介.md)
 *   [设计模式（1）工厂模式](./Design/设计模式（1）工厂模式.md)
-*   设计模式（2）抽象工厂模式
-*   设计模式（3）单例模式
-*   设计模式（4）建造者模式
-*   设计模式（5）原型模式
+*   [设计模式（2）抽象工厂模式](./Design/设计模式（2）抽象工厂模式.md)
+*   [设计模式（3）单例模式](./Design/设计模式（3）单例模式.md)
+*   [设计模式（4）建造者模式](./Design/设计模式（4）建造者模式.md)
+*   [设计模式（5）原型模式](./Design/设计模式（5）原型模式.md)
 *   设计模式（6）适配器模式
 *   设计模式（7）装饰器模式
 *   设计模式（8）代理模式
@@ -176,11 +184,12 @@ Gitee仓库：https://gitee.com/hsy-nfox/JNotes.git
 
 *   **开发规范**
     *   [规范之Java命名规约](./Experience/规范之Java命名规约.md)
-    *   [规范之MySQL表设计规约](./Experience/规范之MySQL表设计规约.md)
-    
+    *   [规范之MySQL设计规约](./DB/MySQL数据库-开发篇（1）设计规范.md)
 *   **性能优化**
-    *   [性能优化（1）MySQL查询脚本优化](./DB/性能优化（1）MySQL查询脚本优化.md)
-    *   [性能优化（2）MySQL模糊查询](./Experience/性能优化（2）MySQL模糊查询.md)
+    *   [性能优化（1）MySQL查询脚本优化](./DB/MySQL数据库-优化篇（2）SQL优化.md)
+    *   [性能优化（2）MySQL模糊查询优化](./Experience/性能优化（2）MySQL模糊查询优化.md)
+*   **常见问题**
+    *   [Mybatis中条件判断带数字的字符串](./Experience/Mybatis中条件判断带数字的字符串.md)
 *   常用快捷键
 *   开发工具
 *   安装图解
